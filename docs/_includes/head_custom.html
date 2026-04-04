@@ -2,13 +2,14 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // ```mermaid コードブロックを Mermaid が処理できる div.mermaid に変換
-    document.querySelectorAll("code.language-mermaid").forEach(function (el) {
-      var pre = el.parentElement;
+    // kramdown + rouge は ```mermaid を div.language-mermaid > div.highlight > pre > code に変換する
+    // .language-mermaid を持つ要素を div.mermaid に差し替えて Mermaid に処理させる
+    document.querySelectorAll(".language-mermaid").forEach(function (el) {
+      var code = el.querySelector("code");
       var div = document.createElement("div");
       div.className = "mermaid";
-      div.textContent = el.textContent;
-      pre.parentNode.replaceChild(div, pre);
+      div.textContent = code ? code.textContent : el.textContent;
+      el.parentNode.replaceChild(div, el);
     });
     mermaid.initialize({ startOnLoad: true, theme: "default" });
   });
