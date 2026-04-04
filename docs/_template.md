@@ -43,8 +43,8 @@ int number = 42;
 
 **`Debug.Log`** — コンソールにメッセージを出力します。<!-- [公式ドキュメント]() -->
 
+**書式：Debug.Log メソッド**
 ```csharp
-// シグネチャ
 Debug.Log(object message);
 ```
 
