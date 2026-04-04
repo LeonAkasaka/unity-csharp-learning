@@ -2,7 +2,7 @@
 
 Unity と C# の基礎を学ぶための日本語教材サイトです。
 
-🌐 **サイト**: https://＜GitHubユーザー名＞.github.io/unity-csharp-learning/
+🌐 **サイト**: https://LeonAkasaka.github.io/unity-csharp-learning/
 
 ## 対象読者
 
