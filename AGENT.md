@@ -36,10 +36,13 @@
 - `baseurl: "/unity-csharp-learning"` が設定されているため、内部リンクは以下の形式を使う:
   - Markdown リンク: `[テキスト](/unity-csharp-learning/パス/)`
 
-### ファイル命名規則
+### ファイル・ページ命名規則
 
-- **コンテンツページ**: `NN-kebab-case.md`（例: `01-variables.md`, `02-conditionals.md`）
-- **サンプルコード**: コンテンツページと対応する名前にする（例: `Variables.cs`, `ConditionalExample.cs`）
+- **ページフォルダー**: `kebab-case/`（番号プレフィックスなし。例: `variables/`, `conditionals/`）
+- **ページ本体**: フォルダー内の `index.md`
+- **ページ内アセット**: 同じフォルダー内に配置（例: `variables/type-chart.png`）
+- **ページの順序**: 番号はフォルダー名に付けず、親セクションの `index.md` のトピック一覧で管理する
+- **サンプルコード**: `samples/` 以下に対応する名前で配置（例: `samples/csharp/Variables.cs`）
 
 ---
 
