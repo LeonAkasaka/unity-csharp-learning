@@ -53,7 +53,6 @@
 - **ページ本体**: フォルダー内の `index.md`
 - **ページ内アセット**: 同じフォルダー内に配置（例: `variables/type-chart.png`）
 - **ページの順序**: 番号はフォルダー名に付けず、親セクションの `index.md` のトピック一覧で管理する
-- **サンプルコード**: `samples/` 以下に対応する名前で配置（例: `samples/csharp/Variables.cs`）
 
 ---
 
@@ -64,7 +63,6 @@
 1. `docs/_template.md` をコピーしてファイルを作成する。
 2. frontmatter の `title`, `permalink` を設定する。
 3. 対応するセクションの `index.md` のトピック一覧に追加する。
-4. サンプルコードがある場合は `samples/` 以下に配置し、ドキュメントから参照する。
 
 ### frontmatter 必須項目
 
