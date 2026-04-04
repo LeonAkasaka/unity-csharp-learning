@@ -130,7 +130,7 @@ private void Start()
 2. `Start` メソッドと `Update` メソッドの実行タイミングの違いは何ですか？
 3. ゲームオブジェクトの初期位置を設定したい場合、`Start` と `Update` のどちらに書きますか？
 
-<details>
+<details markdown="1">
 <summary>解答を見る</summary>
 
 1. スクリプトはゲームオブジェクトに **コンポーネントとしてアタッチ** しなければ実行されないため。

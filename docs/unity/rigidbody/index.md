@@ -99,7 +99,7 @@ Rigidbody を追加した後でも、Inspector ビューで **Is Kinematic** を
 2. `<Rigidbody>` の山括弧 `<>` は何の役割がありますか？
 3. ステージ（地面）に Rigidbody を追加すると何が起こりますか？
 
-<details>
+<details markdown="1">
 <summary>解答を見る</summary>
 
 1. ゲームオブジェクトに Rigidbody コンポーネントが追加され、重力・衝突などの物理演算が有効になる。

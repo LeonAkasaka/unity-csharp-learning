@@ -138,7 +138,7 @@ public class Domino : MonoBehaviour
    obj.name = "Ball";
    ```
 
-<details>
+<details markdown="1">
 <summary>解答を見る</summary>
 
 1. できない。変数に受け取らないと、生成後にそのオブジェクトを参照する方法がなくなる。

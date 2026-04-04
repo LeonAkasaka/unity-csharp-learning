@@ -109,7 +109,7 @@ int x = 10;
 
 3. （応用）〇〇を使って△△を実現するにはどう書きますか？
 
-<details>
+<details markdown="1">
 <summary>解答を見る</summary>
 
 1. 〇〇の答え
