@@ -1,0 +1,38 @@
+title: Unity & C# 学習教材
+description: Unity と C# の基礎を学ぶための日本語教材サイトです。
+baseurl: "/unity-csharp-learning"
+url: "https://LeonAkasaka.github.io"
+
+theme: minima
+
+lang: ja
+
+# Minima テーマ設定
+minima:
+  skin: classic
+
+# ナビゲーション
+header_pages:
+  - index.md
+
+# Markdown 設定
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+
+# プラグイン
+plugins: []
+
+# 除外ファイル
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
