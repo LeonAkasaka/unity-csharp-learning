@@ -341,3 +341,9 @@ private void OnTriggerEnter(Collider other)
 3. プレハブを1か所変更するだけで20個すべてに変更が反映される。個別に修正する必要がなく、変更漏れが起きない。
 
 </details>
+
+---
+
+## 次のステップ
+
+[Instantiate() でオブジェクトを生成する](/unity-csharp-learning/unity/instantiate/) では、スクリプトからプレハブを複製してオブジェクトをシーンに動的に生成する方法を学びます。
