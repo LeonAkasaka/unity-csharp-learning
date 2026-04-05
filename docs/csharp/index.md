@@ -28,7 +28,7 @@ C# プログラミングをゼロから学びます。
 | 6 | [条件分岐](/unity-csharp-learning/csharp/conditionals/) | if/else, switch による分岐処理 |
 | 6.1 | [ブロック文とスコープ（補足）](/unity-csharp-learning/csharp/block-and-scope/) | ブロック文・スコープ・else if の実体 |
 | 6.2 | [条件演算子と式・文（補足）](/unity-csharp-learning/csharp/conditional-operator/) | 式と文の違い・`? :` 演算子 |
-| 7 | [ループ](/unity-csharp-learning/csharp/loops/) | while・do-while・for・foreach による繰り返し処理 |
+| 7 | [反復処理](/unity-csharp-learning/csharp/loops/) | while・do-while・for・foreach による繰り返し処理 |
 | 7.1 | [インクリメント・デクリメント（補足）](/unity-csharp-learning/csharp/increment-decrement/) | `++` `--` の前置・後置の違い・複合代入演算子 |
 | 8 | [ビット演算](/unity-csharp-learning/csharp/bitwise-operations/) | AND・OR・XOR・シフト・ビットマスクによるフラグ管理 |
 

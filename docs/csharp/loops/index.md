@@ -1,10 +1,10 @@
 ---
 layout: page
-title: ループ
+title: 反復処理
 permalink: /csharp/loops/
 ---
 
-# ループ
+# 反復処理
 
 同じ処理を繰り返すことを**ループ**（反復）と呼びます。C# には `while`・`do-while`・`for`・`foreach` の 4 種類のループ構文があります。
 

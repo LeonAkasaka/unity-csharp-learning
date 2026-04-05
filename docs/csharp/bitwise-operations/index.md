@@ -613,5 +613,5 @@ if ((state & FlagJump) != 0) { }
 
 ## 次のステップ
 
-[ループ](/unity-csharp-learning/csharp/loops/) と組み合わせると、ビット列の全ビットを走査するような処理も書けるようになります。次のセクション「[C# 配列と集合操作](/unity-csharp-learning/csharp/)」では、複数の値をまとめて扱うデータ構造を学びます。
+[反復処理](/unity-csharp-learning/csharp/loops/) と組み合わせると、ビット列の全ビットを走査するような処理も書けるようになります。次のセクション「[C# 配列と集合操作](/unity-csharp-learning/csharp/)」では、複数の値をまとめて扱うデータ構造を学びます。
 

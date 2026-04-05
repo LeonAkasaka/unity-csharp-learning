@@ -6,7 +6,7 @@ permalink: /csharp/break-and-continue/
 
 # break と continue（補足）
 
-`break` と `continue` は、ループの実行フローを変えるキーワードです。`break` は[ループのページ](/unity-csharp-learning/csharp/loops/)で無限ループ脱出の文脈で登場しましたが、通常の `for`・`while`・`foreach` でも使えます。
+`break` と `continue` は、ループの実行フローを変えるキーワードです。`break` は[反復処理のページ](/unity-csharp-learning/csharp/loops/)で無限ループ脱出の文脈で登場しましたが、通常の `for`・`while`・`foreach` でも使えます。
 
 ## 学習目標
 
@@ -16,7 +16,7 @@ permalink: /csharp/break-and-continue/
 
 ## 前提知識
 
-- [ループ](/unity-csharp-learning/csharp/loops/) を読んでいること
+- [反復処理](/unity-csharp-learning/csharp/loops/) を読んでいること
 
 ---
 

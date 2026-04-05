@@ -236,4 +236,4 @@ string result = score >= 60 ? "合格" : "不合格";
 
 ## 次のステップ
 
-[ループ](/unity-csharp-learning/csharp/loops/) では、`for` と `while` を使った繰り返し処理を学びます。
+[反復処理](/unity-csharp-learning/csharp/loops/) では、`for` と `while` を使った繰り返し処理を学びます。

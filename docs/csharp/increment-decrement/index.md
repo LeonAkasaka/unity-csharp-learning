@@ -16,7 +16,7 @@ permalink: /csharp/increment-decrement/
 
 ## 前提知識
 
-- [ループ](/unity-csharp-learning/csharp/loops/) を読んでいること
+- [反復処理](/unity-csharp-learning/csharp/loops/) を読んでいること
 
 ---
 
