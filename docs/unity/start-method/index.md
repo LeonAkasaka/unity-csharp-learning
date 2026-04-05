@@ -143,4 +143,4 @@ private void Start()
 
 ## 次のステップ
 
-[GameObject の生成と操作](/unity-csharp-learning/unity/gameobject-basics/) では、Start メソッドの中でゲームオブジェクトをコードから生成する方法を学びます。
+[Debug.Log でスクリプトの実行を確認する](/unity-csharp-learning/unity/debug-log/) では、Start メソッドが正しく実行されているかを Console ビューで確認する方法を学びます。
