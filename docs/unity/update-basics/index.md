@@ -72,7 +72,25 @@ public void Translate(Vector3 translation);
 
 ---
 
-`Vector3` にはよく使う方向があらかじめ定数として用意されています。たとえば `Vector3.right` は `new Vector3(1, 0, 0)`（X 方向に 1）と同じ値です。
+まずは X 方向の移動量を直接指定してみます。
+
+```csharp
+using UnityEngine;
+
+public class UpdateSample : MonoBehaviour
+{
+    private void Update()
+    {
+        transform.Translate(new Vector3(0.1f, 0, 0));
+    }
+}
+```
+
+これを実行すると、オブジェクトが右方向に動き続けます。
+
+---
+
+`new Vector3(0.1f, 0, 0)` はX方向にだけ移動する指定ですが、毎回この書き方をするのは冗長です。`Vector3` にはよく使う方向があらかじめ定数として用意されています。
 
 **書式：Vector3 方向定数**
 ```
@@ -84,7 +102,7 @@ Vector3.forward  // new Vector3( 0,  0,  1) と同じ（奥）
 Vector3.back     // new Vector3( 0,  0, -1) と同じ（手前）
 ```
 
----
+これらの定数には「1フレームあたりいくつ動くか」を掛けて使います。`Vector3.right * 0.1f` は `new Vector3(0.1f, 0, 0)` と同じ意味になります。
 
 ```csharp
 using UnityEngine;
@@ -93,12 +111,10 @@ public class UpdateSample : MonoBehaviour
 {
     private void Update()
     {
-        transform.Translate(Vector3.right * 0.1f);
+        transform.Translate(Vector3.right * 0.1f);  // new Vector3(0.1f, 0, 0) と同じ
     }
 }
 ```
-
-これを実行すると、オブジェクトが右方向に動き続けます。
 
 ---
 
