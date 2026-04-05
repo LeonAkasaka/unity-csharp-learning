@@ -31,14 +31,18 @@ samples/
 
 ## ローカルでのプレビュー
 
-GitHub Pages の組み込みビルドを使用しています。ローカルでプレビューする場合は Jekyll をインストールしてください。
+Docker を使って Jekyll をインストールせずにプレビューできます。
 
-```bash
-gem install jekyll bundler
-cd docs
-jekyll serve
-# http://localhost:4000/unity-csharp-learning/ でプレビュー
+**前提条件：** Docker Desktop が起動していること
+
+```bat
+preview.bat
 ```
+
+ブラウザで http://localhost:4000/unity-csharp-learning/ を開いてください。
+
+- ファイルを保存すると自動で再ビルドされます（`--watch`）
+- 停止は `Ctrl+C`、コンテナは自動削除されます（`--rm`）
 
 ## ライセンス
 
