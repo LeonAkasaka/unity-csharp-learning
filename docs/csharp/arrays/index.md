@@ -199,20 +199,6 @@ for (int i = 0; i < scores.Length; i++)
 
 ### foreach ループ
 
-**書式：foreach 文**
-```
-foreach (型 変数名 in コレクション)
-{
-    繰り返す処理
-}
-```
-
-| 要素 | 説明 |
-|---|---|
-| `型 変数名` | 各要素を受け取るループ変数。各ループで次の要素が代入される |
-| `in` | 「〜の各要素を」を意味するキーワード |
-| `コレクション` | 走査する配列またはシーケンス |
-
 ```csharp
 int[] scores = { 85, 72, 90, 68, 95 };
 
@@ -227,87 +213,7 @@ foreach (int score in scores)
 // 95
 ```
 
-### var による型推論
-
-`var` を使うとコンパイラが型を自動推論します。型名が長い場合に便利です。
-
-```csharp
-foreach (var score in scores)  // var は int と推論される
-{
-    Console.WriteLine(score);
-}
-```
-
-### ループ変数は読み取り専用
-
-`foreach` のループ変数に値を代入しようとするとコンパイルエラーになります。
-
-```csharp
-foreach (int score in scores)
-{
-    // ❌ NG: ループ変数への代入はコンパイルエラー
-    score = 100;
-}
-
-// ✅ OK: 要素の書き換えには for を使う
-for (int i = 0; i < scores.Length; i++)
-{
-    scores[i] = 100;
-}
-```
-
-### 配列以外でも使える
-
-`foreach` は配列と互換性のあるシーケンス型（順に要素を取り出せる型）であれば使えます。
-
-**string（文字列）** — 文字（`char`）のシーケンスとして走査できます。
-
-```csharp
-string word = "Hello";
-foreach (char c in word)
-{
-    Console.Write(c + " ");  // H e l l o
-}
-```
-
-**List\<T\> などのコレクション** — `List<T>`・`Queue<T>` など C# の標準コレクションも同様に走査できます（詳細は「C# 配列と集合操作」の後続ページで扱います）。
-
-```csharp
-var list = new List<int> { 1, 2, 3 };
-foreach (int n in list)
-{
-    Console.WriteLine(n);
-}
-```
-
-### break / continue
-
-他のループと同様に `break` で途中脱出、`continue` で次の要素にスキップできます。
-
-```csharp
-int[] scores = { 85, 55, 90, 40, 95 };
-
-foreach (int score in scores)
-{
-    if (score < 60) continue;   // 60 未満はスキップ
-    Console.WriteLine(score);
-}
-// 85
-// 90
-// 95
-```
-
-### for と foreach の使い分け
-
-| 条件 | 向いているループ |
-|---|---|
-| インデックスが不要で読むだけ | `foreach` |
-| 要素を書き換える | `for` |
-| 逆順・飛ばしなど特殊な走査 | `for` |
-| 多次元配列を行・列ごとに処理 | `for`（`GetLength`） |
-| 全要素を順に処理するだけ | `foreach` |
-
-インデックスが不要で値を順に読むだけなら `foreach` が簡潔です。
+インデックスが不要で要素を順に読むだけなら `foreach` が簡潔です。`var` 型推論・読み取り専用の制約・`break`/`continue` との組み合わせ・`for` との使い分けは[配列と foreach（補足）](/unity-csharp-learning/csharp/arrays-and-foreach/)で詳しく解説します。
 
 ---
 
@@ -391,4 +297,4 @@ int[] scores = [85, 72, 90, 68, 95];
 
 ## 次のステップ
 
-[Array クラスと配列の性質（補足）](/unity-csharp-learning/csharp/array-class/) では、配列が参照型である仕組みと `Array.Sort` などの組み込みメソッドを学びます。
+[配列と foreach（補足）](/unity-csharp-learning/csharp/arrays-and-foreach/) では、foreach の書式詳細・`var` 推論・`break`/`continue` との組み合わせ・`for` との使い分けを学びます。
