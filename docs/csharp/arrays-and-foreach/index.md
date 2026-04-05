@@ -39,23 +39,16 @@ foreach (型 変数名 in コレクション)
 | `in` | 「〜の各要素を」を意味するキーワード |
 | `コレクション` | 走査する配列またはシーケンス |
 
-`foreach` は先頭から末尾に向かって 1 要素ずつ取り出します。下の図は 3 回目の反復で `score = 90` が取り出されている様子です。
+`foreach` の実行フローを示します。
 
-<svg viewBox="0 0 330 118" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:430px;display:block;margin:1em 0;font-family:sans-serif;">
-  <text x="55"  y="18" text-anchor="middle" font-size="11" fill="#78909c">[0]</text>
-  <text x="105" y="18" text-anchor="middle" font-size="11" fill="#78909c">[1]</text>
-  <text x="155" y="18" text-anchor="middle" font-size="11" fill="#78909c">[2]</text>
-  <text x="205" y="18" text-anchor="middle" font-size="11" fill="#78909c">[3]</text>
-  <text x="255" y="18" text-anchor="middle" font-size="11" fill="#78909c">[4]</text>
-  <rect x="30"  y="22" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="55"  y="47" text-anchor="middle" font-size="18" fill="#555">85</text>
-  <rect x="80"  y="22" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="105" y="47" text-anchor="middle" font-size="18" fill="#555">72</text>
-  <rect x="130" y="22" width="50" height="40" rx="3" fill="#fff3e0" stroke="#f9a825" stroke-width="2"/><text x="155" y="47" text-anchor="middle" font-size="18" fill="#e65100">90</text>
-  <rect x="180" y="22" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="205" y="47" text-anchor="middle" font-size="18" fill="#555">68</text>
-  <rect x="230" y="22" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="255" y="47" text-anchor="middle" font-size="18" fill="#555">95</text>
-  <polygon points="155,64 149,76 161,76" fill="#f9a825"/>
-  <text x="155" y="94" text-anchor="middle" font-size="11" fill="#888">3 回目の反復</text>
-  <text x="155" y="112" text-anchor="middle" font-size="13" fill="#e65100" font-family="monospace">score = 90</text>
-</svg>
+```mermaid
+flowchart TD
+    A([開始]) --> B{次の要素はあるか？}
+    B -- ある --> C["ループ変数に代入\n（例: score = 90）"]
+    C --> D[ループ本体を実行]
+    D --> B
+    B -- ない --> E([終了])
+```
 
 ```csharp
 int[] scores = { 85, 72, 90, 68, 95 };
