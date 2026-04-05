@@ -40,7 +40,18 @@ public T GetComponent<T>();
 
 `GetComponent<Rigidbody>()` と書くと、その GameObject に追加されている Rigidbody コンポーネントを取得できます。
 
-対象のコンポーネントが**見つからない場合は `null` が返ります**。`null` のまま使おうとすると実行時エラーになるため、確認が必要な場面では **`TryGetComponent<T>()`** を使うと安全です。
+対象のコンポーネントが**見つからない場合は `null` が返ります**。`null` のまま使おうとすると実行時エラーになるため、状況に応じて null チェックが必要です。
+
+```csharp
+// GetComponent + null チェック
+var rb = GetComponent<Rigidbody>();
+if (rb != null)
+{
+    // rb を安全に使える
+}
+```
+
+`null` チェックを `if` の条件判定と取得を同時に行いたい場合は **`TryGetComponent<T>()`** が便利です。
 
 **`Component.TryGetComponent<T>()`** — コンポーネントを取得し、見つかった場合は `true`、見つからない場合は `false` を返します。<!-- [公式ドキュメント]() -->
 
@@ -55,13 +66,14 @@ public bool TryGetComponent<T>(out T component);
 | `component` | 取得できた場合にコンポーネントが入る `out` 変数 |
 
 ```csharp
+// TryGetComponent — 取得と null チェックを一度に行う
 if (TryGetComponent<Rigidbody>(out var rb))
 {
     // rb を安全に使える
 }
 ```
 
-> 💡 **使い分け**: コンポーネントが必ず存在することが確かなら `GetComponent`、存在するかどうか不確かなら `TryGetComponent` を使います。
+どちらを選ぶかはほぼ好みの問題ですが、**パフォーマンス面では `TryGetComponent` が若干有利**です。`GetComponent` は見つからない場合に Unity 内部で「フェイク null」オブジェクトを生成するのに対し、`TryGetComponent` はその生成を回避します。`Start` などで一度しか呼ばないコードでは実用上の差はほぼありませんが、`TryGetComponent` の方が GC への負荷が少ないため、コンポーネントが存在しない可能性がある場面では推奨されます。
 
 ---
 
