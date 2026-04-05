@@ -397,3 +397,9 @@ public class PedestrianSignal : MonoBehaviour
 3. `% 4` にする。
 
 </details>
+
+---
+
+## 次のステップ
+
+[Rigidbody で力を加える](/unity-csharp-learning/unity/rigidbody-force/) では、`GetComponent` でコンポーネントをキャッシュし、`AddForce` でオブジェクトを物理的に動かす方法を学びます。
