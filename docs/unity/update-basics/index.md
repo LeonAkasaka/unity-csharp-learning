@@ -72,16 +72,16 @@ public void Translate(Vector3 translation);
 
 ---
 
-方向のベクトルは `new Vector3(...)` と書く代わりに、`Vector3` の方向定数を使うと簡潔です。
+`Vector3` にはよく使う方向があらかじめ定数として用意されています。たとえば `Vector3.right` は `new Vector3(1, 0, 0)`（X 方向に 1）と同じ値です。
 
 **書式：Vector3 方向定数**
 ```
-Vector3.right    // X+ 方向（右）
-Vector3.left     // X- 方向（左）
-Vector3.up       // Y+ 方向（上）
-Vector3.down     // Y- 方向（下）
-Vector3.forward  // Z+ 方向（奥）
-Vector3.back     // Z- 方向（手前）
+Vector3.right    // new Vector3( 1,  0,  0) と同じ（右）
+Vector3.left     // new Vector3(-1,  0,  0) と同じ（左）
+Vector3.up       // new Vector3( 0,  1,  0) と同じ（上）
+Vector3.down     // new Vector3( 0, -1,  0) と同じ（下）
+Vector3.forward  // new Vector3( 0,  0,  1) と同じ（奥）
+Vector3.back     // new Vector3( 0,  0, -1) と同じ（手前）
 ```
 
 ---
