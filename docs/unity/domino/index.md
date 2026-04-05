@@ -325,3 +325,9 @@ for (var i = 0; i < 20; i++)
 - Start メソッド・CreatePrimitive・Transform・Rigidbody を組み合わせてシーン全体をスクリプトで構築できた
 - for 文を使うことで、同じコードの繰り返しを短く書ける
 - `i` 変数を座標計算に活用することで、オブジェクトを等間隔に並べられる
+
+---
+
+## 次のステップ
+
+[Update メソッドと連続実行](/unity-csharp-learning/unity/update-basics/) では、毎フレーム実行される Update メソッドを使ってオブジェクトをリアルタイムに動かす方法を学びます。
