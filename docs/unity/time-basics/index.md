@@ -70,31 +70,7 @@ public class TimeSample : MonoBehaviour
 
 ---
 
-## 3. ゲーム時間と現実時間
-
-`Time.time` は**ゲーム時間**です。現実の時計とは異なり、**`Time.timeScale`** の値によって速さが変わります。
-
-**`Time.timeScale`** — 時間の流れる速さのスケールを設定・取得します。<!-- [公式ドキュメント]() -->
-
-**書式：Time.timeScale プロパティ**
-```csharp
-public static float timeScale { get; set; }
-```
-
-| 値 | 効果 |
-|---|---|
-| `1.0`（既定値） | 現実と同じ速さ |
-| `0.5` | スローモーション（半速） |
-| `2.0` | 倍速 |
-| `0.0` | ゲームポーズ（時間が止まる） |
-
-`Time.timeScale` を変えると `Time.deltaTime` と `Time.time` の両方が影響を受けます。そのため `Time.deltaTime` を使ったタイマーは、**ゲームを一時停止したときに自動で止まる**という利点があります。
-
-> 💡 **ポイント**: 現実時間（システムクロック）を扱いたい場合は、C# 標準ライブラリの `DateTime`・`DateTimeOffset` を使います。詳しくは [補足: 現実時間の取得（DateTime と DateTimeOffset）](/unity-csharp-learning/unity/time-datetime/) を参照してください。
-
----
-
-## 4. 一定間隔でオンオフを繰り返す
+## 3. 一定間隔でオンオフを繰り返す
 
 `Time.deltaTime` をフィールドに積算し、しきい値を超えたら状態を反転させることで、一定間隔の繰り返し処理を作れます。
 
@@ -127,6 +103,68 @@ public class Blinker : MonoBehaviour
 
 ---
 
+## 4. ゲーム時間と現実時間
+
+`Time.time` は**ゲーム時間**です。現実の時計とは異なり、**`Time.timeScale`** の値によって速さが変わります。
+
+**`Time.timeScale`** — 時間の流れる速さのスケールを設定・取得します。<!-- [公式ドキュメント]() -->
+
+**書式：Time.timeScale プロパティ**
+```csharp
+public static float timeScale { get; set; }
+```
+
+| 値 | 効果 |
+|---|---|
+| `1.0`（既定値） | 現実と同じ速さ |
+| `0.5` | スローモーション（半速） |
+| `2.0` | 倍速 |
+| `0.0` | ゲームポーズ（時間が止まる） |
+
+前のセクションで作った `Blinker` に `[SerializeField]` で `timeScale` を持たせると、Inspector から値を変えるだけで点滅速度が変化することを確認できます。
+
+```csharp
+using UnityEngine;
+
+public class Blinker : MonoBehaviour
+{
+    [SerializeField] private float interval = 0.5f;
+    [SerializeField] private float timeScale = 1.0f;  // Inspector から変更できる
+    private float timer = 0f;
+    private bool isOn = true;
+
+    private void Start()
+    {
+        Time.timeScale = timeScale;
+    }
+
+    private void Update()
+    {
+        timer += Time.deltaTime;
+
+        if (timer >= interval)
+        {
+            timer -= interval;
+            isOn = !isOn;
+            Debug.Log(isOn ? "ON" : "OFF");
+        }
+    }
+}
+```
+
+`timeScale` を変えると `Time.deltaTime` の値が変わるため、`timer` の積算速度が変化します。
+
+| Inspector の `timeScale` | `Time.deltaTime` の変化 | 現実時間での切り替わり |
+|---|---|---|
+| `0.5` | 半分になる | 1.0 秒ごと（遅い） |
+| `1.0` | そのまま | 0.5 秒ごと（通常） |
+| `2.0` | 2倍になる | 0.25 秒ごと（速い） |
+| `0.0` | `0` になる | 切り替わらない（停止） |
+
+> 💡 **ポイント**: 現実時間（システムクロック）を扱いたい場合は、C# 標準ライブラリの `DateTime`・`DateTimeOffset` を使います。詳しくは [補足: 現実時間の取得（DateTime と DateTimeOffset）](/unity-csharp-learning/unity/time-datetime/) を参照してください。
+
+---
+
 ## よくあるミス
 
 ```csharp
@@ -151,9 +189,9 @@ if (timer >= interval)
 
 - `Time.time` はゲーム開始からの累計経過時間（ゲーム時間）
 - 開始時刻をフィールドに記録し `Time.time - startTime` で経過時間を計算できる
-- `Time.timeScale` でゲーム時間の速さを制御できる（`0` でポーズ）
 - `Time.deltaTime` をフィールドに積算してしきい値で処理するパターンで一定間隔の繰り返しを作れる
 - `timer -= interval` で超過分を持ち越すとズレが生じない
+- `Time.timeScale` でゲーム時間の速さを制御できる（`0` でポーズ、`Time.deltaTime` が `0` になりタイマーが止まる）
 
 ---
 
@@ -193,4 +231,4 @@ if (timer >= interval)
 
 ## 次のステップ
 
-[補足: 現実時間の取得（DateTime と DateTimeOffset）](/unity-csharp-learning/unity/time-datetime/) では、ゲーム時間ではなくシステムクロックから現在の日時を取得する方法を紹介します。
+[チュートリアル: 歩行者信号機](/unity-csharp-learning/unity/traffic-light/) では、Update と Time を組み合わせたステートマシンパターンを総合演習として実装します。
