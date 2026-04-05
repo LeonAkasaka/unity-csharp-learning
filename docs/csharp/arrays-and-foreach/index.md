@@ -1,4 +1,4 @@
----
+﻿---
 layout: page
 title: 配列と foreach（補足）
 permalink: /csharp/arrays-and-foreach/
@@ -44,7 +44,7 @@ foreach (型 変数名 in コレクション)
 ```mermaid
 flowchart TD
     A([開始]) --> B{次の要素はあるか？}
-    B -- ある --> C["ループ変数に代入\n（例: score = 90）"]
+    B -- ある --> C["ループ変数に代入<br/>（例: score = 90）"]
     C --> D[ループ本体を実行]
     D --> B
     B -- ない --> E([終了])
