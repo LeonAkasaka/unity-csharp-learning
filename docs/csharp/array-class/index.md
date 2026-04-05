@@ -6,11 +6,12 @@ permalink: /csharp/array-class/
 
 # Array クラスと配列の性質（補足）
 
-配列は単純なデータの並びに見えますが、C# では `System.Array` クラスを継承する**参照型**のオブジェクトです。このページではその仕組みと、配列を操作する組み込みメソッドを学びます。
+配列は単純なデータの並びに見えますが、C# では `System.Array` クラスを継承するオブジェクトです。このページでは配列変数のコピーの挙動と、配列を操作する組み込みメソッドを学びます。
 
 ## 学習目標
 
-- 配列が参照型であることを理解し、コピーの挙動を説明できる
+- 変数の代入（`b = a`）では同じ配列を指すことになると説明できる
+- `Array.Copy` で独立したコピーを作れる
 - `Length`・`Rank`・`GetLength` で配列の情報を取得できる
 - `Array.Sort`・`Array.Reverse`・`Array.IndexOf`・`Array.Copy`・`Array.Clear` を使える
 
@@ -32,73 +33,66 @@ Console.WriteLine(scores is Array);   // True
 
 ---
 
-## 2. 配列は参照型
+## 2. 変数には配列への参照が入る
 
-配列は**参照型**（reference type）です。変数に格納されるのは配列本体ではなく、ヒープ上の配列への**参照（アドレス）**です。
+`int[] scores` のような変数に格納されるのは配列本体ではなく、**配列がどこにあるかを示す参照**です。
 
-<svg viewBox="0 0 420 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;display:block;margin:1em 0;font-family:sans-serif;">
+<svg viewBox="0 0 360 75" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:460px;display:block;margin:1em 0;font-family:sans-serif;">
   <defs>
-    <marker id="ac-arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+    <marker id="ac-a1-arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
   </defs>
-  <!-- Stack side -->
-  <text x="55" y="18" text-anchor="middle" font-size="11" fill="#888">スタック</text>
-  <rect x="10" y="25" width="90" height="36" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="55" y="41" text-anchor="middle" font-size="12" fill="#555">scores</text>
-  <text x="55" y="55" text-anchor="middle" font-size="10" fill="#e65100">参照 →</text>
-  <!-- Arrow to heap -->
-  <line x1="100" y1="43" x2="148" y2="43" stroke="#555" stroke-width="1.5" marker-end="url(#ac-arr)"/>
-  <!-- Heap side: array cells -->
-  <text x="255" y="18" text-anchor="middle" font-size="11" fill="#888">ヒープ</text>
-  <rect x="150" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="171" y="48" text-anchor="middle" font-size="14" fill="#1565c0">85</text>
-  <rect x="192" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="213" y="48" text-anchor="middle" font-size="14" fill="#1565c0">72</text>
-  <rect x="234" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="255" y="48" text-anchor="middle" font-size="14" fill="#1565c0">90</text>
-  <rect x="276" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="297" y="48" text-anchor="middle" font-size="14" fill="#1565c0">68</text>
-  <rect x="318" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="339" y="48" text-anchor="middle" font-size="14" fill="#1565c0">95</text>
-  <!-- index labels -->
-  <text x="171" y="74" text-anchor="middle" font-size="10" fill="#999">[0]</text>
-  <text x="213" y="74" text-anchor="middle" font-size="10" fill="#999">[1]</text>
-  <text x="255" y="74" text-anchor="middle" font-size="10" fill="#999">[2]</text>
-  <text x="297" y="74" text-anchor="middle" font-size="10" fill="#999">[3]</text>
-  <text x="339" y="74" text-anchor="middle" font-size="10" fill="#999">[4]</text>
+  <rect x="8" y="18" width="75" height="32" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="46" y="38" text-anchor="middle" font-size="13" fill="#555" font-family="monospace">scores</text>
+  <line x1="83" y1="34" x2="112" y2="34" stroke="#555" stroke-width="1.5" marker-end="url(#ac-a1-arr)"/>
+  <rect x="114" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="136" y="39" text-anchor="middle" font-size="16" fill="#1565c0">85</text>
+  <rect x="158" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="180" y="39" text-anchor="middle" font-size="16" fill="#1565c0">72</text>
+  <rect x="202" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="224" y="39" text-anchor="middle" font-size="16" fill="#1565c0">90</text>
+  <rect x="246" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="268" y="39" text-anchor="middle" font-size="16" fill="#1565c0">68</text>
+  <rect x="290" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="312" y="39" text-anchor="middle" font-size="16" fill="#1565c0">95</text>
+  <text x="136" y="64" text-anchor="middle" font-size="10" fill="#999">[0]</text>
+  <text x="180" y="64" text-anchor="middle" font-size="10" fill="#999">[1]</text>
+  <text x="224" y="64" text-anchor="middle" font-size="10" fill="#999">[2]</text>
+  <text x="268" y="64" text-anchor="middle" font-size="10" fill="#999">[3]</text>
+  <text x="312" y="64" text-anchor="middle" font-size="10" fill="#999">[4]</text>
 </svg>
 
-### 代入ではコピーされない
+`new` を書くたびに新しい配列が生成されます。変数にはその配列への参照（どこにあるかという情報）が入ります。
 
-`b = a` と書くと**参照がコピー**されます。配列の中身はコピーされず、2 つの変数が同じ配列を指します。
+```csharp
+int[] a = { 1, 2, 3 };           // new int[] { 1, 2, 3 } と同じ
+int[] b = new int[] { 1, 2, 3 }; // new → 別の配列が作られる
+// a と b は独立した別の配列
+```
 
-<svg viewBox="0 0 420 145" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;display:block;margin:1em 0;font-family:sans-serif;">
+### 代入は参照のコピー（同じ配列を指す）
+
+`b = a` と書くと**参照がコピー**されます。`new` が書かれていないので新しい配列は作られず、`a` と `b` は**同じ配列を指す**ことになります。
+
+<svg viewBox="0 0 280 88" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:1em 0;font-family:sans-serif;">
   <defs>
-    <marker id="ac-arr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
-    <marker id="ac-arr3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#c62828"/></marker>
+    <marker id="ac-a2-arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
   </defs>
-  <!-- Stack -->
-  <text x="55" y="18" text-anchor="middle" font-size="11" fill="#888">スタック</text>
-  <rect x="10" y="25" width="90" height="36" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="55" y="43" text-anchor="middle" font-size="12" fill="#555">a</text>
-  <rect x="10" y="72" width="90" height="36" rx="3" fill="#fce4ec" stroke="#e91e63" stroke-width="1.5"/>
-  <text x="55" y="90" text-anchor="middle" font-size="12" fill="#c62828">b  ← b = a</text>
-  <!-- Arrows (both pointing to same array) -->
-  <line x1="100" y1="43" x2="148" y2="43" stroke="#555" stroke-width="1.5" marker-end="url(#ac-arr2)"/>
-  <line x1="100" y1="90" x2="148" y2="60" stroke="#c62828" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ac-arr3)"/>
-  <!-- Heap: same array -->
-  <text x="255" y="18" text-anchor="middle" font-size="11" fill="#888">ヒープ（同じ配列）</text>
-  <rect x="150" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="171" y="48" text-anchor="middle" font-size="14" fill="#1565c0">85</text>
-  <rect x="192" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="213" y="48" text-anchor="middle" font-size="14" fill="#1565c0">72</text>
-  <rect x="234" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="255" y="48" text-anchor="middle" font-size="14" fill="#1565c0">90</text>
-  <rect x="276" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="297" y="48" text-anchor="middle" font-size="14" fill="#1565c0">68</text>
-  <rect x="318" y="25" width="42" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="339" y="48" text-anchor="middle" font-size="14" fill="#1565c0">95</text>
-  <text x="255" y="120" text-anchor="middle" font-size="11" fill="#c62828">b[0] を変更すると a[0] も変わる</text>
+  <rect x="8" y="10" width="58" height="28" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="37" y="28" text-anchor="middle" font-size="14" fill="#555" font-family="monospace">a</text>
+  <rect x="8" y="50" width="58" height="28" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="37" y="68" text-anchor="middle" font-size="14" fill="#555" font-family="monospace">b</text>
+  <rect x="115" y="29" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="135" y="50" text-anchor="middle" font-size="15" fill="#1565c0">1</text>
+  <rect x="155" y="29" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="175" y="50" text-anchor="middle" font-size="15" fill="#1565c0">2</text>
+  <rect x="195" y="29" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="215" y="50" text-anchor="middle" font-size="15" fill="#1565c0">3</text>
+  <line x1="66" y1="24" x2="113" y2="43" stroke="#555" stroke-width="1.5" marker-end="url(#ac-a2-arr)"/>
+  <line x1="66" y1="64" x2="113" y2="46" stroke="#555" stroke-width="1.5" marker-end="url(#ac-a2-arr)"/>
+  <text x="165" y="82" text-anchor="middle" font-size="11" fill="#c62828">同じ配列を指している</text>
 </svg>
 
 ```csharp
 int[] a = { 1, 2, 3 };
-int[] b = a;          // 参照のコピー（配列はひとつ）
+int[] b = a;          // 参照のコピー（new がない → 同じ配列）
 
 b[0] = 99;
 Console.WriteLine(a[0]);  // 99（a も変わっている！）
 ```
 
-別の配列として独立したコピーを作るには `Array.Copy` を使います（後述）。
+`Array.Copy` を使うと新しい配列に要素をコピーして独立させることができます。
 
 ---
 
@@ -186,9 +180,45 @@ Console.WriteLine(Array.IndexOf(fruits, "banana"));  // 1
 Console.WriteLine(Array.IndexOf(fruits, "grape"));   // -1（見つからない）
 ```
 
-### Array.Copy — 別配列にコピー
+### Array.Copy — 独立したコピーを作る
 
-**`Array.Copy`** — 配列の要素を別の配列にコピーします。<!-- [公式ドキュメント]() -->
+**`Array.Copy`** — 配列の要素を別の配列にコピーします。`b = a` の代入とは異なり、`Array.Copy` はコピー先として **`new` で新たに作った配列**を使うため、2 つの配列が独立した状態になります。<!-- [公式ドキュメント]() -->
+
+<svg viewBox="0 0 300 198" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:380px;display:block;margin:1em 0;font-family:sans-serif;">
+  <defs>
+    <marker id="ac-cmp-arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+  </defs>
+  <!-- Top: b = a (same array) -->
+  <text x="8" y="13" font-size="11" fill="#888">変数の代入（b = a）</text>
+  <rect x="8" y="20" width="55" height="26" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="36" y="37" text-anchor="middle" font-size="13" fill="#555" font-family="monospace">a</text>
+  <rect x="8" y="58" width="55" height="26" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="36" y="75" text-anchor="middle" font-size="13" fill="#555" font-family="monospace">b</text>
+  <rect x="118" y="34" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="138" y="55" text-anchor="middle" font-size="15" fill="#1565c0">1</text>
+  <rect x="158" y="34" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="55" text-anchor="middle" font-size="15" fill="#1565c0">2</text>
+  <rect x="198" y="34" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="218" y="55" text-anchor="middle" font-size="15" fill="#1565c0">3</text>
+  <line x1="63" y1="33" x2="116" y2="50" stroke="#555" stroke-width="1.5" marker-end="url(#ac-cmp-arr)"/>
+  <line x1="63" y1="71" x2="116" y2="50" stroke="#555" stroke-width="1.5" marker-end="url(#ac-cmp-arr)"/>
+  <text x="170" y="82" text-anchor="middle" font-size="10" fill="#c62828">同じ配列 / b[0]=99 で a[0] も変わる</text>
+  <!-- Divider -->
+  <line x1="0" y1="93" x2="300" y2="93" stroke="#e0e0e0" stroke-width="1"/>
+  <!-- Bottom: Array.Copy (separate arrays) -->
+  <text x="8" y="107" font-size="11" fill="#888">Array.Copy（独立したコピー）</text>
+  <rect x="8" y="114" width="82" height="26" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="49" y="131" text-anchor="middle" font-size="11" fill="#555" font-family="monospace">original</text>
+  <rect x="8" y="154" width="82" height="26" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="49" y="171" text-anchor="middle" font-size="11" fill="#555" font-family="monospace">copy</text>
+  <rect x="118" y="114" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="138" y="135" text-anchor="middle" font-size="15" fill="#1565c0">1</text>
+  <rect x="158" y="114" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="135" text-anchor="middle" font-size="15" fill="#1565c0">2</text>
+  <rect x="198" y="114" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="218" y="135" text-anchor="middle" font-size="15" fill="#1565c0">3</text>
+  <!-- copy array: [0] highlighted orange (copy[0] = 99) -->
+  <rect x="118" y="154" width="40" height="32" rx="3" fill="#fff3e0" stroke="#f9a825" stroke-width="2"/><text x="138" y="175" text-anchor="middle" font-size="13" fill="#e65100">99</text>
+  <rect x="158" y="154" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="175" text-anchor="middle" font-size="15" fill="#1565c0">2</text>
+  <rect x="198" y="154" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="218" y="175" text-anchor="middle" font-size="15" fill="#1565c0">3</text>
+  <line x1="90" y1="127" x2="116" y2="127" stroke="#555" stroke-width="1.5" marker-end="url(#ac-cmp-arr)"/>
+  <line x1="90" y1="167" x2="116" y2="167" stroke="#555" stroke-width="1.5" marker-end="url(#ac-cmp-arr)"/>
+  <text x="150" y="195" text-anchor="middle" font-size="10" fill="#555">↑ copy[0]=99 にしても original は変わらない</text>
+</svg>
 
 **書式：Array.Copy メソッド**
 ```csharp
@@ -255,8 +285,9 @@ c[0] = 99;  // a[0] は変わらない
 
 ## まとめ
 
-- すべての配列は `System.Array` を継承する参照型
-- 変数に格納されるのは参照（ポインタ）。`b = a` は配列本体をコピーしない
+- すべての配列は `System.Array` を継承するオブジェクト
+- 変数には配列への参照が入る。`b = a` では新しい配列は作られず同じ配列を指す
+- `new` を書くたびに新しい配列が生成される
 - 独立したコピーが必要なときは `Array.Copy` を使う
 - `Length`・`Rank`・`GetLength(n)` で配列の構造を確認できる
 - `Array.Sort`・`Array.Reverse` で並び替え、`Array.IndexOf` で検索できる
@@ -277,7 +308,7 @@ c[0] = 99;  // a[0] は変わらない
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. `99` です。`b = a` は参照のコピーのため、`b` と `a` は同じ配列を指しています。
+1. `99` です。`b = a` は参照のコピーのため（`new` が書かれていない）、`b` と `a` は同じ配列を指しています。
 
 2. ```csharp
    int[] nums = { 3, 1, 4, 1, 5 };
