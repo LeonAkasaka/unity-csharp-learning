@@ -346,4 +346,4 @@ private void OnTriggerEnter(Collider other)
 
 ## 次のステップ
 
-[Instantiate() でオブジェクトを生成する](/unity-csharp-learning/unity/instantiate/) では、スクリプトからプレハブを複製してオブジェクトをシーンに動的に生成する方法を学びます。
+[UnityEngine.Random で乱数を生成する](/unity-csharp-learning/unity/random-basics/) では、ゲームでよく使う乱数生成の基本を学びます。
