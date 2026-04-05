@@ -1,20 +1,21 @@
 ---
 layout: page
-title: Collider とトリガー判定
+title: Collider — 衝突とトリガー判定
 permalink: /unity/collider-trigger/
 ---
 
-# Collider とトリガー判定
+# Collider — 衝突とトリガー判定
 
-Unity の **Collider（コライダー）** コンポーネントはオブジェクトの衝突範囲を定義します。このページでは、衝突ではなく「交差（すり抜けながら触れる）」を検知する**トリガー**の使い方と、交差を検知したときにオブジェクトを削除する `Destroy` を学びます。
+Unity の **Collider（コライダー）** コンポーネントはオブジェクトの当たり判定の形状を定義します。このページでは、オブジェクト同士の**物理衝突**をスクリプトで検知する方法と、衝突せずに「触れた」ことだけを検知する**トリガー**の使い方を学びます。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
-- Collider と Is Trigger の役割を説明できる
-- `OnTriggerEnter` でオブジェクト同士の交差を検知できる
-- `other.gameObject` で相手のオブジェクトを取得できる
+- Collider の役割を説明できる
+- `OnCollisionEnter` で物理衝突を検知できる
+- Is Trigger と `OnTriggerEnter` の違いを説明できる
+- `other.gameObject` / `collision.gameObject` で相手のオブジェクトを取得できる
 - `Destroy()` でシーンからオブジェクトを削除できる
 
 ## 前提知識
@@ -31,7 +32,35 @@ Rigidbody を持つオブジェクトが Collider を持つ別のオブジェク
 
 ---
 
-## 2. Is Trigger — 衝突せずに交差を検知する
+## 2. OnCollisionEnter — 衝突を検知する
+
+Rigidbody を持つオブジェクトが別の Collider に触れたとき、**`OnCollisionEnter()`** が呼ばれます。
+
+**`MonoBehaviour.OnCollisionEnter()`** — Collider または Rigidbody が別の Collider / Rigidbody に接触したとき呼ばれます。<!-- [公式ドキュメント]() -->
+
+**書式：OnCollisionEnter メソッド**
+```csharp
+private void OnCollisionEnter(Collision collision);
+```
+
+| パラメータ | 説明 |
+|---|---|
+| `collision` | 衝突情報を持つ `Collision` オブジェクト |
+
+`collision.gameObject` で衝突した相手の GameObject を取得できます。
+
+```csharp
+private void OnCollisionEnter(Collision collision)
+{
+    Debug.Log($"ぶつかった: {collision.gameObject.name}");
+}
+```
+
+物理的な衝突はそのまま発生します（反発・押し合い）。`OnCollisionEnter` はあくまで「ぶつかったことをスクリプトに知らせる」だけです。
+
+---
+
+## 3. Is Trigger — 衝突せずに交差を検知する
 
 アイテム回収のように「触れたことを検知したいが、ぶつかって弾き飛ばされたくない」場合は、Collider の **Is Trigger** をオンにします。
 
@@ -46,7 +75,7 @@ Rigidbody を持つオブジェクトが Collider を持つ別のオブジェク
 
 ---
 
-## 3. OnTriggerEnter — 交差を検知するイベントメソッド
+## 4. OnTriggerEnter — 交差を検知するイベントメソッド
 
 Rigidbody を持つオブジェクトが、Is Trigger がオンの Collider に侵入したとき、**`OnTriggerEnter()`** が呼ばれます。
 
@@ -61,7 +90,7 @@ private void OnTriggerEnter(Collider other);
 |---|---|
 | `other` | 交差した相手の `Collider` コンポーネント |
 
-`other` から相手の `Collider` にアクセスできます。さらに `other.gameObject` で相手の **GameObject** 自体を取得できます。
+`OnCollisionEnter` との違いに注目してください。パラメータの型が `Collision`（衝突情報）ではなく `Collider`（コンポーネント）になっています。相手の GameObject は `other.gameObject` で取得します。
 
 ```csharp
 private void OnTriggerEnter(Collider other)
@@ -72,7 +101,7 @@ private void OnTriggerEnter(Collider other)
 
 ---
 
-## 4. Destroy() — オブジェクトをシーンから削除する
+## 5. Destroy() — オブジェクトをシーンから削除する
 
 **`Object.Destroy()`** — ゲームオブジェクトやコンポーネントをシーンから削除します。<!-- [公式ドキュメント]() -->
 
@@ -96,7 +125,7 @@ private void OnTriggerEnter(Collider other)
 
 ---
 
-## 5. まとめサンプル
+## 6. まとめサンプル
 
 以下は「Player に触れると消えるアイテム」の最小実装です。
 
@@ -145,24 +174,25 @@ Player を Item に重ねると、Item が消えます。
 ## まとめ
 
 - Collider はオブジェクトの当たり判定形状。3D Object を作成すると自動付与される
+- `OnCollisionEnter(Collision collision)` は物理衝突が発生したとき呼ばれる。衝突自体はそのまま起きる
 - **Is Trigger** をオンにすると物理衝突しなくなり、交差をスクリプトで検知できる
 - `OnTriggerEnter(Collider other)` は Rigidbody が Is Trigger の Collider に入ったとき呼ばれる
-- `other.gameObject` で交差した相手の GameObject を取得できる
+- どちらも `gameObject` プロパティで相手の GameObject を取得できる
 - `Destroy(gameObject)` でシーンからオブジェクトを削除できる
 
 ---
 
 ## 理解度チェック
 
-1. Collider の Is Trigger をオンにすると、衝突の動作はどう変わりますか？
-2. `OnTriggerEnter` が呼ばれるためには、どちらのオブジェクトが Rigidbody を持っている必要がありますか？
+1. `OnCollisionEnter` と `OnTriggerEnter` はどちらも「触れたとき」に呼ばれますが、何が違いますか？
+2. Collider の Is Trigger をオンにすると、衝突の動作はどう変わりますか？
 3. `Destroy(gameObject)` と `Destroy(other.gameObject)` の違いは何ですか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. 物理的な衝突（反発）が起きなくなり、オブジェクト同士がすり抜ける。その代わり、交差を `OnTriggerEnter` で検知できるようになる。
-2. どちらか一方（または両方）が Rigidbody を持っていれば `OnTriggerEnter` が呼ばれる。
+1. `OnCollisionEnter` は Is Trigger がオフの通常の物理衝突で呼ばれ、反発が起きる。`OnTriggerEnter` は Is Trigger がオンの Collider に侵入したとき呼ばれ、オブジェクトはすり抜ける。
+2. 物理的な衝突（反発）が起きなくなり、オブジェクト同士がすり抜ける。その代わり、交差を `OnTriggerEnter` で検知できるようになる。
 3. `Destroy(gameObject)` は**自分自身**を削除し、`Destroy(other.gameObject)` は**触れた相手**を削除する。
 
 </details>
@@ -172,3 +202,4 @@ Player を Item に重ねると、Item が消えます。
 ## 次のステップ
 
 [プレハブ（Prefab）](/unity-csharp-learning/unity/prefab-basics/) では、同じ設定のゲームオブジェクトを大量に配置するための「ひな形」の仕組みを学びます。
+
