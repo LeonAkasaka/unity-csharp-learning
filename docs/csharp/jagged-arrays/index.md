@@ -33,16 +33,16 @@ permalink: /csharp/jagged-arrays/
   <rect x="10" y="22" width="70" height="36" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
   <text x="45" y="38" text-anchor="middle" font-size="12" fill="#555">jagged[0]</text>
   <text x="45" y="52" text-anchor="middle" font-size="10" fill="#e65100">参照</text>
-  <rect x="10" y="68" width="70" height="36" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="45" y="84" text-anchor="middle" font-size="12" fill="#555">jagged[1]</text>
-  <text x="45" y="98" text-anchor="middle" font-size="10" fill="#e65100">参照</text>
-  <rect x="10" y="114" width="70" height="36" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="45" y="130" text-anchor="middle" font-size="12" fill="#555">jagged[2]</text>
-  <text x="45" y="144" text-anchor="middle" font-size="10" fill="#e65100">参照</text>
+  <rect x="10" y="78" width="70" height="36" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="45" y="94" text-anchor="middle" font-size="12" fill="#555">jagged[1]</text>
+  <text x="45" y="108" text-anchor="middle" font-size="10" fill="#e65100">参照</text>
+  <rect x="10" y="134" width="70" height="36" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="45" y="150" text-anchor="middle" font-size="12" fill="#555">jagged[2]</text>
+  <text x="45" y="164" text-anchor="middle" font-size="10" fill="#e65100">参照</text>
   <!-- Arrows -->
   <line x1="80" y1="40" x2="118" y2="40" stroke="#555" stroke-width="1.5" marker-end="url(#jg-arr)"/>
-  <line x1="80" y1="86" x2="118" y2="86" stroke="#555" stroke-width="1.5" marker-end="url(#jg-arr)"/>
-  <line x1="80" y1="132" x2="118" y2="132" stroke="#555" stroke-width="1.5" marker-end="url(#jg-arr)"/>
+  <line x1="80" y1="96" x2="118" y2="96" stroke="#555" stroke-width="1.5" marker-end="url(#jg-arr)"/>
+  <line x1="80" y1="152" x2="118" y2="152" stroke="#555" stroke-width="1.5" marker-end="url(#jg-arr)"/>
   <!-- Row 0: 3 elements -->
   <text x="148" y="16" text-anchor="middle" font-size="10" fill="#999">3 要素</text>
   <rect x="120" y="22" width="56" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="148" y="45" text-anchor="middle" font-size="15" fill="#1565c0">10</text>
@@ -56,9 +56,9 @@ permalink: /csharp/jagged-arrays/
   <rect x="252" y="78" width="44" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="274" y="101" text-anchor="middle" font-size="15" fill="#1565c0">4</text>
   <rect x="296" y="78" width="44" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="318" y="101" text-anchor="middle" font-size="15" fill="#1565c0">5</text>
   <!-- Row 2: 2 elements -->
-  <text x="148" y="118" text-anchor="middle" font-size="10" fill="#999">2 要素</text>
-  <rect x="120" y="124" width="56" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="148" y="147" text-anchor="middle" font-size="15" fill="#1565c0">7</text>
-  <rect x="176" y="124" width="56" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="204" y="147" text-anchor="middle" font-size="15" fill="#1565c0">8</text>
+  <text x="148" y="128" text-anchor="middle" font-size="10" fill="#999">2 要素</text>
+  <rect x="120" y="134" width="56" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="148" y="157" text-anchor="middle" font-size="15" fill="#1565c0">7</text>
+  <rect x="176" y="134" width="56" height="36" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="204" y="157" text-anchor="middle" font-size="15" fill="#1565c0">8</text>
 </svg>
 
 外側の配列（黄色）が各行への参照を持ち、各行（青）は独立した 1 次元配列です。
