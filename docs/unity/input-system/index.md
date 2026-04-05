@@ -46,18 +46,45 @@ using UnityEngine.InputSystem;
 public static Keyboard current { get; }
 ```
 
-`Keyboard.current` からキーごとのプロパティにアクセスして、入力状態を判定します。
+`Keyboard.current` からは、キーごとのプロパティを通じて各キーの状態にアクセスします。たとえば →キー に対応する `rightArrowKey` は次のように定義されています。
+
+**`Keyboard.rightArrowKey`** — →キーの入力状態を表す `ButtonControl` を返します。<!-- [公式ドキュメント]() -->
+
+**書式：Keyboard.rightArrowKey プロパティ**
+```csharp
+public ButtonControl rightArrowKey { get; }
+```
+
+戻り値の型が **`ButtonControl`** であることに注目してください。`Keyboard` が持つキープロパティはすべて `ButtonControl` 型です。代表的なものを以下に示します。
+
+| プロパティ | 対応するキー |
+|---|---|
+| `rightArrowKey` | → |
+| `leftArrowKey` | ← |
+| `upArrowKey` | ↑ |
+| `downArrowKey` | ↓ |
+| `spaceKey` | Space |
+| `enterKey` | Enter |
+| `escapeKey` | Escape |
 
 ---
+
+`ButtonControl` 型は、キーの押下状態を調べるための以下のプロパティを持っています。
 
 **`ButtonControl.isPressed`** — そのキーが**現在押されている**かどうかを返します。<!-- [公式ドキュメント]() -->
 
 **`ButtonControl.wasPressedThisFrame`** — そのキーが**このフレームで初めて押された**かどうかを返します。<!-- [公式ドキュメント]() -->
 
-**書式：キー入力の判定**
+**書式：ButtonControl のプロパティ**
+```csharp
+public bool isPressed { get; }
+public bool wasPressedThisFrame { get; }
 ```
-Keyboard.current.キー名.isPressed           // 押している間ずっと true
-Keyboard.current.キー名.wasPressedThisFrame  // 押した瞬間の1フレームだけ true
+
+**使用例（→キーの場合）**
+```
+Keyboard.current.rightArrowKey.isPressed           // 押している間ずっと true
+Keyboard.current.rightArrowKey.wasPressedThisFrame  // 押した瞬間の1フレームだけ true
 ```
 
 | プロパティ | `true` になるタイミング | 用途の例 |
@@ -117,6 +144,14 @@ public class InputSample : MonoBehaviour
 → キーを押している間だけ右へ、← キーを押している間だけ左へ移動します。
 
 > 💡 **ポイント**: コード内の `5.0f` は1秒あたりの移動速度です。値を変えるだけで速度を調整できますが、同じ数値が複数箇所に散らばると管理しにくくなります。次のページでこの問題を解決します。
+
+---
+
+## ワンポイントアドバイス
+
+Input System が登場する以前、Unity では **`Input` クラス** と **InputManager** が入力の主役でした。`Input.GetKey(KeyCode.RightArrow)` のような書き方で、追加パッケージなしにキー入力を扱うことができ、多くのプロジェクトを長年にわたって支えてきた実績ある仕組みです。現在も動作しますが、新規プロジェクトでは Input System が推奨されています。
+
+詳しくは **[補足: 旧来の Input クラスと InputManager](/unity-csharp-learning/unity/legacy-input/)** を参照してください。
 
 ---
 
