@@ -1,0 +1,9 @@
+# Jekyll ビルド出力
+docs/_site/
+docs/.jekyll-cache/
+docs/.jekyll-metadata
+
+# Bundler
+docs/.bundle/
+docs/vendor/
+docs/Gemfile.lock
