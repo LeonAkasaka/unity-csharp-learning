@@ -40,6 +40,29 @@ public T GetComponent<T>();
 
 `GetComponent<Rigidbody>()` と書くと、その GameObject に追加されている Rigidbody コンポーネントを取得できます。
 
+対象のコンポーネントが**見つからない場合は `null` が返ります**。`null` のまま使おうとすると実行時エラーになるため、確認が必要な場面では **`TryGetComponent<T>()`** を使うと安全です。
+
+**`Component.TryGetComponent<T>()`** — コンポーネントを取得し、見つかった場合は `true`、見つからない場合は `false` を返します。<!-- [公式ドキュメント]() -->
+
+**書式：TryGetComponent メソッド**
+```csharp
+public bool TryGetComponent<T>(out T component);
+```
+
+| パラメータ | 説明 |
+|---|---|
+| `T` | 取得したいコンポーネントの型 |
+| `component` | 取得できた場合にコンポーネントが入る `out` 変数 |
+
+```csharp
+if (TryGetComponent<Rigidbody>(out var rb))
+{
+    // rb を安全に使える
+}
+```
+
+> 💡 **使い分け**: コンポーネントが必ず存在することが確かなら `GetComponent`、存在するかどうか不確かなら `TryGetComponent` を使います。
+
 ---
 
 ## 2. コンポーネントはフィールドにキャッシュする
