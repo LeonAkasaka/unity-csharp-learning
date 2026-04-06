@@ -51,16 +51,16 @@ using UnityEngine;
 
 public class TimeSample : MonoBehaviour
 {
-    private float startTime;
+    private float _startTime;
 
     private void Start()
     {
-        startTime = Time.time;  // 開始時刻を記録
+        _startTime = Time.time;  // 開始時刻を記録
     }
 
     private void Update()
     {
-        float elapsed = Time.time - startTime;
+        float elapsed = Time.time - _startTime;
         Debug.Log($"経過時間: {elapsed:F1} 秒");
     }
 }
@@ -79,27 +79,27 @@ using UnityEngine;
 
 public class Blinker : MonoBehaviour
 {
-    [SerializeField] private float interval = 0.5f;  // 切り替え間隔（秒）
-    private float timer = 0f;
-    private bool isOn = true;
+    [SerializeField] private float _interval = 0.5f;  // 切り替え間隔（秒）
+    private float _timer = 0f;
+    private bool _isOn = true;
 
     private void Update()
     {
-        timer += Time.deltaTime;
+        _timer += Time.deltaTime;
 
-        if (timer >= interval)
+        if (_timer >= _interval)
         {
-            timer -= interval;  // リセットではなく差し引いて超過分を次へ持ち越す
-            isOn = !isOn;
-            Debug.Log(isOn ? "ON" : "OFF");
+            _timer -= _interval;  // リセットではなく差し引いて超過分を次へ持ち越す
+            _isOn = !_isOn;
+            Debug.Log(_isOn ? "ON" : "OFF");
         }
     }
 }
 ```
 
-`timer = 0` ではなく `timer -= interval` とすることで、フレームの長さによる超過分が次のサイクルに持ち越されます。長時間動かしてもタイミングのズレが蓄積しません。
+`_timer = 0` ではなく `_timer -= _interval` とすることで、フレームの長さによる超過分が次のサイクルに持ち越されます。長時間動かしてもタイミングのズレが蓄積しません。
 
-> 💡 **ポイント**: `Debug.Log` の行を `GetComponent<Renderer>().enabled = isOn;` に置き換えると、オブジェクトの表示・非表示を一定間隔で切り替える点滅エフェクトになります。
+> 💡 **ポイント**: `Debug.Log` の行を `GetComponent<Renderer>().enabled = _isOn;` に置き換えると、オブジェクトの表示・非表示を一定間隔で切り替える点滅エフェクトになります。
 
 ---
 
@@ -121,40 +121,40 @@ public static float timeScale { get; set; }
 | `2.0` | 倍速 |
 | `0.0` | ゲームポーズ（時間が止まる） |
 
-前のセクションで作った `Blinker` に `[SerializeField]` で `timeScale` を持たせると、Inspector から値を変えるだけで点滅速度が変化することを確認できます。
+前のセクションで作った `Blinker` に `[SerializeField]` で `_timeScale` を持たせると、Inspector から値を変えるだけで点滅速度が変化することを確認できます。
 
 ```csharp
 using UnityEngine;
 
 public class Blinker : MonoBehaviour
 {
-    [SerializeField] private float interval = 0.5f;
-    [SerializeField] private float timeScale = 1.0f;  // Inspector から変更できる
-    private float timer = 0f;
-    private bool isOn = true;
+    [SerializeField] private float _interval = 0.5f;
+    [SerializeField] private float _timeScale = 1.0f;  // Inspector から変更できる
+    private float _timer = 0f;
+    private bool _isOn = true;
 
     private void Start()
     {
-        Time.timeScale = timeScale;
+        Time.timeScale = _timeScale;
     }
 
     private void Update()
     {
-        timer += Time.deltaTime;
+        _timer += Time.deltaTime;
 
-        if (timer >= interval)
+        if (_timer >= _interval)
         {
-            timer -= interval;
-            isOn = !isOn;
-            Debug.Log(isOn ? "ON" : "OFF");
+            _timer -= _interval;
+            _isOn = !_isOn;
+            Debug.Log(_isOn ? "ON" : "OFF");
         }
     }
 }
 ```
 
-`timeScale` を変えると `Time.deltaTime` の値が変わるため、`timer` の積算速度が変化します。
+`_timeScale` を変えると `Time.deltaTime` の値が変わるため、`_timer` の積算速度が変化します。
 
-| Inspector の `timeScale` | `Time.deltaTime` の変化 | 現実時間での切り替わり |
+| Inspector の `_timeScale` | `Time.deltaTime` の変化 | 現実時間での切り替わり |
 |---|---|---|
 | `0.5` | 半分になる | 1.0 秒ごと（遅い） |
 | `1.0` | そのまま | 0.5 秒ごと（通常） |
@@ -168,18 +168,18 @@ public class Blinker : MonoBehaviour
 ## よくあるミス
 
 ```csharp
-// ❌ NG: timer = 0 でリセットすると超過分が捨てられ、長時間でズレが蓄積する
-if (timer >= interval)
+// ❌ NG: _timer = 0 でリセットすると超過分が捨てられ、長時間でズレが蓄積する
+if (_timer >= _interval)
 {
-    timer = 0;
-    isOn = !isOn;
+    _timer = 0;
+    _isOn = !_isOn;
 }
 
 // ✅ OK: 超過分を差し引いて次のサイクルに持ち越す
-if (timer >= interval)
+if (_timer >= _interval)
 {
-    timer -= interval;
-    isOn = !isOn;
+    _timer -= _interval;
+    _isOn = !_isOn;
 }
 ```
 
@@ -188,9 +188,9 @@ if (timer >= interval)
 ## まとめ
 
 - `Time.time` はゲーム開始からの累計経過時間（ゲーム時間）
-- 開始時刻をフィールドに記録し `Time.time - startTime` で経過時間を計算できる
+- 開始時刻をフィールドに記録し `Time.time - _startTime` で経過時間を計算できる
 - `Time.deltaTime` をフィールドに積算してしきい値で処理するパターンで一定間隔の繰り返しを作れる
-- `timer -= interval` で超過分を持ち越すとズレが生じない
+- `_timer -= _interval` で超過分を持ち越すとズレが生じない
 - `Time.timeScale` でゲーム時間の速さを制御できる（`0` でポーズ、`Time.deltaTime` が `0` になりタイマーが止まる）
 
 ---
@@ -204,15 +204,15 @@ if (timer >= interval)
 3. 次のコードは何秒ごとに状態を切り替えますか？
 
    ```csharp
-   [SerializeField] private float interval = 1.5f;
-   private float timer = 0f;
+   [SerializeField] private float _interval = 1.5f;
+   private float _timer = 0f;
 
    private void Update()
    {
-       timer += Time.deltaTime;
-       if (timer >= interval)
+       _timer += Time.deltaTime;
+       if (_timer >= _interval)
        {
-           timer -= interval;
+           _timer -= _interval;
            // 状態を切り替える処理
        }
    }
@@ -222,8 +222,8 @@ if (timer >= interval)
 <summary>解答を見る</summary>
 
 1. `Time.time` はゲーム開始時を `0` とした**累計**経過時間。`Time.deltaTime` は**前のフレームから今のフレームまで**の短い経過時間。
-2. `Time.deltaTime` が `0` になるため、`timer` の積算が止まりタイマーが自動的にポーズされる。
-3. `interval = 1.5f` なので、**1.5秒**ごとに切り替わる。
+2. `Time.deltaTime` が `0` になるため、`_timer` の積算が止まりタイマーが自動的にポーズされる。
+3. `_interval = 1.5f` なので、**1.5秒**ごとに切り替わる。
 
 </details>
 

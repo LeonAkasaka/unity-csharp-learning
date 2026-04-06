@@ -69,15 +69,17 @@ using UnityEngine;
 
 public class FieldSample : MonoBehaviour
 {
-    private int count = 0;  // フィールド: フレームをまたいで保持される
+    private int _count = 0;  // フィールド: フレームをまたいで保持される
 
     private void Update()
     {
-        count++;
-        Debug.Log(count);  // 1, 2, 3 … と増えていく
+        _count++;
+        Debug.Log(_count);  // 1, 2, 3 … と増えていく
     }
 }
 ```
+
+> 💡 **ポイント**: `private` フィールドには**アンダースコア `_` を先頭に付ける**命名慣習があります（`_count`・`_speed` など）。メソッド内のローカル変数（`var count`）との区別が一目でつき、コードが読みやすくなります。
 
 ---
 
@@ -100,18 +102,18 @@ using UnityEngine.InputSystem;
 
 public class PlayerMover : MonoBehaviour
 {
-    private float speed = 5.0f;  // 速度をフィールドで管理
+    private float _speed = 5.0f;  // 速度をフィールドで管理
 
     private void Update()
     {
         if (Keyboard.current.rightArrowKey.isPressed)
         {
-            transform.Translate(Vector3.right * speed * Time.deltaTime);
+            transform.Translate(Vector3.right * _speed * Time.deltaTime);
         }
 
         if (Keyboard.current.leftArrowKey.isPressed)
         {
-            transform.Translate(Vector3.left * speed * Time.deltaTime);
+            transform.Translate(Vector3.left * _speed * Time.deltaTime);
         }
     }
 }
@@ -119,7 +121,7 @@ public class PlayerMover : MonoBehaviour
 
 ---
 
-## 4. [SerializeField] で Inspector から値を編集する
+## 4. [SerializeField]で Inspector から値を編集する
 
 `private` フィールドはクラスの外部からアクセスできませんが、**`[SerializeField]` 属性**を付けると、コードを書き直さずに Unity の Inspector ビューから値を編集できるようになります。
 
@@ -136,18 +138,18 @@ using UnityEngine.InputSystem;
 
 public class PlayerMover : MonoBehaviour
 {
-    [SerializeField] private float speed = 5.0f;
+    [SerializeField] private float _speed = 5.0f;
 
     private void Update()
     {
         if (Keyboard.current.rightArrowKey.isPressed)
         {
-            transform.Translate(Vector3.right * speed * Time.deltaTime);
+            transform.Translate(Vector3.right * _speed * Time.deltaTime);
         }
 
         if (Keyboard.current.leftArrowKey.isPressed)
         {
-            transform.Translate(Vector3.left * speed * Time.deltaTime);
+            transform.Translate(Vector3.left * _speed * Time.deltaTime);
         }
     }
 }
@@ -174,10 +176,10 @@ Inspector ビューの Script コンポーネントに **Speed** フィールド
 
 1. `Update` 内でカウンターを作りたいのに、値が毎フレーム `1` になってしまいます。原因は何ですか？
 2. `[SerializeField]` を付けるメリットを2つ答えてください。
-3. 次のコードの `speed` フィールドを Inspector から編集できるように修正してください。
+3. 次のコードの `_speed` フィールドを Inspector から編集できるように修正してください。
 
    ```csharp
-   private float speed = 3.0f;
+   private float _speed = 3.0f;
    ```
 
 <details markdown="1">
@@ -186,7 +188,7 @@ Inspector ビューの Script コンポーネントに **Speed** フィールド
 1. カウンターが `Update` メソッド内（ローカル変数）で宣言されているため、毎フレーム `0` に初期化されている。フィールドとしてクラスレベルで宣言する必要がある。
 2. ①コードを変更せずに Inspector から値を調整できる　②`private` を保ちながら外部編集できるためカプセル化が崩れない。
 3. ```csharp
-   [SerializeField] private float speed = 3.0f;
+   [SerializeField] private float _speed = 3.0f;
    ```
 
 </details>

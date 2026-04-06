@@ -307,7 +307,7 @@ private void OnTriggerEnter(Collider other)
 
 `Time.time` を使って制限時間を実装しましょう。一定時間が経過したらゲームを停止して最終スコアを表示します。
 
-ヒント: `[SerializeField] private float timeLimit = 30f;` と `private float _startTime;` を組み合わせます。`Start` で `_startTime = Time.time;` を記録し、`Update` で `Time.time - _startTime` が `timeLimit` を超えたら `Debug.Log` でスコアを表示して `enabled = false;` でスクリプトを止めます。
+ヒント: `[SerializeField] private float _timeLimit = 30f;` と `private float _startTime;` を組み合わせます。`Start` で `_startTime = Time.time;` を記録し、`Update` で `Time.time - _startTime` が `_timeLimit` を超えたら `Debug.Log` でスコアを表示して `enabled = false;` でスクリプトを止めます。
 
 ---
 
