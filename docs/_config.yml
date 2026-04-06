@@ -2,14 +2,11 @@ title: Unity & C# 学習教材
 description: Unity と C# の基礎を学ぶための日本語教材サイトです。
 baseurl: "/unity-csharp-learning"
 url: "https://LeonAkasaka.github.io"
+repository: LeonAkasaka/unity-csharp-learning
 
-theme: minima
+theme: jekyll-theme-primer
 
 lang: ja
-
-# Minima テーマ設定
-minima:
-  skin: classic
 
 # ナビゲーション
 header_pages:
