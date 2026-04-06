@@ -11,7 +11,7 @@ permalink: /csharp/loops/
 ## 学習目標
 
 - `while` 文で条件が成立する間ループできる
-- 無限ループの仕組みと危険性を理解し、`break` で脱出できる
+- 無限ループの仕組みと危険性を理解できる（`break` については [break と continue（補足）](/unity-csharp-learning/csharp/break-and-continue/) を参照）
 - `do-while` 文と `while` 文の違いを説明できる
 - `for` 文の 3 つの部分（初期化・条件・更新）を理解して書ける
 - `foreach` 文で文字列の各文字を走査できる
@@ -23,6 +23,10 @@ permalink: /csharp/loops/
 ---
 
 ## 1. while 文
+
+条件分岐の `if` 文は「条件が成立したとき、1 回だけ処理を実行する」構文でした。では「条件が成立し続ける間、何度でも繰り返したい」場合はどうすればよいでしょうか。たとえば「HP が 0 になるまで攻撃し続ける」「ユーザーが正しい値を入力するまで再入力を促す」といった処理です。これを実現するのが `while` 文です。
+
+`while` 文はループの先頭で条件を評価し、`true` の間ブロックを繰り返します。条件が最初から `false` であれば、ブロックは 1 回も実行されません。
 
 **書式：while 文**
 ```
@@ -48,18 +52,28 @@ int count = 0;
 
 while (count < 3)
 {
-    Console.WriteLine(count);
+    Console.WriteLine($"count={count}");
     count = count + 1;
 }
 ```
 
 ```
-0
-1
-2
+count=0
+count=1
+count=2
 ```
 
 `count` が `0`・`1`・`2` のときは `count < 3` が `true` なのでループが続きます。`count` が `3` になると `false` になり、ループを抜けます。
+
+```mermaid
+flowchart TD
+    A([開始]) --> B["count = 0"]
+    B --> C{"countが3未満か"}
+    C -- true --> D["countを出力"]
+    D --> E["count = count + 1"]
+    E --> C
+    C -- false --> F([終了])
+```
 
 > 💡 **ポイント**: `count = count + 1` は `count++` と書くこともできます（インクリメント演算子）。
 
@@ -78,36 +92,7 @@ while (true)
 
 このコードはプログラムが止まらなくなります。**無限ループはプログラムをフリーズさせる原因**になるため、意図しない無限ループには注意が必要です。
 
-### break — ループを強制終了する
-
-`break` 文を使うと、ループの途中で強制的に抜け出せます。`while (true)` と組み合わせることで「ループの先頭ではなく途中で終了条件を判定する」構造が書けます。
-
-**書式：break 文**
-```
-break;
-```
-
-```csharp
-int count = 0;
-
-while (true)
-{
-    if (count >= 3)
-    {
-        break;  // count が 3 以上になったらループを抜ける
-    }
-    Console.WriteLine(count);
-    count++;
-}
-```
-
-```
-0
-1
-2
-```
-
-### 無限ループになりやすいミス
+無限ループを意図的に使いつつ途中で抜け出す方法（`break`）や、特定の繰り返しをスキップする方法（`continue`）については [break と continue（補足）](/unity-csharp-learning/csharp/break-and-continue/) で詳しく解説しています。
 
 条件式の変数を更新し忘れると、条件が永遠に `true` のままになり無限ループになります。
 
@@ -127,6 +112,8 @@ while (count < 3)
 ---
 
 ## 3. do-while 文
+
+`while` 文は条件を「ループの前」に判定するため、最初から条件が `false` であればブロックは 1 回も実行されません。しかし「まず 1 回は必ず実行し、その後継続するか判断したい」場面もあります。たとえばゲームのリトライ確認では「結果を表示してから続けるか尋ねる」という順番になり、最初の 1 回は必ず実行されます。そのような場合に使うのが `do-while` 文です。
 
 **書式：do-while 文**
 ```
@@ -148,16 +135,26 @@ int count = 5;
 
 do
 {
-    Console.WriteLine(count);
+    Console.WriteLine($"count={count}");
     count++;
 } while (count < 3);
 ```
 
 ```
-5
+count=5
 ```
 
 `count` が最初から `5` で `count < 3` は `false` ですが、条件チェックはループ本体の**後**なので 1 回だけ実行されます。
+
+```mermaid
+flowchart TD
+    A([開始]) --> B["count = 5"]
+    B --> C["countを出力"]
+    C --> D["count++"]
+    D --> E{"countが3未満か"}
+    E -- true --> C
+    E -- false --> F([終了])
+```
 
 ---
 
@@ -182,33 +179,39 @@ for (初期化式; 条件式; 更新式)
 ```csharp
 for (int i = 0; i < 3; i++)
 {
-    Console.WriteLine(i);
+    Console.WriteLine($"i={i}");
 }
 ```
 
 ```
-0
-1
-2
-```
-
-先ほどの `while` で書いたコードとまったく同じ動作です。実行の流れを追うと次のようになります。
+i=0
+i=1
+i=2
+```実行の流れを追うと次のようになります。
 
 ```
 ① int i = 0  （初期化）
 ② i < 3 → true  （条件チェック）
-③ Console.WriteLine(0)  （ループ本体）
+③ "i=0" を出力  （ループ本体）
 ④ i++  → i = 1  （更新）
 ② i < 3 → true
-③ Console.WriteLine(1)
+③ "i=1" を出力
 ④ i++ → i = 2
 ② i < 3 → true
-③ Console.WriteLine(2)
+③ "i=2" を出力
 ④ i++ → i = 3
 ② i < 3 → false  → ループ終了
 ```
 
-### for と while の対応関係
+```mermaid
+flowchart TD
+    A([開始]) --> B["int i = 0（初期化）"]
+    B --> C{"iが3未満か（条件）"}
+    C -- true --> D["iを出力（ループ本体）"]
+    D --> E["i++（更新）"]
+    E --> C
+    C -- false --> F([終了])
+```
 
 `for` は `while` の書き換えです。どちらも同じ処理を表します。
 
@@ -233,6 +236,10 @@ while (i < 5)
 ---
 
 ## 5. foreach 文
+
+`for` 文では「何番目の要素か」を表すインデックス（`i` など）を自分で管理する必要があります。しかし「先頭から順番に全要素を処理したい」だけの場面では、インデックスは本来不要なはずです。`foreach` 文はその煩わしさを解消する構文で、**コレクション（複数の値のまとまり）から要素を 1 つずつ自動的に取り出してループ**します。
+
+配列やリストといったコレクションについてはこの章では扱いませんが、文字列（`string`）も「文字（`char`）の並び」として扱えるため、`foreach` の動作を確認するのに最適です。配列と `foreach` の組み合わせは[配列の基礎](/unity-csharp-learning/csharp/arrays/)で詳しく学びます。
 
 **書式：foreach 文**
 ```
@@ -268,7 +275,18 @@ l
 o
 ```
 
-> 💡 **ポイント**: `foreach` の真価は配列やリストで発揮されます。配列については[配列の章]で詳しく学びます。
+`text` の先頭から 1 文字ずつ `ch` に取り出し、すべての文字を処理し終えるとループを抜けます。
+
+```mermaid
+flowchart TD
+    A([開始]) --> C{"次の文字があるか"}
+    C -- ある --> D["chに次の文字を取り出す"]
+    D --> E["chを出力"]
+    E --> C
+    C -- ない --> F([終了])
+```
+
+> 💡 **ポイント**: `foreach` の真価は配列やリストで発揮されます。配列については[配列の基礎](/unity-csharp-learning/csharp/arrays/)で詳しく学びます。
 
 ---
 
@@ -308,7 +326,7 @@ foreach (var ch in text)
 ## まとめ
 
 - **`while`** — 条件が `true` の間ループ。条件はループ**前**に判定
-- **`break`** — ループを強制終了する。無限ループ `while (true)` と組み合わせて使うことも多い
+- **`break`** — ループを強制終了する。[break と continue（補足）](/unity-csharp-learning/csharp/break-and-continue/) を参照
 - **`do-while`** — `while` と同じだが条件はループ**後**に判定。必ず 1 回は実行される
 - **`for`** — 初期化・条件・更新を 1 行に書けるカウンターループ
 - **`foreach`** — コレクションの要素を 1 つずつ取り出すループ。カウンター不要
@@ -323,7 +341,7 @@ foreach (var ch in text)
    int i = 1;
    while (i <= 4)
    {
-       Console.WriteLine(i);
+       Console.WriteLine($"i={i}");
        i += 2;
    }
    ```
@@ -343,7 +361,7 @@ foreach (var ch in text)
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. `1` と `3`。`i` は `1` → `3` → `5` と変化し、`5` になると `i <= 4` が `false` になってループを抜ける。
+1. `i=1` と `i=3`。`i` は `1` → `3` → `5` と変化し、`5` になると `i <= 4` が `false` になってループを抜ける。
 
 2. 1 回。最初に `count--` で `count` が `9` になり、その後 `count > 10` は `false` なのでループを抜ける。最終的な `count` の値は `9`。
 
