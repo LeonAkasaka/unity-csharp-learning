@@ -103,7 +103,13 @@ Font Asset を作成するには「Window」→「TextMeshPro」→「Font Asset
 
 `Character Set` で「Custom Characters」を選ぶと下部に `Custom Character List` テキストボックスが表示されます。使用する文字を貼り付けてください。使用文字が事前に確定できない場合はひらがな・カタカナ・記号・常用漢字を含む文字セット（JIS X 0208 相当）を用意しておくと便利です。
 
+[JIS X 0208 相当文字一覧](./JISX0208.txt)
+
+上のリンクを開き、全文をコピーして `Custom Character List` に貼り付けてください。
+
 設定が完了したら「Generate Font Atlas」ボタンを押します。ウィンドウ右側にプレビューが表示されます。
+
+> ⚠️ **注意**: 全文字セットを含めた場合、フォントアトラスの生成には数分かかることがあります。生成中は Unity エディターが応答しなくなりますが、完了するまでそのまま待ってください。
 
 ![Font Asset Creator でフォントアトラスが生成されたプレビュー](./image-10.png)
 
