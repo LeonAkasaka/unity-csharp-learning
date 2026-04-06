@@ -146,25 +146,31 @@ p2.score=0
 
 ### フィールドとローカル変数を混同する
 
+インスタンスのフィールドを変更したつもりが、同名のローカル変数を作っただけになることがあります。
+
 ```csharp
 class Player
 {
+    public string name;
     public int hp;
-
-    public void Reset()
-    {
-        int hp = 100;  // ❌ NG: フィールドではなくローカル変数 hp を新たに作っている
-    }
-
-    public void ResetCorrect()
-    {
-        hp = 100;      // ✅ OK: フィールドの hp に代入
-        // または this.hp = 100; と明示的に書くこともできる
-    }
 }
+
+Player p = new Player();
+p.name = "Alice";
+
+int hp = 100;              // ❌ NG: ローカル変数 hp を作っているだけ。p.hp は変わらない
+Console.WriteLine(p.hp);  // 0（フィールドの初期値のまま）
+
+p.hp = 100;                // ✅ OK: インスタンスのフィールドに代入
+Console.WriteLine(p.hp);  // 100
 ```
 
-メソッド内で同名のローカル変数を宣言するとフィールドが隠れます。フィールドを明示したい場合は `this.フィールド名` と書きます。
+```
+0
+100
+```
+
+`p.hp` にアクセスするには必ずインスタンス変数（`p`）を経由します。`int hp = 100;` はそのブロック内だけで有効なローカル変数であり、フィールドとは別物です。
 
 ---
 
