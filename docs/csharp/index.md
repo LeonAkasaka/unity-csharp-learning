@@ -48,7 +48,7 @@ C# プログラミングをゼロから学びます。
 
 | # | トピック | 概要 |
 |---|---|---|
-| 12 | [クラスとインスタンス](/unity-csharp-learning/csharp/classes/) | クラスの定義・インスタンス生成・フィールド |
+| 12 | [クラスとフィールド](/unity-csharp-learning/csharp/classes/) | クラスの定義・インスタンス生成・フィールド |
 | 13 | [メソッド](/unity-csharp-learning/csharp/methods/) | メソッドの定義・パラメータ・戻り値・オーバーロード |
 | 14 | [コンストラクタ](/unity-csharp-learning/csharp/constructors/) | `new` 時の自動初期化・デフォルトコンストラクタ |
 | 15 | [アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) | `public` / `private` によるカプセル化 |
