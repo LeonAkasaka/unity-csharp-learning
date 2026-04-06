@@ -38,6 +38,40 @@ GameObject[] _enemies = new GameObject[3];
 // _enemies[0]・_enemies[1]・_enemies[2] はすべて null
 ```
 
+### 動作確認：Cube を生成して回転させる
+
+`GameObject[]` に Cube を格納し、`Update()` でまとめて回転させるサンプルです。配列を使うことで、複数のオブジェクトをループ 1 本で操作できます。
+
+```csharp
+using UnityEngine;
+
+public class CubeArray : MonoBehaviour
+{
+    private GameObject[] _cubes;
+
+    private void Start()
+    {
+        _cubes = new GameObject[5];
+
+        for (int i = 0; i < _cubes.Length; i++)
+        {
+            _cubes[i] = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            _cubes[i].transform.position = new Vector3(i * 2f, 0f, 0f);
+        }
+    }
+
+    private void Update()
+    {
+        foreach (GameObject cube in _cubes)
+        {
+            cube.transform.Rotate(0f, 90f * Time.deltaTime, 0f);
+        }
+    }
+}
+```
+
+`Start()` で 5 つの Cube を生成し、配列に格納します。`Update()` では `foreach` で全要素を順に取り出し、Y 軸回転を適用します。Cube の数を `5` から変えてもコードの残りはそのままで動作します。
+
 ## 2. Inspector で配列を管理する
 
 `[SerializeField]` を使うと、Inspector 上で配列の要素数を設定し、ドラッグ&ドロップで値を登録できます。
