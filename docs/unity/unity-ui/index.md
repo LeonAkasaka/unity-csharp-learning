@@ -47,7 +47,7 @@ Unity の標準 UI には歴史的な経緯で2種類あるので混同しない
 
 ![「GameObject」→「UI」→「Button - TextMeshPro」を選択している画面](./image-2.png)
 
-プロジェクトに最初に TextMesh Pro 依存コンポーネントを含める場合、TMP Importer ダイアログが表示されます。「Import TMP Essentials」ボタンを押して必要なアセットをインポートしてください。
+プロジェクトに最初に TextMesh Pro 依存コンポーネントを含める場合、TMP Importer ダイアログが表示されます。「Import TMP Essentials」ボタンを押して必要なアセットをインポートしてください。詳細は [TextMesh Pro](/unity-csharp-learning/unity/textmesh-pro/) を参照してください。
 
 ![TMP Importer ダイアログ](./image-3.png)
 
@@ -136,7 +136,7 @@ Inspector ビューで Button コンポーネントの下部にある `On Click 
 
 最後に、ボタンが押された回数をボタン自身のテキストに表示するプログラムを実装します。
 
-ボタンのテキストには TextMesh Pro が使われています。`[SerializeField]` 経由で `TMP_Text` フィールドに参照を設定し、クリックのたびにテキストを更新します。
+ボタンのテキストには TextMesh Pro が使われています。`[SerializeField]` 経由で `TMP_Text` フィールドに参照を設定し、クリックのたびにテキストを更新します。`TMP_Text` の詳細は [TextMesh Pro](/unity-csharp-learning/unity/textmesh-pro/) を参照してください。
 
 ```csharp
 using TMPro;
