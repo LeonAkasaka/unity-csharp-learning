@@ -42,4 +42,4 @@ Unity エディターの操作方法、GameObjects、コンポーネント、ス
 ## 動作環境
 
 - Unity 6 以降
-- Visual Studio 2022 または Visual Studio Code
+- Visual Studio 2026 または Visual Studio Code

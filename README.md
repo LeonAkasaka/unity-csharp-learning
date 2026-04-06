@@ -13,21 +13,17 @@ Unity と C# の基礎を学ぶための日本語教材サイトです。
 
 ```
 docs/
-  index.md          # トップページ
-  csharp/           # C# 基礎
-    index.md
-    variables/      # 1ページ = 1フォルダー（関連アセットも同フォルダー内）
-  unity/            # Unity 基礎
-    index.md
-samples/
-  csharp/           # C# サンプルコード
-  unity/            # Unity サンプルスクリプト
+  index.md      # トップページ
+  csharp/       # C# 基礎
+  unity/        # Unity 基礎（Unity UI サブセクションを含む）
+  hands-on/     # ハンズオン
+  grid-games/   # グリッドゲーム
 ```
 
 ## 動作環境
 
 - Unity 6 以降
-- Visual Studio 2022 または Visual Studio Code
+- Visual Studio 2026 または Visual Studio Code
 
 ## ローカルでのプレビュー
 
