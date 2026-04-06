@@ -1,0 +1,16 @@
+<!-- Mermaid ダイアグラムライブラリ -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // kramdown は ```mermaid を pre > code.language-mermaid に変換する
+    // pre ごと div.mermaid に差し替えて Mermaid に処理させる
+    document.querySelectorAll("code.language-mermaid").forEach(function (el) {
+      var pre = el.parentElement;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = el.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  });
+</script>
