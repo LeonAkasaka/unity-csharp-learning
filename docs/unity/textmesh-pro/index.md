@@ -148,7 +148,7 @@ using UnityEngine;
 public class Sample : MonoBehaviour
 {
     [SerializeField]
-    private TMP_Text _textUi = default;
+    private TMP_Text _textUi = null;
 
     private void Start()
     {
@@ -184,7 +184,7 @@ Inspector ビューの `_textUi` 欄に TextMesh Pro ゲームオブジェクト
 
    ```csharp
    [SerializeField]
-   private TMP_Text _label = default;
+   private TMP_Text _label = null;
 
    private void Start()
    {

@@ -30,12 +30,13 @@ permalink: /unity/unity-ui/
 
 ゲームのメニュー画面等で見られる「ボタン」「テキスト」「選択項目リスト」など、ユーザーに情報を表示したり、ユーザーの入力に反応するコンポーネントをユーザーインターフェース（User Interface）と呼び、一般に省略して **UI** と呼びます。
 
-Unity の標準 UI には歴史的な経緯で2種類あるので混同しないよう注意してください。
+Unity の標準 UI には歴史的な経緯で複数の種類があるので混同しないよう注意してください。
 
 | 種類 | 概要 |
 |---|---|
 | [Immediate Mode GUI（IMGUI）](https://docs.unity3d.com/Manual/GUIScriptingGuide.html) | 古くから存在するスクリプトベースの UI。デバッグ用途向けで、ゲームへの組み込みは推奨しない |
-| [Unity UI（uGUI）](https://docs.unity3d.com/Packages/com.unity.ugui@1.0/manual/index.html) | ゲームオブジェクトの階層で UI 構造を表現できる、現在の標準的な UI システム |
+| [Unity UI（uGUI）](https://docs.unity3d.com/Packages/com.unity.ugui@1.0/manual/index.html) | ゲームオブジェクトの階層で UI 構造を表現できる UI システム。現在も広く使われている |
+| [UI Toolkit](https://docs.unity3d.com/Manual/UIElements.html) | Unity 6 以降で推奨される新しい UI システム。Web 技術に近い構造を持つ |
 
 本ページでは **Unity UI（uGUI）** を使ったボタンの動作について解説します。
 
@@ -59,7 +60,7 @@ Unity の標準 UI には歴史的な経緯で2種類あるので混同しない
 
 通常、UI はスクリーンに固定して表示するためカメラの動きとは連動しません。Unity UI はカメラの影響を受けず、スクリーン全域に対応する Canvas に管理される仕組みになっています。Unity UI は**必ず Canvas ゲームオブジェクトの子に配置**しなければなりません。
 
-また、Canvas の下に配置されるゲームオブジェクトの `Transform` コンポーネントはすべて **`RectTransform`** に置き換えられる点にも注目してください。
+また、Canvas の下に配置される Unity UI コンポーネント（Button や Image など）のゲームオブジェクトは、`Transform` の代わりに **`RectTransform`** を持つ点にも注目してください。
 
 ![Canvas ゲームオブジェクトの Inspector ビュー（RectTransform）](./image-5.png)
 
@@ -182,7 +183,7 @@ public class Clicker : MonoBehaviour
 ## まとめ
 
 - Unity UI（uGUI）ゲームオブジェクトは必ず **Canvas の子**に配置する
-- Canvas 下のゲームオブジェクトの `Transform` は **`RectTransform`** に置き換えられる
+- Canvas 下の Unity UI コンポーネントは `Transform` の代わりに **`RectTransform`** を持つ
 - ボタンのクリックイベントは Inspector の **`On Click ()`** から `public` メソッドと紐付けられる
 - `[SerializeField]` を使えば Inspector から UI コンポーネントの参照を設定できる
 
@@ -193,7 +194,7 @@ public class Clicker : MonoBehaviour
 以下の問いに答えられるか確認しましょう。
 
 1. Unity UI のゲームオブジェクトはどこに配置しなければなりませんか？
-2. Canvas 下のゲームオブジェクトで `Transform` の代わりに使われるコンポーネントは何ですか？
+2. Canvas 下の Unity UI コンポーネントで `Transform` の代わりに使われるコンポーネントは何ですか？
 3. ボタンが押されたときに呼び出したいメソッドをスクリプトに定義しましたが、Inspector の `On Click ()` 欄に表示されません。考えられる原因は何ですか？
 
 <details markdown="1">
