@@ -19,9 +19,9 @@ permalink: /grid-games/
 
 ## 前提知識
 
-- [② Unity 基礎](/unity-csharp-learning/unity/) の内容（スクリプト・UI・Prefab など）を理解していること
+- [Unity 基礎](/unity-csharp-learning/unity/) の内容（スクリプト・UI・Prefab など）を理解していること
 
-## チュートリアル一覧
+## 配列によるゲームオブジェクト管理
 
 1. [配列の基礎](/unity-csharp-learning/grid-games/array-basics/) — 一次元配列の宣言・初期化・ループ処理
 2. [二次元配列](/unity-csharp-learning/grid-games/array-2d/) — 二次元配列と盤面データの管理
