@@ -1,16 +1,16 @@
 ---
 layout: page
-title: ③ ハンズオン
+title: ハンズオン
 permalink: /hands-on/
 ---
 
-# ③ ハンズオン
+# ハンズオン
 
 外部アセットを活用して、実際にキャラクターを動かすチュートリアルです。Unity 基礎の知識を前提としています。
 
 ## 前提条件
 
-- [② Unity 基礎](/unity-csharp-learning/unity/) の内容を理解していること
+- [Unity 基礎](/unity-csharp-learning/unity/) の内容を理解していること
 - Unity 6 以降がインストールされていること
 
 ## チュートリアル一覧
