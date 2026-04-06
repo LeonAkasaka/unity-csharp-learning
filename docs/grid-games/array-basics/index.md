@@ -103,7 +103,7 @@ public class EnemyManager : MonoBehaviour
 
 ## 3. 実践パターン A：スポーンポイント管理（Transform[]）
 
-複数のスポーン位置を `Transform[]` で管理し、ランダムな位置に敵を出現させるパターンです。シーン上に空の GameObject を複数配置して `_spawnPoints` に登録します。
+複数のスポーン位置を `Transform[]` で管理し、一定間隔でランダムな位置に Cube を出現させるパターンです。シーン上に空の GameObject を複数配置して `_spawnPoints` に登録します。
 
 ```csharp
 using UnityEngine;
@@ -111,35 +111,33 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private Transform[] _spawnPoints;
-    [SerializeField] private GameObject _enemyPrefab;
+    [SerializeField] private float _interval = 1.5f;
 
-    private void Start()
+    private float _timer;
+
+    private void Update()
     {
-        SpawnAtRandom();
+        _timer += Time.deltaTime;
+        if (_timer >= _interval)
+        {
+            _timer = 0f;
+            SpawnAtRandom();
+        }
     }
 
-    // ランダムな 1 か所にスポーン
     private void SpawnAtRandom()
     {
         if (_spawnPoints.Length == 0) { return; }
 
         int index = Random.Range(0, _spawnPoints.Length);
-        Transform spawnPoint = _spawnPoints[index];
-        Instantiate(_enemyPrefab, spawnPoint.position, spawnPoint.rotation);
-    }
-
-    // 全スポーンポイントにスポーン
-    private void SpawnAtAll()
-    {
-        foreach (Transform spawnPoint in _spawnPoints)
-        {
-            Instantiate(_enemyPrefab, spawnPoint.position, spawnPoint.rotation);
-        }
+        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.transform.position = _spawnPoints[index].position;
+        cube.AddComponent<Rigidbody>();
     }
 }
 ```
 
-`Transform` を使うと位置（`position`）と向き（`rotation`）をまとめて扱えます。スポーン位置をシーン上のオブジェクトとして視覚的に確認・調整できます。
+`_timer` に `Time.deltaTime` を加算し、`_interval` 秒を超えるたびにスポーンします。`AddComponent<Rigidbody>()` を呼ぶと物理演算が有効になり、Cube が重力で落下します。`Transform` を使うと位置（`position`）をシーン上のオブジェクトとして視覚的に確認・調整できます。
 
 ## 4. 実践パターン B：ウェイポイントパトロール（Vector3[]）
 
