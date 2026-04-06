@@ -1,8 +1,10 @@
 ---
-layout: default
+layout: page
 title: 二次元配列
 permalink: /grid-games/array-2d/
 ---
+
+# 二次元配列
 
 ## 概要
 

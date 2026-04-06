@@ -1,8 +1,10 @@
 ---
-layout: default
+layout: page
 title: 三目並べ
 permalink: /grid-games/tic-tac-toe/
 ---
+
+# 三目並べ
 
 ## 学習目標
 - 二次元配列でゲーム盤面を管理できるようになる

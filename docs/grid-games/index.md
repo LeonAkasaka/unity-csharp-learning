@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: page
 title: グリッドゲーム
 permalink: /grid-games/
 ---
@@ -31,5 +31,3 @@ permalink: /grid-games/
 6. [ライフゲーム](/unity-csharp-learning/grid-games/life-game/) — 内部データと表示の分離・世代更新
 
 ---
-
-{% include prev-next-nav.html prev_url="/unity-csharp-learning/hands-on/" prev_title="③ ハンズオン" %}

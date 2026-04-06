@@ -1,8 +1,10 @@
 ---
-layout: default
+layout: page
 title: マインスイーパー
 permalink: /grid-games/minesweeper/
 ---
+
+# マインスイーパー
 
 ## 学習目標
 - ゲームの構成要素を部品（セル）として設計できるようになる
@@ -657,3 +659,13 @@ public class Minesweeper : MonoBehaviour
 ## 課題6 周囲に地雷がないセルは自動展開する
 
 ![](./image-29.png)
+
+---
+
+## まとめ
+
+- CellState 列挙型でセルの状態（地雷・数値・空）を型安全に表現した
+- Cell クラスにプロパティを実装し、状態変化と見た目の更新を連動させた
+- GridLayoutGroup を使って格子状に Cell プレハブを自動配置した
+- OnValidate() メソッドで Inspector 上での状態変更をリアルタイムに反映した
+- 地雷配置・周囲地雷数の計算・セル公開・ゲーム終了判定は課題として残っている

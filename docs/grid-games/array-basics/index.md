@@ -1,8 +1,10 @@
 ---
-layout: default
+layout: page
 title: 配列の基礎
 permalink: /grid-games/array-basics/
 ---
+
+# 配列の基礎
 
 ## 概要
 
@@ -436,7 +438,6 @@ for (int i = 0; i < 5; i++)  // IndexOutOfRangeException エラー！
 ### 5-1. Length プロパティ
 
 C# の配列は全て `Array` 型の共通機能を持っています。`Length` プロパティは `Array` 型が提供するプロパティの一つで、配列のサイズ（要素の数）を取得できます。
-
 
 ```csharp
 public int Length { get; }

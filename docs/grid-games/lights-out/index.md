@@ -1,8 +1,10 @@
 ---
-layout: default
+layout: page
 title: ライツアウト
 permalink: /grid-games/lights-out/
 ---
+
+# ライツアウト
 
 ## 学習目標
 - グリッドの周囲探索（上下左右）を実装できるようになる
