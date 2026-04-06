@@ -51,16 +51,16 @@ public class Spawner : MonoBehaviour
     {
         _elapsed += Time.deltaTime;
 
-        if (_elapsed > 1f)
+        if (_elapsed >= 1f)
         {
-            _elapsed = 0f;
+            _elapsed -= 1f;
             Debug.Log("1秒経過");
         }
     }
 }
 ```
 
-`_elapsed` に `Time.deltaTime` を加え続けると、1秒後に `_elapsed > 1f` が `true` になります。その時点でリセットすることで、1秒ごとに繰り返し処理を実行できます。
+`_elapsed` に `Time.deltaTime` を加え続けると、1秒後に `_elapsed >= 1f` が `true` になります。その時点で `_elapsed -= 1f` と差し引くことで超過分が次のサイクルに持ち越され、1秒ごとに繰り返し処理を実行できます。
 
 ---
 
@@ -83,9 +83,9 @@ public class Spawner : MonoBehaviour
     {
         _elapsed += Time.deltaTime;
 
-        if (_elapsed > _interval)
+        if (_elapsed >= _interval)
         {
-            _elapsed = 0f;
+            _elapsed -= _interval;
             Debug.Log("スポーン");
         }
     }
@@ -140,9 +140,9 @@ public class Spawner : MonoBehaviour
     {
         _elapsed += Time.deltaTime;
 
-        if (_elapsed > _interval)
+        if (_elapsed >= _interval)
         {
-            _elapsed = 0f;
+            _elapsed -= _interval;
             Instantiate(_original, transform.position, Quaternion.identity);
         }
     }
@@ -193,9 +193,9 @@ public class Spawner : MonoBehaviour
     {
         _elapsed += Time.deltaTime;
 
-        if (_elapsed > _interval)
+        if (_elapsed >= _interval)
         {
-            _elapsed = 0f;
+            _elapsed -= _interval;
 
             var item = Instantiate(_original, transform.position, Quaternion.identity);
             var rb = item.GetComponent<Rigidbody>();
@@ -239,9 +239,9 @@ public class Spawner : MonoBehaviour
     {
         _elapsed += Time.deltaTime;
 
-        if (_elapsed > _interval)
+        if (_elapsed >= _interval)
         {
-            _elapsed = 0f;
+            _elapsed -= _interval;
 
             var item = Instantiate(_original, transform.position, Quaternion.identity);
             var rb = item.GetComponent<Rigidbody>();
@@ -298,9 +298,9 @@ public class Spawner : MonoBehaviour
     {
         _elapsed += Time.deltaTime;
 
-        if (_elapsed > _interval)
+        if (_elapsed >= _interval)
         {
-            _elapsed = 0f;
+            _elapsed -= _interval;
 
             if (transform.childCount >= _maxCount) return;  // 上限チェック
 
