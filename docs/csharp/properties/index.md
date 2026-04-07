@@ -428,4 +428,4 @@ public string Name { get; set; }
 
 ## 次のステップ
 
-**継承**（準備中）では、クラスを拡張して共通の機能を再利用する方法を学びます。
+**[インデクサ](/unity-csharp-learning/csharp/indexers/)** では、`[]` で要素にアクセスできる自作クラスの書き方を学びます。

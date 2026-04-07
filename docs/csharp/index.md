@@ -53,6 +53,7 @@ C# プログラミングをゼロから学びます。
 | 14 | [コンストラクタ](/unity-csharp-learning/csharp/constructors/) | `new` 時の自動初期化・デフォルトコンストラクタ |
 | 15 | [アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) | `public` / `private` によるカプセル化 |
 | 16 | [プロパティ](/unity-csharp-learning/csharp/properties/) | `get` / `set` アクセサー・自動実装・読み取り専用プロパティ |
+| 17 | [インデクサ](/unity-csharp-learning/csharp/indexers/) | `this[]` で配列のようにアクセスできるクラスの定義 |
 
 ## 前提知識
 
