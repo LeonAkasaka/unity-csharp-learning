@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="320" viewBox="0 0 920 320" role="img" aria-labelledby="title desc">
+  <title id="title">プレハブの関係図</title>
+  <desc id="desc">シーン上のゲームオブジェクトがプレハブとして保存され、複数のプレハブインスタンスが生成される関係を示す図。</desc>
+
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M1,1 L11,6 L1,11 Z" fill="#365486" />
+    </marker>
+    <style>
+      .label { font: 700 20px 'Meiryo', sans-serif; fill: #1f2a44; }
+      .small { font: 600 16px 'Meiryo', sans-serif; fill: #1f2a44; }
+      .count { font: 700 22px 'Meiryo', sans-serif; fill: #365486; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="920" height="320" fill="#f8fafc" />
+
+  <rect x="40" y="90" rx="16" ry="16" width="280" height="120" fill="#ffffff" stroke="#7aa2d6" stroke-width="3" />
+  <text x="180" y="145" text-anchor="middle" class="label">シーン上の</text>
+  <text x="180" y="178" text-anchor="middle" class="label">ゲームオブジェクト</text>
+
+  <line x1="322" y1="150" x2="472" y2="150" stroke="#365486" stroke-width="4" marker-end="url(#arrow)" />
+  <text x="398" y="126" text-anchor="middle" class="small">プレハブ化して保存</text>
+
+  <rect x="480" y="90" rx="16" ry="16" width="220" height="120" fill="#ffffff" stroke="#457b9d" stroke-width="3" />
+  <text x="590" y="145" text-anchor="middle" class="label">プレハブ</text>
+  <text x="590" y="177" text-anchor="middle" class="small">(アセット)</text>
+
+  <line x1="700" y1="150" x2="820" y2="150" stroke="#365486" stroke-width="4" marker-end="url(#arrow)" />
+  <text x="760" y="126" text-anchor="middle" class="small">シーンに生成</text>
+
+  <rect x="830" y="70" rx="12" ry="12" width="56" height="56" fill="#e8f1ff" stroke="#7aa2d6" stroke-width="2" />
+  <rect x="848" y="138" rx="12" ry="12" width="56" height="56" fill="#dcecff" stroke="#7aa2d6" stroke-width="2" />
+  <rect x="812" y="206" rx="12" ry="12" width="56" height="56" fill="#f0f6ff" stroke="#7aa2d6" stroke-width="2" />
+  <text x="858" y="295" text-anchor="middle" class="count">×N</text>
+  <text x="790" y="32" text-anchor="middle" class="small">プレハブインスタンス</text>
+</svg>
