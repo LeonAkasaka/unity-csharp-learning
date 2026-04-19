@@ -25,7 +25,6 @@ permalink: /unity/traffic-light/
 
 ## 1. スクリプトを準備する
 
-
 新しいシーンを作成し、球体 GameObject を作ります（メニューバー **GameObject → 3D Object → Sphere**）。
 
 ![球体オブジェクトを追加](image.png)
@@ -56,6 +55,41 @@ public T GetComponent<T>();
 | `T` | 型パラメーター | 取得したいコンポーネントの型（例: `Renderer`） |
 
 `MonoBehaviour` を継承しているスクリプトは、自分がアタッチされているゲームオブジェクトからコンポーネントを取得する `GetComponent()` メソッドを持ちます。従って、スクリプトの中で `GetComponent<Renderer>()` と直接書くことで「このスクリプトがアタッチされている GameObject から `Renderer` を取得する」という意味になります。
+
+もし `GetComponent` で要求したコンポーネントが**見つからない場合は `null` が返ります**。`null` のまま使おうとすると実行時エラーになるため、状況に応じて null チェックが必要です。
+
+```csharp
+// GetComponent + null チェック
+var r = GetComponent<Renderer>();
+if (r != null)
+{
+    // r を安全に使える
+}
+```
+
+`null` チェックを `if` の条件判定と取得を同時に行いたい場合は **`TryGetComponent<T>()`** が便利です。
+
+**`Component.TryGetComponent<T>()`** — コンポーネントを取得し、見つかった場合は `true`、見つからない場合は `false` を返します。<!-- [公式ドキュメント]() -->
+
+**書式：TryGetComponent メソッド**
+```csharp
+public bool TryGetComponent<T>(out T component);
+```
+
+| パラメータ | 説明 |
+|---|---|
+| `T` | 取得したいコンポーネントの型 |
+| `component` | 取得できた場合にコンポーネントが入る `out` 変数 |
+
+```csharp
+// TryGetComponent — 取得と null チェックを一度に行う
+if (TryGetComponent<Renderer>(out var r))
+{
+    // r を安全に使える
+}
+```
+
+どちらを選ぶかは好みの問題で、機能的な差はありません。パフォーマンス面では、エディター実行時にコンポーネントが見つからなかった場合に `GetComponent` は内部的に小さなアロケーションが発生することがありますが、`TryGetComponent` はそれを回避します。`Start` で一度だけ呼ぶ分には実用上の差はありません。
 
 ---
 
