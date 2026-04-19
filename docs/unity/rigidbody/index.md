@@ -37,6 +37,8 @@ public T AddComponent<T>() where T : Component;
 
 使い方はこれまでのメソッドと少し異なり、丸括弧 `()` の前に **山括弧 `<>`** を付けて追加したいコンポーネントの型を指定します。
 
+> 💡 **ポイント**: 通常のパラメータは `()` に入れて「値」を渡しますが、型パラメータは `<>` に入れて「型」を渡します。`AddComponent<Rigidbody>()` の `Rigidbody` は値ではなく、「どの型のコンポーネントを追加するか」を指定しています。
+
 ```csharp
 gameObject.AddComponent<Rigidbody>();
 ```
@@ -52,27 +54,19 @@ gameObject.AddComponent<Rigidbody>();
 ```csharp
 using UnityEngine;
 
-public class Domino : MonoBehaviour
+public class Sample : MonoBehaviour
 {
     private void Start()
     {
-        var stage = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        stage.name = "Stage";
-        stage.transform.localScale = new Vector3(20, 1, 10);
-
-        var startTile = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        startTile.name = "Start Tile";
-        startTile.transform.localScale = new Vector3(0.25F, 2, 1);
-        startTile.transform.position = new Vector3(-5, 1.5F, 0);
-        startTile.transform.rotation = Quaternion.Euler(0, 0, -10);
-        startTile.AddComponent<Rigidbody>();
+        var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.AddComponent<Rigidbody>();
     }
 }
 ```
 
 <video controls src="./video.mp4"></video>
 
-Rigidbody を追加した板は、傾いた状態からゲーム開始と同時に重力で倒れます。
+Rigidbody を追加した球体は、ゲーム開始と同時に重力で落ちていきます。
 
 > 💡 **ポイント**: ステージ（地面）には Rigidbody を追加しません。Rigidbody がついたオブジェクトは重力の影響を受けて落下してしまうためです。
 
