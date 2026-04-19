@@ -38,7 +38,7 @@ public static GameObject CreatePrimitive(PrimitiveType type);
 ```csharp
 using UnityEngine;
 
-public class MyScript : MonoBehaviour
+public class Sample : MonoBehaviour
 {
     private void Start()
     {
@@ -104,7 +104,7 @@ Hierarchy ビューで何のオブジェクトかわかるよう、わかりや�
 ```csharp
 using UnityEngine;
 
-public class Domino : MonoBehaviour
+public class Sample : MonoBehaviour
 {
     private void Start()
     {
