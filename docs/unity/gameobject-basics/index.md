@@ -38,7 +38,7 @@ public static GameObject CreatePrimitive(PrimitiveType type);
 ```csharp
 using UnityEngine;
 
-public class Domino : MonoBehaviour
+public class MyScript : MonoBehaviour
 {
     private void Start()
     {
@@ -73,10 +73,10 @@ var 変数名 = 初期値;
 - 保存する内容がわかりやすい名前にするべき
 
 ```csharp
-var stage = GameObject.CreatePrimitive(PrimitiveType.Cube);
+var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 ```
 
-上記は `CreatePrimitive()` で作成した立方体を `stage` という変数に受け取っています。以降 `stage` という名前でこの立方体を識別できます。
+上記は `CreatePrimitive()` で作成した立方体を `cube` という変数に受け取っています。以降 `cube` という名前でこの立方体を識別できます。
 
 ---
 

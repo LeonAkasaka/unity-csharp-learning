@@ -10,10 +10,10 @@ permalink: /unity/transform/
 
 ## 学習目標
 
-- `transform` プロパティから Transform コンポーネントを取得できる
-- `localScale` でオブジェクトのサイズを変更できる
-- `position` でオブジェクトの位置を設定できる
-- `rotation`（`Quaternion.Euler`）でオブジェクトを回転させられる
++ `transform` プロパティから Transform コンポーネントを取得できる
++ `position` でオブジェクトの位置を設定できる
++ `rotation`（`Quaternion.Euler`）でオブジェクトを回転させられる
++ `localScale` でオブジェクトのサイズを変更できる
 
 ## 前提知識
 
@@ -65,36 +65,7 @@ new Vector3(20, 1, 10)  // X=20, Y=1, Z=10 の Vector3 値
 
 ---
 
-## 3. localScale でサイズを変更する
-
-**`Transform.localScale`** — オブジェクトのスケール（拡大率）を設定します。<!-- [公式ドキュメント]() -->
-
-**書式：Transform.localScale プロパティ**
-```csharp
-public Vector3 localScale { get; set; }
-```
-
-初期値は `new Vector3(1, 1, 1)`（等倍）です。たとえば X 方向に20倍、Y 方向を1倍、Z 方向に10倍に変形するには：
-
-```csharp
-using UnityEngine;
-
-public class Domino : MonoBehaviour
-{
-    private void Start()
-    {
-        var stage = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        stage.name = "Stage";
-        stage.transform.localScale = new Vector3(20, 1, 10);
-    }
-}
-```
-
-![横長の直方体に変形した実行結果](./image-8.png)
-
----
-
-## 4. position で位置を設定する
+## 3. position で位置を設定する
 
 **`Transform.position`** — ワールド空間でのオブジェクトの位置を設定します。<!-- [公式ドキュメント]() -->
 
@@ -103,44 +74,35 @@ public class Domino : MonoBehaviour
 public Vector3 position { get; set; }
 ```
 
-何も指定しなければオブジェクトは原点（`Vector3(0, 0, 0)`）に生成されます。そのまま板を追加すると、ステージと同じ原点に生成されてめり込んでしまいます。
-
-```csharp
-var startTile = GameObject.CreatePrimitive(PrimitiveType.Cube);
-startTile.name = "Start Tile";
-startTile.transform.localScale = new Vector3(0.25F, 2, 1);
-```
-
-![位置を指定しない場合、板がステージにめり込む](./image-9.png)
-
-この問題を解決するには `position` プロパティで板を正しい位置に移動させます。
+何も指定しなければオブジェクトは原点（`Vector3(0, 0, 0)`）に生成されます。`position` を指定することで、オブジェクトを任意の位置に配置できます。複数のオブジェクトに異なる `position` を設定すると、位置の違いが一目でわかります。
 
 ```csharp
 using UnityEngine;
 
-public class Domino : MonoBehaviour
+public class TransformSample : MonoBehaviour
 {
     private void Start()
     {
-        var stage = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        stage.name = "Stage";
-        stage.transform.localScale = new Vector3(20, 1, 10);
+        var cubeA = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeA.name = "CubeA";
+        cubeA.transform.position = new Vector3(-3, 0, 0);
 
-        var startTile = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        startTile.name = "Start Tile";
-        startTile.transform.localScale = new Vector3(0.25F, 2, 1);
-        startTile.transform.position = new Vector3(-5, 1.5F, 0);
+        var cubeB = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeB.name = "CubeB";
+        cubeB.transform.position = new Vector3(0, 0, 0);
+
+        var cubeC = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeC.name = "CubeC";
+        cubeC.transform.position = new Vector3(3, 0, 0);
     }
 }
 ```
 
-![ステージ上に板が正しく配置された実行結果](./image-10.png)
-
-Y 軸に `1.5F` を指定することで、ステージ（高さ1）の上面に板の底面がちょうど乗る位置に調整しています。
+![3つのキューブが横に並んだ実行結果](image.png)
 
 ---
 
-## 5. rotation でオブジェクトを回転させる
+## 4. rotation でオブジェクトを回転させる
 
 **`Transform.rotation`** — オブジェクトの回転を設定します。<!-- [公式ドキュメント]() -->
 
@@ -169,34 +131,80 @@ public static Quaternion Euler(float x, float y, float z);
 ```csharp
 using UnityEngine;
 
-public class Domino : MonoBehaviour
+public class TransformSample : MonoBehaviour
 {
     private void Start()
     {
-        var stage = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        stage.name = "Stage";
-        stage.transform.localScale = new Vector3(20, 1, 10);
+        var cubeA = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeA.name = "CubeA";
+        cubeA.transform.position = new Vector3(-3, 0, 0);
+        cubeA.transform.rotation = Quaternion.Euler(0, 0, 0);
 
-        var startTile = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        startTile.name = "Start Tile";
-        startTile.transform.localScale = new Vector3(0.25F, 2, 1);
-        startTile.transform.position = new Vector3(-5, 1.5F, 0);
-        startTile.transform.rotation = Quaternion.Euler(0, 0, -10);
+        var cubeB = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeB.name = "CubeB";
+        cubeB.transform.position = new Vector3(0, 0, 0);
+        cubeB.transform.rotation = Quaternion.Euler(0, 0, 30);
+
+        var cubeC = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeC.name = "CubeC";
+        cubeC.transform.position = new Vector3(3, 0, 0);
+        cubeC.transform.rotation = Quaternion.Euler(0, 0, 60);
     }
 }
 ```
 
-![板が傾いた実行結果](./image-11.png)
+![Z 軸まわりに 0・30・60 度回転した 3 つのキューブ](image-1.png)
 
-Z 軸に `-10` 度を指定することで、板を右方向に少し傾けています。
+Z 軸に 0・30・60 度をそれぞれ指定することで、回転量の違いが比較できます。
+
+---
+
+## 5. localScale でサイズを変更する
+
+**`Transform.localScale`** — オブジェクトのスケール（拡大率）を設定します。<!-- [公式ドキュメント]() -->
+
+**書式：Transform.localScale プロパティ**
+```csharp
+public Vector3 localScale { get; set; }
+```
+
+初期値は `new Vector3(1, 1, 1)`（等倍）です。複数のオブジェクトに異なるスケールを設定すると、大きさの違いが一目でわかります。
+
+```csharp
+using UnityEngine;
+
+public class TransformSample : MonoBehaviour
+{
+    private void Start()
+    {
+        var cubeA = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeA.name = "CubeA";
+        cubeA.transform.position = new Vector3(-3, 0, 0);
+        cubeA.transform.localScale = new Vector3(1, 1, 1);
+
+        var cubeB = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeB.name = "CubeB";
+        cubeB.transform.position = new Vector3(0, 0, 0);
+        cubeB.transform.localScale = new Vector3(2, 1, 1);
+
+        var cubeC = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeC.name = "CubeC";
+        cubeC.transform.position = new Vector3(3, 0, 0);
+        cubeC.transform.localScale = new Vector3(1, 2, 1);
+    }
+}
+```
+
+![スケールが 1・横2倍・縦2倍の 3 つのキューブ](image-2.png)
 
 ---
 
 ## まとめ
 
-- Transform コンポーネントはすべての GameObject が持ち、**位置・サイズ・回転**を管理する
-- `localScale`・`position` には `new Vector3(x, y, z)` で値を設定する
+- Transform コンポーネントはすべての GameObject が持ち、**位置・回転・サイズ**を管理する
+- `position` には `new Vector3(x, y, z)` でワールド座標を設定する
 - `rotation` には `Quaternion.Euler(x, y, z)` でオイラー角から変換した値を使う
+- `localScale` には `new Vector3(x, y, z)` で各軸の拡大率を設定する
 
 ---
 
