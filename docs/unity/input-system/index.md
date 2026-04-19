@@ -114,6 +114,8 @@ public class InputSample : MonoBehaviour
 }
 ```
 
+![実行結果](image.png)
+
 ---
 
 ## 4. 入力に応じてオブジェクトを動かす
