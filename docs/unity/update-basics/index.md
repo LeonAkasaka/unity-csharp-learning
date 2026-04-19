@@ -51,13 +51,27 @@ public class UpdateSample : MonoBehaviour
 }
 ```
 
+![実行結果](image.png)
+
 このスクリプトをゲームオブジェクトにアタッチして実行すると、Console ビューにメッセージが連続して出力され続けます。`Start` に同じコードを書いた場合は1回だけ出力されることと比べてみましょう。
 
 ---
 
 ## 3. transform.Translate でオブジェクトを動かす
 
-`Update` 内で座標を変化させると、オブジェクトが継続的に動き続けます。
+移動処理の基本は、`Update` で毎フレーム少しずつ座標を更新することです。これを繰り返すことで、オブジェクトは継続的に動いて見えるようになります。
+
+先に、スクリプトから動かすゲームオブジェクトを作成しましょう。メニューバーの **GameObject → 3D Object → Cube** 項目を選択して立方体を追加してください。
+
+![Cube ゲームオブジェクトを追加する](image-1.png)
+
+継続的な座標更新は `Update` メソッドで毎フレーム `transform.position` を書き換える方法で実装できます。
+
+```csharp
+transform.position += new Vector3(0.1f, 0, 0);
+```
+
+同様の意味で、より簡潔に移動を書けるメソッドとして `Transform.Translate` も用意されています。今回は、これを使ってみましょう。
 
 **`Transform.Translate`** — Transform を指定した方向・距離だけ移動します。<!-- [公式ドキュメント]() -->
 
