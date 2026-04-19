@@ -231,4 +231,4 @@ if (_timer >= _interval)
 
 ## 次のステップ
 
-[チュートリアル: 歩行者信号機](/unity-csharp-learning/unity/traffic-light/) では、Update と Time を組み合わせたステートマシンパターンを総合演習として実装します。
+[チュートリアル: 信号機](/unity-csharp-learning/unity/traffic-light/) では、Update と Time を組み合わせたステートマシンパターンを総合演習として実装します。

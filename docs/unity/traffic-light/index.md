@@ -1,12 +1,12 @@
 ---
 layout: page
-title: "チュートリアル: 歩行者信号機"
+title: "チュートリアル: 信号機"
 permalink: /unity/traffic-light/
 ---
 
-# チュートリアル: 歩行者信号機
+# チュートリアル: 信号機
 
-スクリプトだけで「歩行者信号機」を作ります。Sphere 1つが赤↔青と自動的に切り替わる仕組みを実装し、**複数の状態を `int` で管理するパターン（ステートマシン）**を学びます。
+スクリプトだけで「信号機」を作ります。Sphere 1つが赤↔青と自動的に切り替わる仕組みを実装し、**複数の状態を `int` で管理するパターン（ステートマシン）**を学びます。
 
 ## 学習目標
 
@@ -25,9 +25,10 @@ permalink: /unity/traffic-light/
 
 ## 1. スクリプトを準備する
 
-新しいシーンを作成し、空の GameObject を作ります（メニューバー **GameObject → Create Empty**）。Hierarchy ビューで `PedestrianSignal` という名前に変更してください。
 
-この GameObject に `PedestrianSignal` という名前のスクリプトを作成してアタッチします（Inspector ビューの **Add Component → New script**）。
+新しいシーンを作成し、空の GameObject を作ります（メニューバー **GameObject → Create Empty**）。Hierarchy ビューで `Signal` という名前に変更してください。
+
+この GameObject に `Signal` という名前のスクリプトを作成してアタッチします（Inspector ビューの **Add Component → New script**）。
 
 スクリプトを開いて、以降の手順に従いコードを書いていきましょう。
 
@@ -40,7 +41,7 @@ Sphere を1つ生成し、後から参照できるようにフィールドに保
 ```csharp
 using UnityEngine;
 
-public class PedestrianSignal : MonoBehaviour
+public class Signal : MonoBehaviour
 {
     private GameObject _signal;
 
@@ -147,7 +148,7 @@ private void Update()
 ```csharp
 using UnityEngine;
 
-public class PedestrianSignal : MonoBehaviour
+public class Signal : MonoBehaviour
 {
     private GameObject _signal;
     private int   _state       = 0;
@@ -313,7 +314,7 @@ private void UpdateSignal()
 ```csharp
 using UnityEngine;
 
-public class PedestrianSignal : MonoBehaviour
+public class Signal : MonoBehaviour
 {
     private GameObject _signal;
     private GameObject _signal2;
