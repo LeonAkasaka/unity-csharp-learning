@@ -108,6 +108,10 @@ JIT vs AOT の比較：
 | ビルド時間 | 短い | 長い |
 | 主な用途 | エディター・PC スタンドアロン | iOS・Android・コンソール |
 
+この設定は Project Settings から Player タブを選択し、Configuration の「Scripting Backend」から変更できます。
+
+![Scripting Backend](image.png)
+
 ---
 
 ## ワンポイントアドバイス
