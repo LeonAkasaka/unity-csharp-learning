@@ -11,7 +11,7 @@ title: ホーム
 
 ## コンテンツ一覧
 
-### [① C# 基礎](/unity-csharp-learning/csharp/)
+### [① C# 言語入門](/unity-csharp-learning/csharp/)
 変数・型・条件分岐・ループ・メソッド・クラスなど、C# プログラミングの基本を学びます。
 
 ### [② Unity 基礎](/unity-csharp-learning/unity/)
