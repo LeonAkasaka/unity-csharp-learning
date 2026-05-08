@@ -85,6 +85,8 @@ Unity の公式ドキュメントは `Input` クラスを **"Legacy Input System
 
 さらに重要なのは、Input System パッケージを導入したプロジェクトでは、**Project Settings > Player > Active Input Handling** の設定によって `Input` クラスの動作が変わる点です。
 
+![alt text](image.png)
+
 | Active Input Handling の設定 | 旧 `Input` クラスの扱い |
 |---|---|
 | Input Manager (Old) | 使用できる |
