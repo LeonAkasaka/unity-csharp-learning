@@ -93,7 +93,7 @@ Unity の公式ドキュメントは `Input` クラスを **"Legacy Input System
 | Both | 両方使用できる |
 | **Input System Package (New)** | **実行時に `InvalidOperationException` が発生する** |
 
-このリポジトリのプロジェクトは "Input System Package (New)" に設定されているため、旧 `Input` クラスのコードはコンパイルは通るものの、実行するとエラーになります。
+上記の設定は "Input System Package (New)" に設定されているため、旧 `Input` クラスのコードはコンパイルは通るものの、実行するとエラーになります。どちらも利用したい場合は Both を選択してください。
 
 Input System との主な違いを整理します。
 
