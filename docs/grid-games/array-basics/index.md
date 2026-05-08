@@ -275,18 +275,17 @@ public class Sample : MonoBehaviour
 
     private void Update()
     {
-	    
-		var keyboard = Keyboard.current;
-		if (keyboard == null) { return; } // 入力デバイスがない場合は処理しない
-		
-		if (keyboard.leftArrowKey.wasPressedThisFrame) // 左キーを押した
-		{
+        var keyboard = Keyboard.current;
+        if (keyboard == null) { return; } // 入力デバイスがない場合は処理しない
 
-		}
-		if (keyboard.rightArrowKey.wasPressedThisFrame) // 右キーを押した
-		{
+        if (keyboard.leftArrowKey.wasPressedThisFrame) // 左キーを押した
+        {
 
-		}
+        }
+        if (keyboard.rightArrowKey.wasPressedThisFrame) // 右キーを押した
+        {
+
+        }
     }
 }
 ```
