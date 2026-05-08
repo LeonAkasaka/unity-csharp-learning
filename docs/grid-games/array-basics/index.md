@@ -101,7 +101,7 @@ public class EnemyManager : MonoBehaviour
 
 スクリプトを書き直さずにゲームバランスや配置を調整できるのが Inspector 連携の利点です。
 
-## 3. 実践パターン A：スポーンポイント管理（Transform[]）
+## 3. 実践パターン：スポーンポイント管理（Transform[]）
 
 複数のスポーン位置を `Transform[]` で管理し、一定間隔でランダムな位置に Cube を出現させるパターンです。シーン上に空の GameObject を複数配置して `_spawnPoints` に登録します。
 
@@ -139,85 +139,11 @@ public class SpawnManager : MonoBehaviour
 
 `_timer` に `Time.deltaTime` を加算し、`_interval` 秒を超えるたびにスポーンします。`AddComponent<Rigidbody>()` を呼ぶと物理演算が有効になり、Cube が重力で落下します。`Transform` を使うと位置（`position`）をシーン上のオブジェクトとして視覚的に確認・調整できます。
 
-## 4. 実践パターン B：ウェイポイントパトロール（Vector3[]）
-
-あらかじめ定めた経路を巡回するパトロールパターンです。経路点を `Vector3[]` で管理します。
-
-```csharp
-using UnityEngine;
-
-public class PatrolEnemy : MonoBehaviour
-{
-    [SerializeField] private Vector3[] _waypoints;
-    [SerializeField] private float _speed = 3f;
-
-    private int _currentIndex;
-
-    private void Update()
-    {
-        if (_waypoints.Length == 0) { return; }
-
-        Vector3 target = _waypoints[_currentIndex];
-        transform.position = Vector3.MoveTowards(transform.position, target, _speed * Time.deltaTime);
-
-        if (Vector3.Distance(transform.position, target) < 0.1f)
-        {
-            // 次の経路点へ（末尾に達したら最初に戻る）
-            _currentIndex = (_currentIndex + 1) % _waypoints.Length;
-        }
-    }
-}
-```
-
-`% _waypoints.Length`（剰余演算子）を使うと、末尾に達したとき自動的に `0` に戻ります。これは配列を循環させる定番のテクニックです。
-
-> **補足:** 経路点をシーン上で視覚的に配置したい場合は `Transform[]` を使い、各要素の `.position` で座標を取得する方法もあります。
-
-## 5. 実践パターン C：Sprite 切り替え（Sprite[]）
-
-HP の段階に応じて表示する Sprite を切り替えるパターンです。段階ごとに用意した Sprite を `Sprite[]` で管理します。
-
-```csharp
-using UnityEngine;
-
-public class HPDisplay : MonoBehaviour
-{
-    [SerializeField] private Sprite[] _hpSprites;  // index 0 = HP 空、末尾 = HP 満タン
-    [SerializeField] private SpriteRenderer _spriteRenderer;
-
-    private int _currentHp;
-
-    private void Start()
-    {
-        _currentHp = _hpSprites.Length - 1;
-        UpdateSprite();
-    }
-
-    public void TakeDamage(int amount)
-    {
-        _currentHp = Mathf.Max(0, _currentHp - amount);
-        UpdateSprite();
-    }
-
-    private void UpdateSprite()
-    {
-        if (_hpSprites.Length == 0) { return; }
-
-        _spriteRenderer.sprite = _hpSprites[_currentHp];
-    }
-}
-```
-
-`_hpSprites[0]` が HP 空（ダメージ最大）、`_hpSprites[末尾]` が HP 満タンの Sprite です。`Mathf.Max(0, ...)` で HP が 0 未満にならないよう保護しているため、インデックスが範囲外になりません。
-
 ## まとめ
 
 - Unity の型（`GameObject`・`Transform`・`Sprite`・`Vector3` など）もそのまま配列にできる
 - `[SerializeField] private 型[] _名前;` で Inspector から要素を設定できる
 - 参照型の配列要素は初期値が `null` — 使用前に必ず設定すること
-- スポーン管理：`Transform[]` で位置と向きをまとめて管理
-- パトロール経路：`Vector3[]` と剰余演算子で循環
-- 画像切り替え：`Sprite[]` のインデックスと HP を対応させる
 
 ---
 
