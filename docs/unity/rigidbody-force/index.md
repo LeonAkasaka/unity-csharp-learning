@@ -18,7 +18,7 @@ Rigidbody コンポーネントへの参照をスクリプトから取得し、*
 
 ## 前提知識
 
-- [チュートリアル: 歩行者信号機](/unity-csharp-learning/unity/traffic-light/) を読んでいること
+- [線形補間アニメーション（Lerp）](/unity-csharp-learning/unity/lerp-animation/) を読んでいること
 
 ---
 
@@ -123,17 +123,16 @@ public class Sample : MonoBehaviour
 ### 動作確認の手順
 
 1. 新しいシーンを作成する
-2. **GameObject → 3D Object → Sphere** で Sphere を追加し、名前を `Player` にする
-3. Inspector ビューで **Add Component → Rigidbody** を追加する
-4. 空の GameObject に `Player` スクリプトを作成してアタッチする（またはそのまま Sphere にアタッチ）
-5. Play ボタンを押して方向キーで球体を動かす
+2. **GameObject → Create Empty** で空の GameObject を追加する
+3. 空の GameObject に `Sample` スクリプトを作成してアタッチする
+4. Play ボタンを押して方向キーで球体を動かす
 
 ---
 
 ## まとめ
 
-- `GetComponent<T>()` で Inspector から追加されたコンポーネントの参照を取得できる
-- `GetComponent` は `Start` で一度だけ呼び、フィールドに保存しておく
+- `AddComponent<T>()` の戻り値を使うと、追加したコンポーネントの参照をすぐフィールドに保存できる
+- コンポーネント参照は `Start` で取得または追加し、`Update` では再利用する
 - `AddForce(Vector3)` でオブジェクトに力を加えて物理的に移動させられる
 - キー入力 → `Vector3` の組み立て → `AddForce` の流れで自然な移動操作を実現できる
 

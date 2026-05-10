@@ -81,6 +81,8 @@ public bool TryGetComponent<T>(out T component);
 | `T` | 取得したいコンポーネントの型 |
 | `component` | 取得できた場合にコンポーネントが入る `out` 変数 |
 
+`out` は「このメソッドの中で値を入れて、呼び出し元へ返すための変数」を表します。`TryGetComponent<Renderer>(out var r)` では、取得に成功したとき `r` に `Renderer` が入ります。
+
 ```csharp
 // TryGetComponent — 取得と null チェックを一度に行う
 if (TryGetComponent<Renderer>(out var r))
@@ -136,7 +138,7 @@ public class Signal : MonoBehaviour
 
 `UpdateSignal` メソッドは Unity で定められた `Start` や `Update` メソッドではないため自動的には実行されません。時間経過によって色を切り替えたいときに実行する想定です。
 
-上記のコードでは `Start` メソッドから `UpdateSignal` メソッドを呼び出すことで、初期化時に色を変更してします。このコードでは `_state` フィールドが表示するべき色を表し、0 であれば赤、そうでなければ青になります。
+上記のコードでは `Start` メソッドから `UpdateSignal` メソッドを呼び出すことで、初期化時に色を変更しています。このコードでは `_state` フィールドが表示するべき色を表し、0 であれば赤、そうでなければ青になります。
 
 ---
 
@@ -401,4 +403,4 @@ public class Signal : MonoBehaviour
 
 ## 次のステップ
 
-[Rigidbody で力を加える](/unity-csharp-learning/unity/rigidbody-force/) では、`GetComponent` でコンポーネントをキャッシュし、`AddForce` でオブジェクトを物理的に動かす方法を学びます。
+[線形補間アニメーション（Lerp）](/unity-csharp-learning/unity/lerp-animation/) では、`Vector3.Lerp` を使ってオブジェクトを滑らかにアニメーションさせる方法と、イージング関数による緩急のつけ方を学びます。
