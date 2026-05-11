@@ -475,4 +475,4 @@ public string this[int index]
 
 ## 次のステップ
 
-**静的メンバー（static）**（準備中）では、インスタンスを作らなくても使えるメソッドやフィールドの書き方を学びます。
+[継承](/unity-csharp-learning/csharp/inheritance/) では、クラスの機能を引き継いで拡張する仕組みを学びます。
