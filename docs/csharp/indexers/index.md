@@ -475,4 +475,4 @@ public string this[int index]
 
 ## 次のステップ
 
-[継承](/unity-csharp-learning/csharp/inheritance/) では、クラスの機能を引き継いで拡張する仕組みを学びます。
+[ref / out / in パラメータ](/unity-csharp-learning/csharp/ref-out-in/) では、メソッド引数を参照として渡す書き方と、その違いを学びます。

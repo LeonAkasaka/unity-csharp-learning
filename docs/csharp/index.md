@@ -55,18 +55,31 @@ C# プログラミングをゼロから学びます。
 | 16 | [プロパティ](/unity-csharp-learning/csharp/properties/) | `get` / `set` アクセサー・自動実装・読み取り専用プロパティ |
 | 17 | [インデクサ](/unity-csharp-learning/csharp/indexers/) | `this[]` で配列のようにアクセスできるクラスの定義 |
 
+### C# メソッドの応用文法
+
+| # | トピック | 概要 |
+|---|---|---|
+| 18 | [ref / out / in パラメータ](/unity-csharp-learning/csharp/ref-out-in/) | 値渡しとの違い・参照渡し・読み取り専用の参照渡し |
+| 19 | [省略可能パラメータと名前付き引数](/unity-csharp-learning/csharp/optional-named-params/) | デフォルト値・名前付き引数 |
+| 20 | [params キーワード](/unity-csharp-learning/csharp/params-keyword/) | `params` による可変長引数・配列渡しとの違い・コンパイラの変換 |
+| 21 | [オーバーロード解決](/unity-csharp-learning/csharp/overload-resolution/) | 候補の絞り込み・完全一致 / 暗黙変換 / params の優先順位・あいまいエラー |
+| 22 | [演算子のオーバーロード](/unity-csharp-learning/csharp/operator-overloading/) | 自作クラスに `+` や `==` などの演算子を定義する方法 |
+| 23 | [再帰関数とコールスタック](/unity-csharp-learning/csharp/recursion/) | 再帰呼び出し・終了条件・スタックフレームの積み重なり |
+| 24 | [static メンバーと static クラス](/unity-csharp-learning/csharp/static-members/) | クラスに属するメンバー・static コンストラクタ・static class |
+| 25 | [拡張メソッド](/unity-csharp-learning/csharp/extension-methods/) | 既存の型にメソッドを追加したように見せる書き方 |
+
 ### C# 継承と抽象化
 
 | # | トピック | 概要 |
 |---|---|---|
-| 18 | [継承](/unity-csharp-learning/csharp/inheritance/) | 基底クラス・派生クラス・`base` キーワード・コンストラクタ連鎖 |
-| 19 | [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) | アップキャスト・ダウンキャスト・`is`・`as`・パターンマッチング |
-| 20 | [protected 修飾子](/unity-csharp-learning/csharp/protected-modifier/) | `protected` のアクセス範囲・継承チェーンでの到達範囲・`internal` |
-| 21 | [オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) | `virtual`・`override`・動的ディスパッチ |
-| 22 | [メソッドの隠ぺいと sealed](/unity-csharp-learning/csharp/method-hiding/) | `new` 修飾子・`override` との違い・`sealed class`・`sealed override` |
-| 23 | [抽象クラスと抽象メソッド](/unity-csharp-learning/csharp/abstract-classes/) | `abstract class`・`abstract` メソッド・派生クラスでの強制実装 |
-| 24 | [インターフェイス](/unity-csharp-learning/csharp/interfaces/) | `interface` 宣言・実装・多重実装・抽象クラスとの違い |
-| 25 | [インターフェイスの明示的実装](/unity-csharp-learning/csharp/explicit-interface/) | 同名メンバーの衝突・明示的実装の書き方・暗黙的実装との比較 |
+| 26 | [継承](/unity-csharp-learning/csharp/inheritance/) | 基底クラス・派生クラス・`base` キーワード・コンストラクタ連鎖 |
+| 27 | [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) | アップキャスト・ダウンキャスト・`is`・`as`・パターンマッチング |
+| 28 | [protected 修飾子](/unity-csharp-learning/csharp/protected-modifier/) | `protected` のアクセス範囲・継承チェーンでの到達範囲・`internal` |
+| 29 | [オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) | `virtual`・`override`・動的ディスパッチ |
+| 30 | [メソッドの隠ぺいと sealed](/unity-csharp-learning/csharp/method-hiding/) | `new` 修飾子・`override` との違い・`sealed class`・`sealed override` |
+| 31 | [抽象クラスと抽象メソッド](/unity-csharp-learning/csharp/abstract-classes/) | `abstract class`・`abstract` メソッド・派生クラスでの強制実装 |
+| 32 | [インターフェイス](/unity-csharp-learning/csharp/interfaces/) | `interface` 宣言・実装・多重実装・抽象クラスとの違い |
+| 33 | [インターフェイスの明示的実装](/unity-csharp-learning/csharp/explicit-interface/) | 同名メンバーの衝突・明示的実装の書き方・暗黙的実装との比較 |
 
 ## 前提知識
 

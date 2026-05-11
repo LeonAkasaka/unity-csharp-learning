@@ -172,4 +172,4 @@ class A : IFoo, IBar
 
 ## 次のステップ
 
-**静的メンバー（static）**（準備中）では、インスタンスを作らなくても使えるメソッドやフィールドの書き方を学びます。
+[static メンバーと static クラス](/unity-csharp-learning/csharp/static-members/) では、インスタンスを作らなくても使えるメソッドやフィールドの書き方を学びます。
