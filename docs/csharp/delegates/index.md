@@ -20,6 +20,7 @@ permalink: /csharp/delegates/
 ## 前提知識
 
 - [メソッド](/unity-csharp-learning/csharp/methods/) を読んでいること
+- [ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) を読んでいること
 
 ---
 

@@ -172,4 +172,4 @@ class A : IFoo, IBar
 
 ## 次のステップ
 
-[デリゲートの基本](/unity-csharp-learning/csharp/delegates/) では、メソッドへの参照を変数として扱い、実行時に呼び出すメソッドを切り替えるデリゲートのしくみを学びます。
+[ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) では、型パラメータ `<T>` を使って型安全な汎用クラスを定義するジェネリクスのしくみを学びます。
