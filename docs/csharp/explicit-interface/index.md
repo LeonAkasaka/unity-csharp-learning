@@ -172,4 +172,4 @@ class A : IFoo, IBar
 
 ## 次のステップ
 
-[static メンバーと static クラス](/unity-csharp-learning/csharp/static-members/) では、インスタンスを作らなくても使えるメソッドやフィールドの書き方を学びます。
+[デリゲートの基本](/unity-csharp-learning/csharp/delegates/) では、メソッドへの参照を変数として扱い、実行時に呼び出すメソッドを切り替えるデリゲートのしくみを学びます。
