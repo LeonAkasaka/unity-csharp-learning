@@ -8,6 +8,8 @@ permalink: /conversation-scenes/character-placement/
 
 会話シーンにキャラクターの立ち絵を表示します。Unity の UI Image コンポーネントを Canvas 上に配置し、スクリプトからアルファ値を制御してフェードイン・フェードアウトを実装します。
 
+![alt text](image.png)
+
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
@@ -24,21 +26,38 @@ permalink: /conversation-scenes/character-placement/
 
 ## Canvas に Image を配置する
 
-まず、キャラクター画像を表示するための Image ゲームオブジェクトを Canvas の下に追加します。Hierarchy ビューで Canvas を右クリックし、「UI」→「Image」を選択してください。
+まず、キャラクター画像を表示するための Image ゲームオブジェクトを Canvas の下に追加します。上部 GameObject メニューをクリックし、「UI(Canvas)」→「Image」を選択してください。
+
+![alt text](image-1.png)
 
 > 💡 **ポイント**: Canvas がまだシーンにない場合は、「GameObject」メニューから「UI」→「Image」を選択すると Canvas ごと自動的に作成されます。
 
 Hierarchy ビューに Image ゲームオブジェクトが追加され、Canvas の子オブジェクトとして配置されます。
 
+![alt text](image-2.png)
+
 ### Source Image を設定する
 
-Inspector ビューで Image ゲームオブジェクトを選択すると、`Image` コンポーネントが表示されます。「Source Image」フィールドに、表示したいキャラクター画像のスプライトアセットをドラッグ&ドロップして設定します。
+Inspector ビューで Image ゲームオブジェクトを選択すると、`Image` コンポーネントが表示されます。「Source Image」フィールドに、表示したいキャラクター画像のスプライトアセットを設定します。
 
-> 💡 **ポイント**: 画像ファイルを Unity プロジェクトの Assets フォルダーにドラッグ&ドロップしてインポートし、Inspector ビューで「Texture Type」を「Sprite (2D and UI)」に変更してから使用してください。
+まず、元となる PNG や JPG 形式の画像ファイルを Unity プロジェクトの Assets フォルダーにドラッグ&ドロップしてインポートします。
+
+![alt text](image-3.png)
+
+Project ビューでインポートした画像アセットを選択し、Inspector ビューで「Texture Type」を「Sprite (2D and UI)」に変更してください。
+
+![alt text](image-4.png)
+
+これで `Image` コンポーネントの Source Image としてキャラクター画像が設定できます。Project ビューの画像アセットをドラッグ&ドロップしてください。
+
+![alt text](image-5.png)
+
 
 ### 位置とサイズを調整する
 
-Rect Transform コンポーネントで画像の位置とサイズを設定します。キャラクター立ち絵は画面左や右に配置することが多いため、Anchor を画面の左下や右下に合わせて調整してください。「Pos X」「Pos Y」「Width」「Height」に適切な値を入力します。
+追加した Image ゲームオブジェクトのサイズも画像に合わせて整えましょう。Rect Transform コンポーネントで画像の位置とサイズを設定します。キャラクター立ち絵は画面左や右に配置することが多いため、Anchor を画面の左下や右下に合わせて調整してください。「Pos X」「Pos Y」「Width」「Height」に適切な値を入力します。
+
+この場ではサンプルなので1画像のみ画面全体を使って表示してみましょう。Anchor Presets を水平・垂直方向ともに stretch に変更し、Left, Top, Right, Bottom を 0 に設定してください。これで Image ゲームオブジェクトの範囲が親 Canvas のサイズ全体に合わせられます。
 
 ### Preserve Aspect を有効にする
 
@@ -71,23 +90,38 @@ Color Image.color { get; set; }
 
 > 💡 **なぜこの手順が必要？**: `Color` は**値型（struct）**であるため、`_image.color.a = 1f;` と直接書くことができません。一度変数にコピーして変更し、代入し直す必要があります。
 
+以下は、マウスボタンを押すことで画像の表示・非表示を行うスクリプトです。左ボタンで表示・右ボタンで非表示になります。
+
 ```csharp
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CharacterView : MonoBehaviour
+public class CharacterView : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
-    private Image _image = default;
+    private Image _image = default; // Inspector ビューから設定する
 
-    public void FadeIn()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        var color = _image.color; // ① 現在の色を取り出す
-        color.a = 1f;             // ② アルファだけ変更する
-        _image.color = color;     // ③ 代入し直す
+        if (eventData.button == PointerEventData.InputButton.Left) // 左クリック
+        {
+            Show();
+        }
+        else if (eventData.button == PointerEventData.InputButton.Right) // 右クリック
+        {
+            Hide();
+        }
     }
 
-    public void FadeOut()
+    public void Show()
+    {
+        var color = _image.color; // 現在の色を取り出す
+        color.a = 1f;             // アルファだけ変更する
+        _image.color = color;     // 代入し直す
+    }
+
+    public void Hide()
     {
         var color = _image.color;
         color.a = 0f;
@@ -96,7 +130,7 @@ public class CharacterView : MonoBehaviour
 }
 ```
 
-Inspector ビューで `_image` フィールドに Image コンポーネントを設定してください。この時点では `FadeIn()` / `FadeOut()` を呼ぶとアルファ値が瞬時に切り替わります。
+Inspector ビューで `_image` フィールドに Image コンポーネントを設定してください。この時点では `Show()` / `Hide()` を呼ぶとアルファ値が瞬時に切り替わります。
 
 ---
 
@@ -114,7 +148,7 @@ Inspector ビューで `_image` フィールドに Image コンポーネント�
 | **目標のアルファ**（`_targetAlpha`） | フェードイン後に到達したい値（`1f` or `0f`） |
 | **1 秒あたりの変化量**（`_fadeSpeed`） | 毎フレームどれだけ目標に近づくかを決める係数 |
 
-`Update()` が毎フレーム呼ばれるたびに、現在のアルファを目標アルファに向けて少しずつ動かすことでなめらかなフェードになります。`Update()` ベースの制御を使うのは、コルーチンや `async/await` を使わずにシンプルな状態管理だけでフェードを表現できるためです。
+`Update()` が毎フレーム呼ばれるたびに、現在のアルファを目標アルファに向けて少しずつ動かすことでなめらかなフェードになります。
 
 ### Mathf.MoveTowards の紹介
 
@@ -141,9 +175,10 @@ float Mathf.MoveTowards(float current, float target, float maxDelta);
 
 ```csharp
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CharacterView : MonoBehaviour
+public class CharacterView : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     private Image _image = default;
@@ -158,14 +193,25 @@ public class CharacterView : MonoBehaviour
         SetAlpha(0f); // 最初は完全に透明にしておく
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left) // 左クリック
+        {
+            FadeIn();
+        }
+        else if (eventData.button == PointerEventData.InputButton.Right) // 右クリック
+        {
+            FadeOut();
+        }
+    }
+
     private void Update()
     {
         if (_image == null) { return; }
-
-        var color = _image.color;
+        
         // 現在のアルファを目標のアルファに向けて近づける
-        color.a = Mathf.MoveTowards(color.a, _targetAlpha, _fadeSpeed * Time.deltaTime);
-        _image.color = color;
+        var a = Mathf.MoveTowards(_image.color.a, _targetAlpha, _fadeSpeed * Time.deltaTime);
+        SetAlpha(a);
     }
 
     /// <summary>
@@ -264,6 +310,6 @@ private Image _image = default;
 
 立ち絵の表示とフェードができるようになりました。次の発展アイデアとして、以下のような機能に挑戦してみましょう。
 
-- 複数のキャラクター画像をリストで管理し、セリフに応じて切り替える
-- 話者名ウィンドウ（名前欄）と組み合わせて表示する話者を強調する
-- フェードと同時にキャラクターを横にスライドさせる位置アニメーション
+- フェード演出が完了するまで待つ（フェードイン中にフェードアウトに切り替えられない）モードを追加する
+- フェード演出中にクリックすると演出を省略して、即座に _targetAlpha を設定するモードを追加する
+- キャラクターをスライドさせる移動アニメーションを実装する
