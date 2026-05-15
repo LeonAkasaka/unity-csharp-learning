@@ -44,7 +44,7 @@ Inspector ビューで Image ゲームオブジェクトを選択すると、`Im
 
 ![alt text](image-3.png)
 
-Project ビューでインポートした画像アセットを選択し、Inspector ビューで「Texture Type」を「Sprite (2D and UI)」に変更してください。
+Project ビューでインポートした画像アセットを選択し、Inspector ビューで「Texture Type」を「Sprite (2D and UI)」に、「Sprite Mode」を「Single」に変更してください。
 
 ![alt text](image-4.png)
 
