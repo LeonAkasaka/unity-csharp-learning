@@ -124,7 +124,7 @@ private enum ConversationState
 
 ## CharacterView に状態を読めるプロパティを追加する
 
-`ConversationController` からキャラクターの完了を待つには、`CharacterView` が現在フェード中かどうかを外部に教える必要があります。
+`ScenarioSequencer` からキャラクターの完了を待つには、`CharacterView` が現在フェード中かどうかを外部に教える必要があります。
 
 前回作った `CharacterView` に、次の 2 つのプロパティを追加します。
 
@@ -236,11 +236,11 @@ public class CharacterView : MonoBehaviour, IPointerClickHandler
 
 ---
 
-## ConversationController を作る
+## ScenarioSequencer を作る
 
-次に、キャラクターとメッセージをまとめて操作する `ConversationController` を作ります。Canvas または空の GameObject に新しい C# スクリプトとして追加してください。
+次に、キャラクターとメッセージをまとめて操作し、シナリオの流れを順番に進める `ScenarioSequencer` を作ります。Canvas または空の GameObject に新しい C# スクリプトとして追加してください。
 
-`ConversationController` は、`CharacterView` と `MessagePrinter` を Inspector ビューから受け取ります。
+`ScenarioSequencer` は、`CharacterView` と `MessagePrinter` を Inspector ビューから受け取ります。
 
 ```csharp
 [SerializeField]
@@ -285,7 +285,7 @@ switch (調べる値)
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class ConversationController : MonoBehaviour
+public class ScenarioSequencer : MonoBehaviour
 {
     private enum ConversationState
     {
@@ -373,7 +373,7 @@ public class ConversationController : MonoBehaviour
 
 ## Inspector ビューで参照を設定する
 
-`ConversationController` を追加したら、Inspector ビューで次の参照を設定してください。
+`ScenarioSequencer` を追加したら、Inspector ビューで次の参照を設定してください。
 
 | フィールド | 設定するもの |
 |---|---|
@@ -381,9 +381,9 @@ public class ConversationController : MonoBehaviour
 | `_printer` | `MessagePrinter` コンポーネント |
 | `_message` | 表示したい 1 つのメッセージ |
 
-前のページのテストで `MessagePrinter` 側の `_message` フィールドに文字列を入れていた場合は、空に戻しておきましょう。今回のメッセージは `ConversationController` から `ShowMessage()` に渡します。
+前のページのテストで `MessagePrinter` 側の `_message` フィールドに文字列を入れていた場合は、空に戻しておきましょう。今回のメッセージは `ScenarioSequencer` から `ShowMessage()` に渡します。
 
-前のページで `CharacterView` をクリック操作のテスト用に作っていた場合でも、今回の制御では `ConversationController` から `FadeIn()` を呼びます。動作確認中にクリック操作が混ざって分かりにくい場合は、`CharacterView` の `IPointerClickHandler` 実装や `OnPointerClick()` を一時的に外してもかまいません。
+前のページで `CharacterView` をクリック操作のテスト用に作っていた場合でも、今回の制御では `ScenarioSequencer` から `FadeIn()` を呼びます。動作確認中にクリック操作が混ざって分かりにくい場合は、`CharacterView` の `IPointerClickHandler` 実装や `OnPointerClick()` を一時的に外してもかまいません。
 
 ---
 
@@ -449,7 +449,7 @@ if (Mouse.current.leftButton.wasPressedThisFrame)
 - `FadeIn()` はフェード完了まで止まる処理ではなく、フェードの目標値を設定する処理
 - `Update()` で毎フレーム状態を確認すると、コルーチンや `Task` を使わなくても「待つ」処理を表現できる
 - `bool` フラグが増えそうな処理では、`enum` で現在の進行状態を 1 つの値として管理すると分かりやすい
-- `ConversationController` のような制御役を作ると、`CharacterView` と `MessagePrinter` の役割を分けたまま会話全体の流れを組み立てられる
+- `ScenarioSequencer` のような制御役を作ると、`CharacterView` と `MessagePrinter` の役割を分けたままシナリオ全体の流れを組み立てられる
 
 ---
 
