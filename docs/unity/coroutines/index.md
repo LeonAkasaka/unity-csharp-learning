@@ -229,16 +229,6 @@ public class CoroutineStartSample : MonoBehaviour
 
 `StartCoroutine(MoveAndWait())` と書くことで、Unity が `MoveAndWait` の続きをフレームごとに管理します。
 
-```csharp
-// ❌ NG: メソッドを呼んでいるだけで、コルーチンとして開始していない
-MoveAndWait();
-
-// ✅ OK: Unity にコルーチンとして管理してもらう
-StartCoroutine(MoveAndWait());
-```
-
-`MoveAndWait()` を呼ぶだけでは、`IEnumerator` オブジェクトが作られるだけです。Unity はその `IEnumerator` を管理しないため、コルーチンとしては進みません。
-
 ---
 
 ## 5. 標準の Wait 系クラス
@@ -253,6 +243,7 @@ StartCoroutine(MoveAndWait());
 | `yield return new WaitForEndOfFrame();` | そのフレームの描画処理の終わりまで待つ |
 | `yield return new WaitUntil(() => 条件);` | 条件が `true` になるまで待つ |
 | `yield return new WaitWhile(() => 条件);` | 条件が `true` の間待つ |
+| `yield return new WaitForFixedUpdate();` | 次の FixedUpdate まで待つ（物理演算フレームに合わせる） |
 
 `WaitForSeconds` はゲーム時間を使うため、`Time.timeScale` の影響を受けます。たとえば `Time.timeScale = 0` でゲームをポーズしている間は、`WaitForSeconds` の待ち時間も進みません。ポーズ中も現実時間で待ちたい場合は `WaitForSecondsRealtime` を使います。
 
@@ -308,48 +299,47 @@ public class CoroutineMoveSample : MonoBehaviour
 
 `MoveSequence` では、「移動する」「待つ」「戻る」という流れをそのまま上から下へ読めます。`MoveTo` の中では `while` で毎フレーム少しずつ移動し、最後に `yield return null` で次のフレームまで待っています。
 
-ここで `yield return MoveTo(...)` と書くと、`MoveTo` のコルーチンが終わるまで `MoveSequence` の続きは待機します。Unity の `StartCoroutine` は、このようにコルーチン同士を順番に組み合わせる処理にも対応しています。
+ここで `yield return MoveTo(...)` と書くと、`MoveTo` のコルーチンが終わるまで `MoveSequence` の続きは待機します。`yield return` に `IEnumerator` を渡すと、Unity はその `IEnumerator` を内部でコルーチンとして実行し、完了してから呼び出し元の続きを進めます。
 
 ---
 
-## コルーチンは別スレッドではない
+## コルーチンの停止
 
-コルーチンは、重い処理を裏側で並列実行する仕組みではありません。Unity の通常の処理と同じく、基本的にはメインスレッド上で実行されます。
-
-そのため、次のような重いループを書いても、自動的に軽くなるわけではありません。
+開始したコルーチンを途中で止めたい場合は `StopCoroutine` を使います。`StartCoroutine` の戻り値を `Coroutine` 型で受け取っておくと、後から停止できます。
 
 ```csharp
-private IEnumerator HeavyRoutine()
-{
-    for (int i = 0; i < 100000000; i++)
-    {
-        // 重い計算
-    }
+private Coroutine _routine;
 
-    yield return null;
+private void Start()
+{
+    _routine = StartCoroutine(MoveAndWait());
+}
+
+private void Stop()
+{
+    StopCoroutine(_routine);
 }
 ```
 
-`yield return` に到達するまで処理は止まらないため、この例では重いループが1フレーム内で実行され、画面が固まる可能性があります。処理を分割したい場合は、ループの途中で `yield return null` を挟みます。
-
-```csharp
-private IEnumerator SplitRoutine()
-{
-    for (int i = 0; i < 100000000; i++)
-    {
-        // 重い計算
-
-        if (i % 10000 == 0)
-        {
-            yield return null;  // ここで次のフレームへ分ける
-        }
-    }
-}
-```
+入門段階ではまず「開始する」「待つ」「順番に進める」ことを優先して理解しましょう。停止やスキップの細かい制御は、実践的なチュートリアルで扱います。
 
 ---
 
 ## よくあるミス
+
+`StartCoroutine` を呼ばずにメソッドを直接呼ぶと、コルーチンとして動きません。
+
+```csharp
+// ❌ NG: メソッドを呼んでいるだけで、コルーチンとして開始していない
+MoveAndWait();
+
+// ✅ OK: Unity にコルーチンとして管理してもらう
+StartCoroutine(MoveAndWait());
+```
+
+`MoveAndWait()` を呼ぶだけでは、`IEnumerator` オブジェクトが作られるだけです。Unity はその `IEnumerator` を管理しないため、コルーチンとしては進みません。
+
+`while` ループの中に `yield return null` を書き忘れると、ループが1フレームで走り切ります。
 
 ```csharp
 // ❌ NG: yield return null がないため、while が1フレームで走り切る
@@ -370,22 +360,6 @@ while (elapsed < duration)
 
 `yield return null` を忘れると、`while` は同じフレームの中で最後まで実行されます。アニメーションが一瞬で終わったり、長いループで Unity が固まったりする原因になります。
 
-```csharp
-private Coroutine _routine;
-
-private void Start()
-{
-    _routine = StartCoroutine(MoveAndWait());
-}
-
-private void Stop()
-{
-    StopCoroutine(_routine);
-}
-```
-
-開始したコルーチンを途中で止めたい場合は `StopCoroutine` を使えます。ただし、入門段階ではまず「開始する」「待つ」「順番に進める」ことを優先して理解しましょう。停止やスキップの細かい制御は、実践的なチュートリアルで扱います。
-
 ---
 
 ## まとめ
@@ -394,7 +368,6 @@ private void Stop()
 - `yield return null` は次のフレームまで待つ合図である
 - `StartCoroutine` は `IEnumerator` を Unity 側で管理し、フレームや時間をまたいで続きを実行する
 - `WaitForSeconds` などの Wait 系クラスで待ち方を指定できる
-- コルーチンは別スレッドではなく、重い処理を自動的に並列化する仕組みではない
 
 ---
 
