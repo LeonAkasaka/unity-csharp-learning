@@ -44,9 +44,9 @@ Rigidbody を持つオブジェクトが Collider を持つ別のオブジェク
 
 Rigidbody を持つオブジェクトが別の Collider に触れたとき、**`OnCollisionEnter()` メソッド** が呼ばれます。
 
-**`MonoBehaviour.OnCollisionEnter()`** — Collider または Rigidbody が別の Collider / Rigidbody に接触したとき呼ばれます。<!-- [公式ドキュメント]() -->
+**`MonoBehaviour.OnCollisionEnter()`** — Collider または Rigidbody が別の Collider / Rigidbody に接触したとき呼ばれます。
 
-**書式：OnCollisionEnter メソッド**
+**書式：[OnCollisionEnter メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnCollisionEnter.html)**
 ```csharp
 private void OnCollisionEnter(Collision collision);
 ```
@@ -77,9 +77,9 @@ public class Sample : MonoBehaviour
 
 衝突したゲームオブジェクトを削除するプログラムを作成しましょう。ゲームオブジェクトをスクリプトから削除するには `Destroy()` メソッドを使います。
 
-**`Object.Destroy()`** — ゲームオブジェクトやコンポーネントをシーンから削除します。<!-- [公式ドキュメント]() -->
+**`Object.Destroy()`** — ゲームオブジェクトやコンポーネントをシーンから削除します。
 
-**書式：Object.Destroy メソッド**
+**書式：[Object.Destroy メソッド](https://docs.unity3d.com/ScriptReference/Object.Destroy.html)**
 
 ```csharp
 public static void Destroy(Object obj);
@@ -126,9 +126,9 @@ public class Sample : MonoBehaviour
 
 Rigidbody を持つオブジェクトが、Is Trigger がオンの Collider に侵入したとき、**`OnTriggerEnter()` メソッド** が呼ばれます。
 
-**`MonoBehaviour.OnTriggerEnter()`** — Is Trigger の Collider に別のオブジェクトが侵入したとき呼ばれます。<!-- [公式ドキュメント]() -->
+**`MonoBehaviour.OnTriggerEnter()`** — Is Trigger の Collider に別のオブジェクトが侵入したとき呼ばれます。
 
-**書式：OnTriggerEnter メソッド**
+**書式：[OnTriggerEnter メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnTriggerEnter.html)**
 ```csharp
 private void OnTriggerEnter(Collider other);
 ```

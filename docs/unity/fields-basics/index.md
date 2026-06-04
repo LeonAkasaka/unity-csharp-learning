@@ -125,9 +125,9 @@ public class PlayerMover : MonoBehaviour
 
 `private` フィールドはクラスの外部からアクセスできませんが、**`[SerializeField]` 属性**を付けると、コードを書き直さずに Unity の Inspector ビューから値を編集できるようになります。
 
-**`[SerializeField]`** — `private` フィールドを Inspector に表示して編集できるようにします。<!-- [公式ドキュメント]() -->
+**`[SerializeField]`** — `private` フィールドを Inspector に表示して編集できるようにします。
 
-**書式：SerializeField 属性**
+**書式：[SerializeField 属性](https://docs.unity3d.com/ScriptReference/SerializeField.html)**
 ```
 [SerializeField] アクセス修飾子 型 フィールド名 = 初期値;
 ```

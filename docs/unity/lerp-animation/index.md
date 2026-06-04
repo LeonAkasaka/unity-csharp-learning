@@ -49,9 +49,9 @@ t = 経過時間 ÷ アニメーション全体の時間
 
 Unity では `Time.deltaTime` で「直前のフレームから今のフレームまでの経過時間（秒）」を取得できます。これを `Update` 内で積み重ねることで経過時間を計測し、毎フレーム `t` を更新できます。
 
-**`Mathf.Clamp01`** — 値を 0 〜 1 の範囲に制限します。`Mathf.Clamp(value, 0f, 1f)` と同じ意味ですが、よく使うので専用メソッドが用意されています。<!-- [公式ドキュメント]() -->
+**`Mathf.Clamp01`** — 値を 0 〜 1 の範囲に制限します。`Mathf.Clamp(value, 0f, 1f)` と同じ意味ですが、よく使うので専用メソッドが用意されています。
 
-**書式：Mathf.Clamp01 メソッド**
+**書式：[Mathf.Clamp01 メソッド](https://docs.unity3d.com/ScriptReference/Mathf.Clamp01.html)**
 ```csharp
 public static float Clamp01(float value);
 ```
@@ -98,9 +98,9 @@ public class LerpSample : MonoBehaviour
 
 前のセクションで書いた式 `開始値 + (目標値 − 開始値) × t` は、Unity が `Lerp` メソッドとして提供しています。
 
-**`Vector3.Lerp`** — 2 つの `Vector3` を `t` の割合で線形補間した値を返します。<!-- [公式ドキュメント]() -->
+**`Vector3.Lerp`** — 2 つの `Vector3` を `t` の割合で線形補間した値を返します。
 
-**書式：Vector3.Lerp メソッド**
+**書式：[Vector3.Lerp メソッド](https://docs.unity3d.com/ScriptReference/Vector3.Lerp.html)**
 ```csharp
 public static Vector3 Lerp(Vector3 a, Vector3 b, float t);
 ```
@@ -149,9 +149,9 @@ public class LerpSample : MonoBehaviour
 
 座標だけでなく、音量・透明度・速度などの `float` 値を補間したいときは **`Mathf.Lerp`** を使います。
 
-**`Mathf.Lerp`** — 2 つの `float` を `t` の割合で線形補間した値を返します。<!-- [公式ドキュメント]() -->
+**`Mathf.Lerp`** — 2 つの `float` を `t` の割合で線形補間した値を返します。
 
-**書式：Mathf.Lerp メソッド**
+**書式：[Mathf.Lerp メソッド](https://docs.unity3d.com/ScriptReference/Mathf.Lerp.html)**
 ```csharp
 public static float Lerp(float a, float b, float t);
 ```

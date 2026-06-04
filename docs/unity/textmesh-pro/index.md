@@ -129,18 +129,18 @@ Font Asset が対象の文字を含んでいれば、日本語テキストが正
 
 C# スクリプトから TextMesh Pro コンポーネントを操作するには **`TMP_Text`** 型を使います。
 
-**`TMP_Text`** — TextMesh Pro コンポーネントの基底クラスです。<!-- [公式ドキュメント]() -->
+**`TMP_Text`** — TextMesh Pro コンポーネントの基底クラスです。
 
-**書式：TMP_Text クラス**
+**書式：[TMP_Text クラス](https://docs.unity3d.com/Packages/com.unity.textmeshpro@latest/api/TMPro.TMP_Text.html)**
 ```csharp
 public abstract class TMP_Text : MaskableGraphic
 ```
 
 表示テキストの取得・変更には **`text` プロパティ**を使います。
 
-**`TMP_Text.text`** — TextMesh Pro に表示するテキストを取得または設定します。<!-- [公式ドキュメント]() -->
+**`TMP_Text.text`** — TextMesh Pro に表示するテキストを取得または設定します。
 
-**書式：text プロパティ**
+**書式：[text プロパティ](https://docs.unity3d.com/Packages/com.unity.textmeshpro@latest/api/TMPro.TMP_Text.html#TMPro_TMP_Text_text)**
 ```csharp
 public virtual string text { get; set; }
 ```

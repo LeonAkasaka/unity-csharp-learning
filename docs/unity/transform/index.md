@@ -25,9 +25,9 @@ permalink: /unity/transform/
 
 Transform はすべての GameObject が必ず持つ特別なコンポーネントで、**位置・サイズ（スケール）・回転**の3つを管理します。
 
-**`GameObject.transform`** — GameObject の Transform コンポーネントを取得します。<!-- [公式ドキュメント]() -->
+**`GameObject.transform`** — GameObject の Transform コンポーネントを取得します。
 
-**書式：GameObject.transform プロパティ**
+**書式：[GameObject.transform プロパティ](https://docs.unity3d.com/ScriptReference/GameObject-transform.html)**
 ```csharp
 public Transform transform { get; }
 ```
@@ -44,9 +44,9 @@ gameObject.transform.プロパティ名 = 値;
 
 位置・サイズには **`Vector3`** 構造体を使います。X・Y・Z の3つの値をひとまとめにしたものです。
 
-**`Vector3` コンストラクター** <!-- [公式ドキュメント]() -->
+**`Vector3` コンストラクター**
 
-**書式：Vector3 コンストラクター**
+**書式：[Vector3 コンストラクター](https://docs.unity3d.com/ScriptReference/Vector3-ctor.html)**
 ```csharp
 public Vector3(float x, float y, float z);
 ```
@@ -67,9 +67,9 @@ new Vector3(20, 1, 10)  // X=20, Y=1, Z=10 の Vector3 値
 
 ## 3. position で位置を設定する
 
-**`Transform.position`** — ワールド空間でのオブジェクトの位置を設定します。<!-- [公式ドキュメント]() -->
+**`Transform.position`** — ワールド空間でのオブジェクトの位置を設定します。
 
-**書式：Transform.position プロパティ**
+**書式：[Transform.position プロパティ](https://docs.unity3d.com/ScriptReference/Transform-position.html)**
 ```csharp
 public Vector3 position { get; set; }
 ```
@@ -104,9 +104,9 @@ public class TransformSample : MonoBehaviour
 
 ## 4. rotation でオブジェクトを回転させる
 
-**`Transform.rotation`** — オブジェクトの回転を設定します。<!-- [公式ドキュメント]() -->
+**`Transform.rotation`** — オブジェクトの回転を設定します。
 
-**書式：Transform.rotation プロパティ**
+**書式：[Transform.rotation プロパティ](https://docs.unity3d.com/ScriptReference/Transform-rotation.html)**
 ```csharp
 public Quaternion rotation { get; set; }
 ```
@@ -115,9 +115,9 @@ public Quaternion rotation { get; set; }
 
 そこで、Unity では人間が直感的に扱いやすい**オイラー角**（X・Y・Z 軸ごとの角度）から Quaternion に変換するメソッドが用意されています。
 
-**`Quaternion.Euler`** — オイラー角（度数）から Quaternion 値に変換します。<!-- [公式ドキュメント]() -->
+**`Quaternion.Euler`** — オイラー角（度数）から Quaternion 値に変換します。
 
-**書式：Quaternion.Euler メソッド**
+**書式：[Quaternion.Euler メソッド](https://docs.unity3d.com/ScriptReference/Quaternion.Euler.html)**
 ```csharp
 public static Quaternion Euler(float x, float y, float z);
 ```
@@ -161,9 +161,9 @@ Z 軸に 0・30・60 度をそれぞれ指定することで、回転量の違�
 
 ## 5. localScale でサイズを変更する
 
-**`Transform.localScale`** — オブジェクトのスケール（拡大率）を設定します。<!-- [公式ドキュメント]() -->
+**`Transform.localScale`** — オブジェクトのスケール（拡大率）を設定します。
 
-**書式：Transform.localScale プロパティ**
+**書式：[Transform.localScale プロパティ](https://docs.unity3d.com/ScriptReference/Transform-localScale.html)**
 ```csharp
 public Vector3 localScale { get; set; }
 ```

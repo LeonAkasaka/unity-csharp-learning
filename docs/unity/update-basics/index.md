@@ -73,9 +73,9 @@ transform.position += new Vector3(0.1f, 0, 0);
 
 同様の意味で、より簡潔に移動を書けるメソッドとして `Transform.Translate` も用意されています。今回は、これを使ってみましょう。
 
-**`Transform.Translate`** — Transform を指定した方向・距離だけ移動します。<!-- [公式ドキュメント]() -->
+**`Transform.Translate`** — Transform を指定した方向・距離だけ移動します。
 
-**書式：Transform.Translate メソッド**
+**書式：[Transform.Translate メソッド](https://docs.unity3d.com/ScriptReference/Transform.Translate.html)**
 ```csharp
 public void Translate(Vector3 translation);
 ```
@@ -150,9 +150,9 @@ public class UpdateSample : MonoBehaviour
 
 この問題を解決するのが `Time.deltaTime` です。
 
-**`Time.deltaTime`** — 前のフレームからの経過時間（秒）を返します。<!-- [公式ドキュメント]() -->
+**`Time.deltaTime`** — 前のフレームからの経過時間（秒）を返します。
 
-**書式：Time.deltaTime プロパティ**
+**書式：[Time.deltaTime プロパティ](https://docs.unity3d.com/ScriptReference/Time-deltaTime.html)**
 ```csharp
 public static float deltaTime { get; }
 ```

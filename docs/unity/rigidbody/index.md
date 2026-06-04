@@ -24,9 +24,9 @@ Unity にはオブジェクトを物理法則に従って動かす**物理エン
 
 Unity Inspector ビューから手動でコンポーネントを追加できますが、スクリプトからも追加できます。
 
-**`GameObject.AddComponent<T>`** — ゲームオブジェクトにコンポーネントを追加します。<!-- [公式ドキュメント]() -->
+**`GameObject.AddComponent<T>`** — ゲームオブジェクトにコンポーネントを追加します。
 
-**書式：GameObject.AddComponent メソッド**
+**書式：[GameObject.AddComponent メソッド](https://docs.unity3d.com/ScriptReference/GameObject.AddComponent.html)**
 ```csharp
 public T AddComponent<T>() where T : Component;
 ```

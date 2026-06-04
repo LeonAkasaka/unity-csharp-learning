@@ -37,9 +37,9 @@ permalink: /unity/time-basics/
 
 ## 2. Time.time — ゲーム開始からの経過時間
 
-**`Time.time`** — ゲームが開始されてからの累計経過時間（秒）を返します。<!-- [公式ドキュメント]() -->
+**`Time.time`** — ゲームが開始されてからの累計経過時間（秒）を返します。
 
-**書式：Time.time プロパティ**
+**書式：[Time.time プロパティ](https://docs.unity3d.com/ScriptReference/Time-time.html)**
 ```csharp
 public static float time { get; }
 ```
@@ -107,9 +107,9 @@ public class Blinker : MonoBehaviour
 
 `Time.time` は**ゲーム時間**です。現実の時計とは異なり、**`Time.timeScale`** の値によって速さが変わります。
 
-**`Time.timeScale`** — 時間の流れる速さのスケールを設定・取得します。<!-- [公式ドキュメント]() -->
+**`Time.timeScale`** — 時間の流れる速さのスケールを設定・取得します。
 
-**書式：Time.timeScale プロパティ**
+**書式：[Time.timeScale プロパティ](https://docs.unity3d.com/ScriptReference/Time-timeScale.html)**
 ```csharp
 public static float timeScale { get; set; }
 ```

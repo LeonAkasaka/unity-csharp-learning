@@ -25,9 +25,9 @@ permalink: /unity/instantiate/
 
 ## 1. Instantiate() とは
 
-**`Object.Instantiate()`** — オブジェクト（プレハブを含む）を複製してシーンに追加します。<!-- [公式ドキュメント]() -->
+**`Object.Instantiate()`** — オブジェクト（プレハブを含む）を複製してシーンに追加します。
 
-**書式：Instantiate メソッド（基本）**
+**書式：[Instantiate メソッド](https://docs.unity3d.com/ScriptReference/Object.Instantiate.html)（基本）**
 ```csharp
 public static Object Instantiate(Object original);
 ```

@@ -28,9 +28,9 @@ permalink: /unity/time-datetime/
 
 **`DateTime`** は C# 標準ライブラリ（`System` 名前空間）の型で、日付と時刻を表します。<!-- [公式ドキュメント]() -->
 
-**`DateTime.Now`** — 現在のローカル日時を返します。<!-- [公式ドキュメント]() -->
+**`DateTime.Now`** — 現在のローカル日時を返します。
 
-**書式：DateTime.Now プロパティ**
+**書式：[DateTime.Now プロパティ](https://learn.microsoft.com/dotnet/api/system.datetime.now)**
 ```csharp
 public static DateTime Now { get; }
 ```

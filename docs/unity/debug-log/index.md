@@ -25,9 +25,9 @@ permalink: /unity/debug-log/
 
 Unity のデバッグ機能は **`Debug` クラス**にまとめられています。
 
-**`Debug`** — Unity のデバッグ機能を提供するクラスです。<!-- [公式ドキュメント]() -->
+**`Debug`** — Unity のデバッグ機能を提供するクラスです。
 
-**書式：Debug クラス**
+**書式：[Debug クラス](https://docs.unity3d.com/ScriptReference/Debug.html)**
 ```csharp
 public class Debug
 ```
@@ -38,9 +38,9 @@ public class Debug
 
 ## 2. Debug.Log() でメッセージを出力する
 
-**`Debug.Log`** — Console ビューにメッセージを出力します。<!-- [公式ドキュメント]() -->
+**`Debug.Log`** — Console ビューにメッセージを出力します。
 
-**書式：Debug.Log メソッド**
+**書式：[Debug.Log メソッド](https://docs.unity3d.com/ScriptReference/Debug.Log.html)**
 ```csharp
 public static void Log(object message);
 ```

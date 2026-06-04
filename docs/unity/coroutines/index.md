@@ -192,9 +192,9 @@ public class SimpleCoroutineRunner : MonoBehaviour
 
 Unity でコルーチンを実行するには、`StartCoroutine` を使います。
 
-**`MonoBehaviour.StartCoroutine`** — `IEnumerator` を返すメソッドをコルーチンとして開始します。<!-- [公式ドキュメント]() -->
+**`MonoBehaviour.StartCoroutine`** — `IEnumerator` を返すメソッドをコルーチンとして開始します。
 
-**書式：StartCoroutine メソッド**
+**書式：[StartCoroutine メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html)**
 ```csharp
 public Coroutine StartCoroutine(IEnumerator routine);
 ```

@@ -66,9 +66,9 @@ public class Sample : MonoBehaviour
 
 Rigidbody コンポーネントの **`AddForce()`** メソッドで、オブジェクトに力を加えられます。加えた力は物理エンジンによって自動的に速度・移動に変換されます。
 
-**`Rigidbody.AddForce()`** — Rigidbody に力を加えます。<!-- [公式ドキュメント]() -->
+**`Rigidbody.AddForce()`** — Rigidbody に力を加えます。
 
-**書式：Rigidbody.AddForce メソッド**
+**書式：[Rigidbody.AddForce メソッド](https://docs.unity3d.com/ScriptReference/Rigidbody.AddForce.html)**
 
 ```csharp
 public void AddForce(Vector3 force);

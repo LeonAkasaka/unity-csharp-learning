@@ -46,9 +46,9 @@ Items             ← 親オブジェクト
 
 ### transform.parent
 
-**`Transform.parent`** — このオブジェクトの親 Transform を取得または設定します。親がない場合（ルートオブジェクト）は `null` を返します。<!-- [公式ドキュメント]() -->
+**`Transform.parent`** — このオブジェクトの親 Transform を取得または設定します。親がない場合（ルートオブジェクト）は `null` を返します。
 
-**書式：parent プロパティ**
+**書式：[parent プロパティ](https://docs.unity3d.com/ScriptReference/Transform-parent.html)**
 ```csharp
 public Transform parent { get; set; }
 ```
@@ -62,9 +62,9 @@ if (transform.parent != null)
 
 ### transform.SetParent()
 
-**`Transform.SetParent()`** — 親 Transform を設定します。<!-- [公式ドキュメント]() -->
+**`Transform.SetParent()`** — 親 Transform を設定します。
 
-**書式：SetParent メソッド**
+**書式：[SetParent メソッド](https://docs.unity3d.com/ScriptReference/Transform.SetParent.html)**
 ```csharp
 public void SetParent(Transform parent);
 public void SetParent(Transform parent, bool worldPositionStays);
@@ -99,16 +99,16 @@ Unity の Transform には**2種類の座標系**があります。
 
 `position` / `rotation` / `localScale` は [Transform ページ](/unity-csharp-learning/unity/transform/) で解説済みです。このページでは親子関係に関わる `local` 系プロパティに注目します。
 
-**`Transform.localPosition`** — 親オブジェクトを基準にしたローカル座標を取得または設定します。<!-- [公式ドキュメント]() -->
+**`Transform.localPosition`** — 親オブジェクトを基準にしたローカル座標を取得または設定します。
 
-**書式：localPosition プロパティ**
+**書式：[localPosition プロパティ](https://docs.unity3d.com/ScriptReference/Transform-localPosition.html)**
 ```csharp
 public Vector3 localPosition { get; set; }
 ```
 
-**`Transform.localRotation`** — 親を基準にしたローカル回転を取得または設定します。<!-- [公式ドキュメント]() -->
+**`Transform.localRotation`** — 親を基準にしたローカル回転を取得または設定します。
 
-**書式：localRotation プロパティ**
+**書式：[localRotation プロパティ](https://docs.unity3d.com/ScriptReference/Transform-localRotation.html)**
 ```csharp
 public Quaternion localRotation { get; set; }
 ```
@@ -176,16 +176,16 @@ public class SunRotator : MonoBehaviour
 
 ### childCount と GetChild()
 
-**`Transform.childCount`** — 直下の子オブジェクトの数を返します。<!-- [公式ドキュメント]() -->
+**`Transform.childCount`** — 直下の子オブジェクトの数を返します。
 
-**書式：childCount プロパティ**
+**書式：[childCount プロパティ](https://docs.unity3d.com/ScriptReference/Transform-childCount.html)**
 ```csharp
 public int childCount { get; }
 ```
 
-**`Transform.GetChild()`** — インデックスで子 Transform を取得します。<!-- [公式ドキュメント]() -->
+**`Transform.GetChild()`** — インデックスで子 Transform を取得します。
 
-**書式：GetChild メソッド**
+**書式：[GetChild メソッド](https://docs.unity3d.com/ScriptReference/Transform.GetChild.html)**
 ```csharp
 public Transform GetChild(int index);
 ```
@@ -206,9 +206,9 @@ for (var i = 0; i < transform.childCount; i++)
 
 ### transform.Find()
 
-**`Transform.Find()`** — 名前で直下の子（または子孫）を検索します。見つからない場合は `null` を返します。<!-- [公式ドキュメント]() -->
+**`Transform.Find()`** — 名前で直下の子（または子孫）を検索します。見つからない場合は `null` を返します。
 
-**書式：Find メソッド**
+**書式：[Find メソッド](https://docs.unity3d.com/ScriptReference/Transform.Find.html)**
 ```csharp
 public Transform Find(string name);
 ```

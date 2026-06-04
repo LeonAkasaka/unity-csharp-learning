@@ -26,13 +26,13 @@ permalink: /unity/random-basics/
 
 ## 1. Random.Range() — 範囲内のランダムな値
 
-**`Random.Range()`** — 指定した範囲内のランダムな値を返します。<!-- [公式ドキュメント]() -->
+**`Random.Range()`** — 指定した範囲内のランダムな値を返します。
 
 float 版と int 版で最大値の扱いが異なるため注意が必要です。
 
 ### float 版（最大値を含む）
 
-**書式：Random.Range メソッド（float）**
+**書式：[Random.Range メソッド](https://docs.unity3d.com/ScriptReference/Random.Range.html)（float）**
 ```csharp
 public static float Range(float minInclusive, float maxInclusive);
 ```
@@ -48,7 +48,7 @@ var x = Random.Range(-5f, 5f);  // -5.0 〜 5.0 の float
 
 ### int 版（最大値を含まない）
 
-**書式：Random.Range メソッド（int）**
+**書式：[Random.Range メソッド](https://docs.unity3d.com/ScriptReference/Random.Range.html)（int）**
 ```csharp
 public static int Range(int minInclusive, int maxExclusive);
 ```
@@ -102,9 +102,9 @@ public class RandomSpawner : MonoBehaviour
 
 ### Random.value
 
-**`Random.value`** — 0.0 以上 1.0 以下のランダムな float を返します。確率の判定によく使います。<!-- [公式ドキュメント]() -->
+**`Random.value`** — 0.0 以上 1.0 以下のランダムな float を返します。確率の判定によく使います。
 
-**書式：value プロパティ**
+**書式：[value プロパティ](https://docs.unity3d.com/ScriptReference/Random-value.html)**
 ```csharp
 public static float value { get; }
 ```
@@ -119,9 +119,9 @@ if (Random.value < 0.3f)
 
 ### Random.insideUnitSphere
 
-**`Random.insideUnitSphere`** — 半径 1 の球の内部にあるランダムな点（`Vector3`）を返します。3D 空間へのばらつきある配置に便利です。<!-- [公式ドキュメント]() -->
+**`Random.insideUnitSphere`** — 半径 1 の球の内部にあるランダムな点（`Vector3`）を返します。3D 空間へのばらつきある配置に便利です。
 
-**書式：insideUnitSphere プロパティ**
+**書式：[insideUnitSphere プロパティ](https://docs.unity3d.com/ScriptReference/Random-insideUnitSphere.html)**
 ```csharp
 public static Vector3 insideUnitSphere { get; }
 ```
@@ -134,9 +134,9 @@ Instantiate(_original, pos, Quaternion.identity);
 
 ### Random.insideUnitCircle
 
-**`Random.insideUnitCircle`** — 半径 1 の円の内部にあるランダムな点（`Vector2`）を返します。2D 平面への散布に使えます。<!-- [公式ドキュメント]() -->
+**`Random.insideUnitCircle`** — 半径 1 の円の内部にあるランダムな点（`Vector2`）を返します。2D 平面への散布に使えます。
 
-**書式：insideUnitCircle プロパティ**
+**書式：[insideUnitCircle プロパティ](https://docs.unity3d.com/ScriptReference/Random-insideUnitCircle.html)**
 ```csharp
 public static Vector2 insideUnitCircle { get; }
 ```
@@ -155,9 +155,9 @@ var pos = new Vector3(circle.x, 0f, circle.y);
 
 シード値が同じなら、何度実行しても**まったく同じ順序**の乱数列が得られます。
 
-**`Random.InitState()`** — 乱数のシード値を設定します。<!-- [公式ドキュメント]() -->
+**`Random.InitState()`** — 乱数のシード値を設定します。
 
-**書式：InitState メソッド**
+**書式：[InitState メソッド](https://docs.unity3d.com/ScriptReference/Random.InitState.html)**
 ```csharp
 public static void InitState(int seed);
 ```

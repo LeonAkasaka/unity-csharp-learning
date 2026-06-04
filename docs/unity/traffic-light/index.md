@@ -43,9 +43,9 @@ Sphere の色は、`GetComponent` メソッドで `Renderer` コンポーネン�
 
 流れとしては、まず `GetComponent` メソッドで Sphere についている `Renderer` コンポーネントを取得します。次に `Renderer.material` プロパティで、その `Renderer` コンポーネントが使っているマテリアルにアクセスします。最後に `Material.color` プロパティを使うと、表示色を変更できます。マテリアルとは、色やテクスチャ、見た目の質感など、表示のしかたをまとめて管理する設定の集まりです。
 
-**`GameObject.GetComponent<T>()`** — この GameObject に追加されているコンポーネントを取得します。<!-- [公式ドキュメント]() -->
+**`GameObject.GetComponent<T>()`** — この GameObject に追加されているコンポーネントを取得します。
 
-**書式：GameObject.GetComponent メソッド**
+**書式：[GameObject.GetComponent メソッド](https://docs.unity3d.com/ScriptReference/GameObject.GetComponent.html)**
 ```csharp
 public T GetComponent<T>();
 ```
@@ -69,9 +69,9 @@ if (r != null)
 
 `null` チェックを `if` の条件判定と取得を同時に行いたい場合は **`TryGetComponent<T>()`** が便利です。
 
-**`Component.TryGetComponent<T>()`** — コンポーネントを取得し、見つかった場合は `true`、見つからない場合は `false` を返します。<!-- [公式ドキュメント]() -->
+**`Component.TryGetComponent<T>()`** — コンポーネントを取得し、見つかった場合は `true`、見つからない場合は `false` を返します。
 
-**書式：TryGetComponent メソッド**
+**書式：[TryGetComponent メソッド](https://docs.unity3d.com/ScriptReference/GameObject.TryGetComponent.html)**
 ```csharp
 public bool TryGetComponent<T>(out T component);
 ```
@@ -95,18 +95,18 @@ if (TryGetComponent<Renderer>(out var r))
 
 ---
 
-**`Renderer.material`** — `Renderer` コンポーネントが現在使っているマテリアルを取得します。`Renderer` コンポーネントから見た目の設定へ進む入口です。<!-- [公式ドキュメント]() -->
+**`Renderer.material`** — `Renderer` コンポーネントが現在使っているマテリアルを取得します。`Renderer` コンポーネントから見た目の設定へ進む入口です。
 
-**書式：Renderer.material プロパティ**
+**書式：[Renderer.material プロパティ](https://docs.unity3d.com/ScriptReference/Renderer-material.html)**
 ```csharp
 public Material material { get; set; }
 ```
 
 ---
 
-**`Material.color`** — マテリアルのメインカラーを設定・取得します。`Renderer.material` でレンダラーが使用するマテリアルにアクセスし、`.color` で色を変更します。<!-- [公式ドキュメント]() -->
+**`Material.color`** — マテリアルのメインカラーを設定・取得します。`Renderer.material` でレンダラーが使用するマテリアルにアクセスし、`.color` で色を変更します。
 
-**書式：Material.color プロパティ**
+**書式：[Material.color プロパティ](https://docs.unity3d.com/ScriptReference/Material-color.html)**
 ```csharp
 public Color color { get; set; }
 ```

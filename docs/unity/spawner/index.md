@@ -163,9 +163,9 @@ Inspector ビューの **Original** 欄に、作成した Item プレハブを�
 
 `Instantiate()` の戻り値からコンポーネントを取得して、生成直後のオブジェクトを操作できます。`Random.Range()` で毎回異なる方向に飛ばしてみましょう。
 
-**`Random.Range()`** — 指定した範囲内のランダムな値を返します。<!-- [公式ドキュメント]() -->
+**`Random.Range()`** — 指定した範囲内のランダムな値を返します。
 
-**書式：Random.Range メソッド**
+**書式：[Random.Range メソッド](https://docs.unity3d.com/ScriptReference/Random.Range.html)**
 ```csharp
 public static float Range(float minInclusive, float maxInclusive);
 ```

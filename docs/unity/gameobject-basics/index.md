@@ -24,9 +24,9 @@ Unity では、スクリプトからゲームオブジェクトを生成し、�
 
 Unity には立方体や球体などの基本形状が用意されており、スクリプトから簡単に生成できます。
 
-**`GameObject.CreatePrimitive`** — 基本形状のゲームオブジェクトを生成します。<!-- [公式ドキュメント]() -->
+**`GameObject.CreatePrimitive`** — 基本形状のゲームオブジェクトを生成します。
 
-**書式：GameObject.CreatePrimitive メソッド**
+**書式：[GameObject.CreatePrimitive メソッド](https://docs.unity3d.com/ScriptReference/GameObject.CreatePrimitive.html)**
 ```csharp
 public static GameObject CreatePrimitive(PrimitiveType type);
 ```
@@ -92,9 +92,9 @@ var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
 ## 4. name プロパティでオブジェクトに名前をつける
 
-**`Object.name`** — ゲームオブジェクトの名前を取得・設定します。<!-- [公式ドキュメント]() -->
+**`Object.name`** — ゲームオブジェクトの名前を取得・設定します。
 
-**書式：Object.name プロパティ**
+**書式：[Object.name プロパティ](https://docs.unity3d.com/ScriptReference/Object-name.html)**
 ```csharp
 public string name { get; set; }
 ```
