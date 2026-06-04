@@ -71,7 +71,7 @@ if (r != null)
 
 **`Component.TryGetComponent<T>()`** — コンポーネントを取得し、見つかった場合は `true`、見つからない場合は `false` を返します。
 
-**書式：[TryGetComponent メソッド](https://docs.unity3d.com/ScriptReference/GameObject.TryGetComponent.html)**
+**書式：[GameObject.TryGetComponent メソッド](https://docs.unity3d.com/ScriptReference/GameObject.TryGetComponent.html)**
 ```csharp
 public bool TryGetComponent<T>(out T component);
 ```

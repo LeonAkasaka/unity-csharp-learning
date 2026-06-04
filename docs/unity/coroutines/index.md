@@ -194,7 +194,7 @@ Unity でコルーチンを実行するには、`StartCoroutine` を使います
 
 **`MonoBehaviour.StartCoroutine`** — `IEnumerator` を返すメソッドをコルーチンとして開始します。
 
-**書式：[StartCoroutine メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html)**
+**書式：[MonoBehaviour.StartCoroutine メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html)**
 ```csharp
 public Coroutine StartCoroutine(IEnumerator routine);
 ```

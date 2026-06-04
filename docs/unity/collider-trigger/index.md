@@ -46,7 +46,7 @@ Rigidbody を持つオブジェクトが別の Collider に触れたとき、**`
 
 **`MonoBehaviour.OnCollisionEnter()`** — Collider または Rigidbody が別の Collider / Rigidbody に接触したとき呼ばれます。
 
-**書式：[OnCollisionEnter メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnCollisionEnter.html)**
+**書式：[MonoBehaviour.OnCollisionEnter メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnCollisionEnter.html)**
 ```csharp
 private void OnCollisionEnter(Collision collision);
 ```
@@ -128,7 +128,7 @@ Rigidbody を持つオブジェクトが、Is Trigger がオンの Collider に�
 
 **`MonoBehaviour.OnTriggerEnter()`** — Is Trigger の Collider に別のオブジェクトが侵入したとき呼ばれます。
 
-**書式：[OnTriggerEnter メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnTriggerEnter.html)**
+**書式：[MonoBehaviour.OnTriggerEnter メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnTriggerEnter.html)**
 ```csharp
 private void OnTriggerEnter(Collider other);
 ```

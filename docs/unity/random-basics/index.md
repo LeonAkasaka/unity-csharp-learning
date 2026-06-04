@@ -104,7 +104,7 @@ public class RandomSpawner : MonoBehaviour
 
 **`Random.value`** — 0.0 以上 1.0 以下のランダムな float を返します。確率の判定によく使います。
 
-**書式：[value プロパティ](https://docs.unity3d.com/ScriptReference/Random-value.html)**
+**書式：[Random.value プロパティ](https://docs.unity3d.com/ScriptReference/Random-value.html)**
 ```csharp
 public static float value { get; }
 ```
@@ -121,7 +121,7 @@ if (Random.value < 0.3f)
 
 **`Random.insideUnitSphere`** — 半径 1 の球の内部にあるランダムな点（`Vector3`）を返します。3D 空間へのばらつきある配置に便利です。
 
-**書式：[insideUnitSphere プロパティ](https://docs.unity3d.com/ScriptReference/Random-insideUnitSphere.html)**
+**書式：[Random.insideUnitSphere プロパティ](https://docs.unity3d.com/ScriptReference/Random-insideUnitSphere.html)**
 ```csharp
 public static Vector3 insideUnitSphere { get; }
 ```
@@ -136,7 +136,7 @@ Instantiate(_original, pos, Quaternion.identity);
 
 **`Random.insideUnitCircle`** — 半径 1 の円の内部にあるランダムな点（`Vector2`）を返します。2D 平面への散布に使えます。
 
-**書式：[insideUnitCircle プロパティ](https://docs.unity3d.com/ScriptReference/Random-insideUnitCircle.html)**
+**書式：[Random.insideUnitCircle プロパティ](https://docs.unity3d.com/ScriptReference/Random-insideUnitCircle.html)**
 ```csharp
 public static Vector2 insideUnitCircle { get; }
 ```
@@ -157,7 +157,7 @@ var pos = new Vector3(circle.x, 0f, circle.y);
 
 **`Random.InitState()`** — 乱数のシード値を設定します。
 
-**書式：[InitState メソッド](https://docs.unity3d.com/ScriptReference/Random.InitState.html)**
+**書式：[Random.InitState メソッド](https://docs.unity3d.com/ScriptReference/Random.InitState.html)**
 ```csharp
 public static void InitState(int seed);
 ```

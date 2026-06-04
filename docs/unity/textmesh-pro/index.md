@@ -140,7 +140,7 @@ public abstract class TMP_Text : MaskableGraphic
 
 **`TMP_Text.text`** — TextMesh Pro に表示するテキストを取得または設定します。
 
-**書式：[text プロパティ](https://docs.unity3d.com/Packages/com.unity.textmeshpro@latest/api/TMPro.TMP_Text.html#TMPro_TMP_Text_text)**
+**書式：[TMP_Text.text プロパティ](https://docs.unity3d.com/Packages/com.unity.textmeshpro@latest/api/TMPro.TMP_Text.html#TMPro_TMP_Text_text)**
 ```csharp
 public virtual string text { get; set; }
 ```
