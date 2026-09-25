@@ -6,6 +6,7 @@ echo.
 
 docker run --rm -it ^
   -v "%~dp0docs:/srv/jekyll" ^
+  -w /srv/jekyll ^
   -p 4000:4000 ^
-  jekyll/jekyll:4 ^
-  sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0 --watch"
+  ruby:3.3 ^
+  sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0 --watch --force_polling"
