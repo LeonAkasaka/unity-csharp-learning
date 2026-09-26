@@ -39,11 +39,10 @@ int number = 42;
 さらに詳しく掘り下げます。
 
 <!-- 構文・API を初めて紹介するときのパターン -->
-<!-- 公式ドキュメントへのリンクはユーザーが追加する。エージェントはリンクを記載しない。 -->
 
-**`Debug.Log`** — コンソールにメッセージを出力します。<!-- [公式ドキュメント]() -->
+**`Debug.Log`** — コンソールにメッセージを出力します。
 
-**書式：Debug.Log メソッド**
+**書式：[Debug.Log メソッド](https://docs.unity3d.com/ScriptReference/Debug.Log.html)**
 ```csharp
 Debug.Log(object message);
 ```
