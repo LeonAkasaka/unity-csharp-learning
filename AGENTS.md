@@ -1,12 +1,31 @@
 # ドキュメント編集ガイド
 
+## ページテンプレート
+
+`docs/` にページを新規作成するときは、テンプレートに従って構成してください。
+
+テンプレートは、作成するページのフォルダーから上位へ順にたどり、最初に見つかった `_template.md` を使います。
+
+| 置き場所 | 用途 |
+|---|---|
+| `docs/csharp/_template.md` | C# の言語解説（文法を中心に、コード例と実行結果で説明する） |
+| `docs/unity/_template.md` | Unity の解説（API と Editor 操作を中心に、手順と動作確認で説明する） |
+| `docs/_template.md` | 上記以外のセクション。フォルダー内にテンプレートがないときのフォールバック |
+
+例：`docs/unity/rigidbody/index.md` を作るときは `docs/unity/_template.md` を、`docs/grid-games/xxx/index.md` を作るときは `docs/_template.md` を使います。
+
+- テンプレート内の `<!-- -->` コメントは執筆上の指示です。ページには残さないでください。
+- 任意の節（コメントアウトされた節）は、トピックに合う場合だけ使います。
+- `_` で始まるファイルは Jekyll のビルド対象外なので、テンプレートはサイトに公開されません。
+
 ## 公式ドキュメントリンクのルール
 
-`docs/unity/` 以下で API を新規解説するとき、`**書式：...` ヘッダーの型・メンバ名部分を公式ドキュメントへのリンクにしてください。
+`docs/` 以下で API または C# の文法を新規解説するとき、`**書式：...` ヘッダーの型・メンバ名・文法名の部分を公式ドキュメントへのリンクにしてください。
 
 ```markdown
 **書式：[Type.Member メソッド](URL)**
 **書式：[Type.Property プロパティ](URL)**
+**書式：[while 文](URL)**
 ```
 
 括弧付きの修飾子はリンクの外に出す:
@@ -26,6 +45,22 @@
 | TextMeshPro パッケージ | `https://docs.unity3d.com/Packages/com.unity.textmeshpro@latest/api/TMPro.ClassName.html` |
 | Input System パッケージ | リンクしない（URL 構造が異なりリンク切れになりやすいため） |
 | C# 標準ライブラリ | `https://learn.microsoft.com/dotnet/api/system.typename` |
+| C# の文法（キーワード・文・演算子など） | `https://learn.microsoft.com/dotnet/csharp/language-reference/...`（C# 言語リファレンスの該当ページ） |
+
+learn.microsoft.com の URL には `ja-jp` などのロケールを入れないでください。ロケールなしの URL は、読者の言語設定に合わせて自動で振り分けられます。
+
+#### C# の文法のリンク先
+
+- リンク先は C# 言語リファレンスにする。C# 言語仕様（`language-specification/`）には直接リンクしない。
+  - 言語リファレンスの各ページ末尾には「C# 言語仕様」の節があり、仕様の該当する節へリンクされている。読者はそこから一次資料に辿れる。
+  - 言語仕様のアンカーには節番号が含まれ（例：`statements#1392-the-while-statement`）、仕様の改訂で番号がずれるとリンクが壊れる。
+- 1 つのページで複数の文法を扱っている場合は、見出しのアンカーで該当箇所を指してよい。言語リファレンスのアンカーは節番号を含まない。
+
+```markdown
+**書式：[while 文](https://learn.microsoft.com/dotnet/csharp/language-reference/statements/iteration-statements#the-while-statement)**
+```
+
+- リンクする前に、URL（アンカーを含む）が実在することを確認する。
 
 ## 動作検証のルール
 
