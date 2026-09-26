@@ -539,8 +539,6 @@ Console.WriteLine(state.HasFlag(PlayerState.Jump)); // True
 
 `[Flags]` を付けると `ToString()` が `"Jump, Run"` のように読みやすく表示されます。`HasFlag` でフラグの確認もできます。
 
-> 💡 **Unity での活用例**: `LayerMask` はビットマスクで複数のレイヤーを同時に指定する仕組みです。`Physics.Raycast` の `layerMask` パラメータなどで使われています。
-
 ---
 
 ## よくあるミス

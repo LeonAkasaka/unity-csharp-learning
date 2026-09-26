@@ -102,6 +102,22 @@ C# プログラミングをゼロから学びます。
 | 43 | [変数キャプチャ](/unity-csharp-learning/csharp/variable-capture/) | ラムダ式によるスコープ外変数のキャプチャ・ループ内の罠・`static` ラムダ |
 | 44 | [ローカル関数](/unity-csharp-learning/csharp/local-functions/) | メソッド内メソッド・再帰との相性・`static` ローカル関数・ラムダ式との使い分け |
 
+### C# 例外とリソース管理
+
+| # | トピック | 概要 |
+|---|---|---|
+| 45 | [例外の基本](/unity-csharp-learning/csharp/exceptions/) | `try` / `catch` / `finally`・例外の型の継承関係と `catch` の順序・`TryParse` との使い分け |
+| 46 | [例外を投げる](/unity-csharp-learning/csharp/throwing-exceptions/) | `throw`・呼び出し元への伝わり方とスタックトレース・`throw;` による再スロー・独自の例外クラスと `InnerException` |
+| 47 | [IDisposable と using](/unity-csharp-learning/csharp/dispose-using/) | `Dispose` が必要な理由・`IDisposable` の実装・`using` 文と `try` / `finally`・`using` 宣言と解放の順序 |
+
+### C# スレッド
+
+| # | トピック | 概要 |
+|---|---|---|
+| 48 | [スレッドの基本](/unity-csharp-learning/csharp/threads/) | メインスレッド・`Thread` の `Start` / `Join`・実行の順序が決まらないこと・バックグラウンドスレッド |
+| 49 | [共有データと lock](/unity-csharp-learning/csharp/thread-safety/) | 競合状態・`count++` が 1 回の操作ではないこと・`lock` 文・`Interlocked` |
+| 50 | [スレッドプール](/unity-csharp-learning/csharp/thread-pool/) | スレッドの使い回し・`ThreadPool.QueueUserWorkItem`・完了・結果・例外を扱いにくいという限界 |
+
 ## 前提知識
 
 このセクションはプログラミング未経験の方を対象としています。特別な前提知識は不要です。
