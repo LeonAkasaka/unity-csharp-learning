@@ -6,184 +6,179 @@ permalink: /csharp/bit-packing/
 
 # ビットパッキング（補足）
 
-`bool[] flags = new bool[8]` は 8 つの真偽値を格納できますが、1 要素が内部的に 1 バイト以上占有します。これを 1 バイト（`byte`）の各ビットに詰め込むことで、メモリを節約しつつビット演算の練習にもなります。これを**ビットパッキング**と呼びます。
+このページは、[配列の基礎](/unity-csharp-learning/csharp/arrays/) と [ビット演算](/unity-csharp-learning/csharp/bitwise-operations/) の補足です。`bool` の配列の 8 つの値を、1 つの `byte` の 8 つのビットに詰めて表す方法を学びます。このように、複数の値をビットに詰めて表すことを **ビットパッキング** といいます。
 
 ## 学習目標
 
-- `bool[]` と `byte` の対応関係を理解できる
-- for ループとビット演算を使って bool 配列を byte にパックできる
-- byte から bool 配列にアンパックできる
-- `BitArray` クラスの存在を知っている
+このページを読み終えると、以下のことができるようになります。
+
+- `bool` の配列の要素と、`byte` のビットを対応させられる
+- `for` 文とビット演算で、`bool` の配列を `byte` に詰められる（パック）
+- `byte` から `bool` の配列に戻せる（アンパック）
+- `BitArray` クラスが、先頭の要素を最下位のビットに対応させることを説明できる
 
 ## 前提知識
 
-- [ビット演算](/unity-csharp-learning/csharp/bitwise-operations/) を読んでいること
 - [配列の基礎](/unity-csharp-learning/csharp/arrays/) を読んでいること
+- [ビット演算](/unity-csharp-learning/csharp/bitwise-operations/) を読んでいること
 
 ---
 
-## 1. 概念：bool[8] と byte の対応
+## 1. bool の配列と byte の対応
 
-`byte` は 8 ビットで、各ビットを独立したフラグとして扱えます。
+`bool` の値は、1 つで 1 バイト（8 ビット）のメモリを使います。そのため、`bool` を 8 つ持つ配列は、要素だけで 8 バイトを使います。
 
-<svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;display:block;margin:1em 0;font-family:monospace;">
-  <text x="8" y="14" font-size="10" fill="#78909c">ビット位置</text>
-  <text x="45"  y="14" text-anchor="middle" font-size="10" fill="#78909c">7</text>
-  <text x="95"  y="14" text-anchor="middle" font-size="10" fill="#78909c">6</text>
-  <text x="145" y="14" text-anchor="middle" font-size="10" fill="#78909c">5</text>
-  <text x="195" y="14" text-anchor="middle" font-size="10" fill="#78909c">4</text>
-  <text x="245" y="14" text-anchor="middle" font-size="10" fill="#78909c">3</text>
-  <text x="295" y="14" text-anchor="middle" font-size="10" fill="#78909c">2</text>
-  <text x="345" y="14" text-anchor="middle" font-size="10" fill="#78909c">1</text>
-  <text x="385" y="14" text-anchor="middle" font-size="10" fill="#78909c">0</text>
-  <rect x="20"  y="18" width="50" height="34" rx="3" fill="#fff3e0" stroke="#f9a825" stroke-width="1.5"/><text x="45"  y="40" text-anchor="middle" font-size="16" fill="#e65100">1</text>
-  <rect x="70"  y="18" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="95"  y="40" text-anchor="middle" font-size="16" fill="#555">0</text>
-  <rect x="120" y="18" width="50" height="34" rx="3" fill="#fff3e0" stroke="#f9a825" stroke-width="1.5"/><text x="145" y="40" text-anchor="middle" font-size="16" fill="#e65100">1</text>
-  <rect x="170" y="18" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="195" y="40" text-anchor="middle" font-size="16" fill="#555">0</text>
-  <rect x="220" y="18" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="245" y="40" text-anchor="middle" font-size="16" fill="#555">0</text>
-  <rect x="270" y="18" width="50" height="34" rx="3" fill="#fff3e0" stroke="#f9a825" stroke-width="1.5"/><text x="295" y="40" text-anchor="middle" font-size="16" fill="#e65100">1</text>
-  <rect x="320" y="18" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="345" y="40" text-anchor="middle" font-size="16" fill="#555">0</text>
-  <rect x="360" y="18" width="40" height="34" rx="3" fill="#fff3e0" stroke="#f9a825" stroke-width="1.5"/><text x="380" y="40" text-anchor="middle" font-size="16" fill="#e65100">1</text>
-  <text x="8" y="72" font-size="10" fill="#78909c">bool[]</text>
-  <text x="45"  y="72" text-anchor="middle" font-size="10" fill="#555">T</text>
-  <text x="95"  y="72" text-anchor="middle" font-size="10" fill="#555">F</text>
-  <text x="145" y="72" text-anchor="middle" font-size="10" fill="#555">T</text>
-  <text x="195" y="72" text-anchor="middle" font-size="10" fill="#555">F</text>
-  <text x="245" y="72" text-anchor="middle" font-size="10" fill="#555">F</text>
-  <text x="295" y="72" text-anchor="middle" font-size="10" fill="#555">T</text>
-  <text x="345" y="72" text-anchor="middle" font-size="10" fill="#555">F</text>
-  <text x="385" y="72" text-anchor="middle" font-size="10" fill="#555">T</text>
-  <text x="8"   y="90" font-size="10" fill="#78909c">byte</text>
-  <text x="200" y="90" text-anchor="middle" font-size="11" fill="#555" font-family="monospace">= 0b10100101 = 165</text>
-</svg>
+一方、`bool` の値は `true` か `false` の 2 通りしかないので、1 ビットで表せます。`byte` は 8 ビットなので、8 つの `bool` の値を 1 つの `byte` に詰められます。
 
-ビット 7 が `bool[0]`（最上位ビット）、ビット 0 が `bool[7]`（最下位ビット）に対応させます。
+このページでは、配列の先頭の要素（`[0]`）を `byte` の最上位のビット（bit7）に、末尾の要素（`[7]`）を最下位のビット（bit0）に対応させます。
+
+![bool の配列 true、false、true、false、false、true、false、true の各要素を、byte の bit7 から bit0 に順に対応させると、0b1010_0101（165）になる](packing.svg)
 
 ---
 
-## 2. Pack：bool[] → byte
+## 2. パック — bool の配列を byte に詰める
 
-bool 配列を byte に変換するには、各要素が `true` のときに対応ビットを OR で立てます。
+`true` の要素に対応するビットだけを、[ビット演算](/unity-csharp-learning/csharp/bitwise-operations/) で学んだ OR で `1` にします。
 
 ```csharp
 bool[] flags = { true, false, true, false, false, true, false, true };
 
-byte Pack(bool[] flags)
+byte packed = 0;
+for (int i = 0; i < flags.Length; i++)
 {
-    byte result = 0;
-    for (int i = 0; i < 8; i++)
+    if (flags[i])
     {
-        if (flags[i])
-        {
-            result |= (byte)(1 << (7 - i));  // ビット (7-i) を立てる
-        }
+        packed |= (byte)(1 << (7 - i));
     }
-    return result;
 }
 
-byte packed = Pack(flags);
-Console.WriteLine(packed);           // 165
-Console.WriteLine($"0b{Convert.ToString(packed, 2).PadLeft(8, '0')}");
-// 0b10100101
+Console.WriteLine(packed);
+Console.WriteLine($"{packed:B8}");
 ```
 
-**ポイント：**
-- `1 << (7 - i)` で i 番目の要素に対応するビットマスクを作る
-- `|=` で該当ビットだけを 1 にする
-- `(byte)` にキャストするのは `<<` の結果が `int` になるため
+```
+165
+10100101
+```
+
+- `1 << (7 - i)` は、`i` 番目の要素に対応するビットだけが `1` の値（ビットマスク）です。`i` が `0` なら bit7、`i` が `7` なら bit0 になります
+- `packed |= マスク` で、そのビットだけを `1` にします
+- `1 << (7 - i)` の結果は `int` なので、`byte` の変数と計算するために `(byte)` でキャストします
+- `{packed:B8}` は、値を 8 桁の 2 進数で表示します
 
 ---
 
-## 3. Unpack：byte → bool[]
+## 3. アンパック — byte から bool の配列に戻す
 
-byte から bool 配列に戻すには、各ビット位置を AND マスクで確認します。
+各ビットが `1` かどうかを、AND で調べます。
 
 ```csharp
-bool[] Unpack(byte packed)
+byte packed = 0b1010_0101;
+
+bool[] flags = new bool[8];
+for (int i = 0; i < flags.Length; i++)
 {
-    bool[] result = new bool[8];
-    for (int i = 0; i < 8; i++)
-    {
-        result[i] = (packed & (1 << (7 - i))) != 0;
-    }
-    return result;
+    flags[i] = (packed & (1 << (7 - i))) != 0;
 }
 
-bool[] restored = Unpack(packed);
-
-foreach (bool b in restored)
-{
-    Console.Write(b ? "T " : "F ");
-}
-// T F T F F T F T
+Console.WriteLine(string.Join(", ", flags));
 ```
 
-**ポイント：**
-- `packed & (1 << (7 - i))` でビット i が立っているか確認
-- 結果が `0` でなければ `true`
+```
+True, False, True, False, False, True, False, True
+```
+
+`packed & (1 << (7 - i))` は、`i` 番目の要素に対応するビット以外を `0` にした値です。その値が `0` でなければ、そのビットは `1` なので、要素を `true` にします。[string.Join メソッド](https://learn.microsoft.com/dotnet/api/system.string.join) は、配列の要素を区切り文字でつないだ文字列にします。
 
 ---
 
-## 4. ラウンドトリップ確認
+## 4. パックしてアンパックする
 
-Pack → Unpack を経ても元の配列が復元されることを確認します。
+パックした値をアンパックすると、元の配列と同じ値に戻ることを確かめます。
 
 ```csharp
-bool[] original = { true, false, true, false, false, true, false, true };
-byte packed      = Pack(original);
-bool[] restored  = Unpack(packed);
+bool[] original = { true, true, false, true, false, false, false, true };
 
-for (int i = 0; i < 8; i++)
+byte packed = 0;
+for (int i = 0; i < original.Length; i++)
 {
-    Console.WriteLine($"[{i}] {original[i]} -> {restored[i]} {(original[i] == restored[i] ? "✓" : "✗")}");
+    if (original[i])
+    {
+        packed |= (byte)(1 << (7 - i));
+    }
 }
-// [0] True -> True ✓
-// [1] False -> False ✓
-// ...
+
+bool[] restored = new bool[8];
+for (int i = 0; i < restored.Length; i++)
+{
+    restored[i] = (packed & (1 << (7 - i))) != 0;
+}
+
+Console.WriteLine($"packed: {packed:B8}");
+
+bool same = true;
+for (int i = 0; i < original.Length; i++)
+{
+    if (original[i] != restored[i])
+    {
+        same = false;
+    }
+}
+Console.WriteLine($"元に戻ったか: {same}");
+```
+
+```
+packed: 11010001
+元に戻ったか: True
 ```
 
 ---
 
 ## 5. BitArray クラス
 
-`System.Collections.BitArray` を使うと、同様の操作をより簡単に行えます。
+.NET には、ビットの並びを扱う [BitArray クラス](https://learn.microsoft.com/dotnet/api/system.collections.bitarray) も用意されています。`System.Collections` 名前空間にあるので、ファイルの先頭に `using System.Collections;` を書きます。
+
+`BitArray` を `byte` の配列に変換すると、**先頭の要素が最下位のビット（bit0）** に入ります。このページで自分で書いたパックとは、ビットの順序が逆です。
 
 ```csharp
 using System.Collections;
 
-var bits = new BitArray(new bool[] { true, false, true, false, false, true, false, true });
+BitArray bits = new BitArray(new bool[] { true, true, false, false, false, false, false, false });
 
-// byte に変換
 byte[] bytes = new byte[1];
 bits.CopyTo(bytes, 0);
-Console.WriteLine(bytes[0]);  // 165（環境により LSB/MSB の順が異なる場合あり）
+Console.WriteLine($"{bytes[0]:B8}");
+Console.WriteLine(bytes[0]);
 ```
 
-`BitArray` は AND・OR・XOR 演算をそのままメソッドで呼び出せる便利なクラスです。ただし、ビット順（LSB/MSB）や動作の細かい違いがあるため、本ページで紹介した手動実装の仕組みを先に理解しておくと応用が効きます。
+```
+00000011
+3
+```
+
+先頭の 2 つの要素が `true` なので、bit0 と bit1 が `1` になり、`3` になりました。このページの方法でパックすると、bit7 と bit6 が `1` になり `192` になります。ビットパッキングでは、どの要素をどのビットに対応させるかを決めておき、パックとアンパックで同じ決まりを使うことが大切です。
 
 ---
 
 ## まとめ
 
-- `bool[8]` は `byte` の 8 ビットと 1 対 1 で対応させられる
-- Pack：`|= (byte)(1 << (7 - i))` で真のビットを立てる
-- Unpack：`& (1 << (7 - i)) != 0` でビットが立っているか確認する
-- `BitArray` を使うと同様の操作を簡潔に書ける
+- `bool` の値は 1 ビットで表せるので、8 つの `bool` の値を 1 つの `byte` に詰められる
+- パック：`true` の要素に対応するビットを、OR（`|=`）で `1` にする
+- アンパック：対応するビットを AND（`&`）で取り出し、`0` でなければ `true` にする
+- `BitArray` は、先頭の要素を最下位のビットに対応させる。パックとアンパックで同じ対応の決まりを使う
 
 ---
 
 ## 理解度チェック
 
-1. `flags = { false, false, false, false, true, true, true, true }` を `Pack` するといくつになりますか？
-
-2. `byte packed = 0b11110000` を `Unpack` すると `result[4]` はどうなりますか？
+1. このページの方法（先頭の要素を bit7 に対応させる）で、`{ false, false, false, false, true, true, true, true }` をパックすると、値はいくつになりますか？
+2. このページの方法で、`byte packed = 0b1111_0000;` をアンパックすると、`flags[4]` は `true` と `false` のどちらになりますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. ビット 3〜0 が立ちます。`0b00001111 = 15` です。
-
-2. ビット 3（`1 << (7-4) = 1 << 3 = 8`）は `0b11110000 & 8 = 0` なので `false` です。
+1. `15` です。インデックス 4〜7 の要素が bit3〜bit0 に対応するので、`0b0000_1111` になります。
+2. `false` です。`flags[4]` は bit3（`1 << (7 - 4)` = `0b0000_1000`）に対応し、`0b1111_0000` の bit3 は `0` だからです。
 
 </details>
 
@@ -191,4 +186,4 @@ Console.WriteLine(bytes[0]);  // 165（環境により LSB/MSB の順が異な�
 
 ## 次のステップ
 
-[多次元配列](/unity-csharp-learning/csharp/multidimensional-arrays/) では、行列形式のデータを 2 次元配列で扱う方法を学びます。
+[多次元配列](/unity-csharp-learning/csharp/multidimensional-arrays/) では、行と列のある表のようなデータを、2 次元配列で扱う方法を学びます。

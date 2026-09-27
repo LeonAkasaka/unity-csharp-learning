@@ -6,121 +6,128 @@ permalink: /csharp/multidimensional-arrays/
 
 # 多次元配列
 
-**多次元配列**は行と列のような格子状（グリッド）にデータを配置する配列です。C# では `int[,]` のようにカンマで区切った型表記を使います。
+**多次元配列** は、行と列のように、2 つ以上の番号で要素を指定する配列です。表や、マス目のあるマップのようなデータを扱えます。C# では、`int[,]` のように `[]` の中に `,` を書いて表します。
 
 ## 学習目標
 
-- 2 次元配列を宣言・初期化・アクセスできる
-- `GetLength(0)` と `GetLength(1)` を使ってネストループで全要素を走査できる
-- `Rank` プロパティで次元数を確認できる
+このページを読み終えると、以下のことができるようになります。
+
+- 2 次元配列を作り、初期化し、要素を読み書きできる
+- `GetLength(0)` と `GetLength(1)` を使い、入れ子の `for` 文ですべての要素を処理できる
+- `Rank` と `Length` で、2 次元配列の次元の数と要素の数を調べられる
 
 ## 前提知識
 
+- [配列の基礎](/unity-csharp-learning/csharp/arrays/) を読んでいること
 - [Array クラスと配列の性質（補足）](/unity-csharp-learning/csharp/array-class/) を読んでいること
 
 ---
 
 ## 1. 2 次元配列とは
 
-2 次元配列は**行（row）と列（column）**の組み合わせでデータを管理します。座標系のグリッドやゲームのマップデータなどに使われます。
+2 次元配列は、**行**（row）と **列**（column）の 2 つのインデックスで要素を指定します。
 
-<svg viewBox="0 0 380 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;display:block;margin:1em 0;font-family:sans-serif;">
-  <!-- Column labels -->
-  <text x="118" y="22" text-anchor="middle" font-size="11" fill="#78909c">[,0]</text>
-  <text x="178" y="22" text-anchor="middle" font-size="11" fill="#78909c">[,1]</text>
-  <text x="238" y="22" text-anchor="middle" font-size="11" fill="#78909c">[,2]</text>
-  <text x="298" y="22" text-anchor="middle" font-size="11" fill="#78909c">[,3]</text>
-  <!-- Row 0 -->
-  <text x="52" y="52" text-anchor="middle" font-size="11" fill="#78909c">[0,]</text>
-  <rect x="88"  y="30" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="118" y="55" text-anchor="middle" font-size="16" fill="#1565c0">1</text>
-  <rect x="148" y="30" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="55" text-anchor="middle" font-size="16" fill="#1565c0">2</text>
-  <rect x="208" y="30" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="238" y="55" text-anchor="middle" font-size="16" fill="#1565c0">3</text>
-  <rect x="268" y="30" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="298" y="55" text-anchor="middle" font-size="16" fill="#1565c0">4</text>
-  <!-- Row 1 -->
-  <text x="52" y="112" text-anchor="middle" font-size="11" fill="#78909c">[1,]</text>
-  <rect x="88"  y="90" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="118" y="115" text-anchor="middle" font-size="16" fill="#1565c0">5</text>
-  <rect x="148" y="90" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="115" text-anchor="middle" font-size="16" fill="#1565c0">6</text>
-  <rect x="208" y="90" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="238" y="115" text-anchor="middle" font-size="16" fill="#1565c0">7</text>
-  <rect x="268" y="90" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="298" y="115" text-anchor="middle" font-size="16" fill="#1565c0">8</text>
-  <!-- Row 2 -->
-  <text x="52" y="172" text-anchor="middle" font-size="11" fill="#78909c">[2,]</text>
-  <rect x="88"  y="150" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="118" y="175" text-anchor="middle" font-size="16" fill="#1565c0">9</text>
-  <rect x="148" y="150" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="175" text-anchor="middle" font-size="16" fill="#1565c0">10</text>
-  <rect x="208" y="150" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="238" y="175" text-anchor="middle" font-size="16" fill="#1565c0">11</text>
-  <rect x="268" y="150" width="60" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="298" y="175" text-anchor="middle" font-size="16" fill="#1565c0">12</text>
-  <!-- access example annotation -->
-  <text x="118" y="200" text-anchor="middle" font-size="10" fill="#999">matrix[0,0]</text>
-  <text x="298" y="200" text-anchor="middle" font-size="10" fill="#999">matrix[2,3]</text>
-</svg>
+![3 行 4 列の 2 次元配列 matrix。1 行目に 1〜4、2 行目に 5〜8、3 行目に 9〜12 が並ぶ。左上は matrix[0, 0]、右下は matrix[2, 3]](matrix.svg)
 
-3 行 4 列の `int[,] matrix`。`matrix[行, 列]` の形でアクセスします。
+3 行 4 列の `int[,] matrix` では、`matrix[行, 列]` の形で要素を指定します。左上は `matrix[0, 0]`、右下は `matrix[2, 3]` です。
 
 ---
 
-## 2. 2 次元配列の宣言と初期化
+## 2. 2 次元配列を作る
 
-**書式：2 次元配列の宣言**
+**書式：[2 次元配列の作成](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/arrays#multidimensional-arrays)**
 ```
 型[,] 変数名 = new 型[行数, 列数];
 ```
 
 | 要素 | 説明 |
 |---|---|
-| `型[,]` | 2 次元配列の型。カンマの数が次元数を示す |
-| `new 型[行数, 列数]` | 指定したサイズの配列を生成（すべて初期値） |
+| `型[,]` | 2 次元配列の型。`,` の数 + 1 が次元の数 |
+| `new 型[行数, 列数]` | 指定した大きさの配列を作る。要素には既定値が入る |
 
 ```csharp
-int[,] matrix = new int[3, 4];  // 3 行 4 列（すべて 0）
+int[,] matrix = new int[3, 4];
+Console.WriteLine(matrix[2, 3]);
 ```
 
-### 初期化子で宣言
+```
+0
+```
+
+### 配列初期化子で作る
+
+1 行分の値を `{ }` で囲み、それを行の数だけ並べます。
 
 ```csharp
-int[,] matrix = {
-    { 1,  2,  3,  4 },   // 行 0
-    { 5,  6,  7,  8 },   // 行 1
-    { 9, 10, 11, 12 }    // 行 2
-};
-```
-
----
-
-## 3. 要素へのアクセス
-
-**書式：2 次元配列の要素アクセス**
-```
-配列[行インデックス, 列インデックス]
-```
-
-```csharp
-int[,] matrix = {
-    { 1,  2,  3,  4 },
-    { 5,  6,  7,  8 },
+int[,] matrix =
+{
+    { 1, 2, 3, 4 },
+    { 5, 6, 7, 8 },
     { 9, 10, 11, 12 }
 };
 
-Console.WriteLine(matrix[0, 0]);  // 1（左上）
-Console.WriteLine(matrix[1, 2]);  // 7
-Console.WriteLine(matrix[2, 3]);  // 12（右下）
-
-matrix[0, 0] = 99;               // 値の書き換え
+Console.WriteLine(matrix[1, 0]);
 ```
+
+```
+5
+```
+
+1 つ目の `{ }` が行 0、2 つ目が行 1、3 つ目が行 2 です。どの行も、同じ数の値を書く必要があります。
 
 ---
 
-## 4. 2 次元配列の走査
+## 3. 要素を読み書きする
 
-`GetLength(0)` で行数、`GetLength(1)` で列数を取得してネスト for ループで全要素を走査します。
+**書式：[2 次元配列の要素へのアクセス](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/arrays#multidimensional-arrays)**
+```
+配列[行のインデックス, 列のインデックス]
+```
 
 ```csharp
-int[,] matrix = {
-    { 1,  2,  3,  4 },
-    { 5,  6,  7,  8 },
+int[,] matrix =
+{
+    { 1, 2, 3, 4 },
+    { 5, 6, 7, 8 },
     { 9, 10, 11, 12 }
 };
 
-int rows = matrix.GetLength(0);  // 3
-int cols = matrix.GetLength(1);  // 4
+Console.WriteLine(matrix[0, 0]);
+Console.WriteLine(matrix[1, 2]);
+Console.WriteLine(matrix[2, 3]);
+
+matrix[0, 0] = 99;
+Console.WriteLine(matrix[0, 0]);
+```
+
+```
+1
+7
+12
+99
+```
+
+`matrix[1, 2]` は、行 1 の列 2 の要素なので `7` です。
+
+---
+
+## 4. すべての要素を処理する
+
+### 入れ子の for 文
+
+[Array クラスと配列の性質（補足）](/unity-csharp-learning/csharp/array-class/) で学んだ `GetLength` を使うと、`GetLength(0)` で行の数、`GetLength(1)` で列の数がわかります。外側の `for` 文で行を、内側の `for` 文で列を順に変えると、すべての要素を処理できます。
+
+```csharp
+int[,] matrix =
+{
+    { 1, 2, 3, 4 },
+    { 5, 6, 7, 8 },
+    { 9, 10, 11, 12 }
+};
+
+int rows = matrix.GetLength(0);
+int cols = matrix.GetLength(1);
+Console.WriteLine($"{rows} 行 {cols} 列");
 
 for (int i = 0; i < rows; i++)
 {
@@ -130,17 +137,72 @@ for (int i = 0; i < rows; i++)
     }
     Console.WriteLine();
 }
-//   1  2  3  4
-//   5  6  7  8
-//   9 10 11 12
 ```
 
-### Rank プロパティ
+```
+3 行 4 列
+  1  2  3  4
+  5  6  7  8
+  9 10 11 12
+```
+
+文字列補間の `{matrix[i, j],3}` は、値を 3 文字分の幅で右にそろえて表示します。行ごとに `Console.Write` で横に並べ、行の最後に `Console.WriteLine()` で改行しています。
+
+### foreach 文
+
+`foreach` 文を使うと、2 次元配列のすべての要素を、行 0 の左から順に 1 つずつ取り出せます。
 
 ```csharp
-Console.WriteLine(matrix.Rank);   // 2（2 次元配列）
-Console.WriteLine(matrix.Length); // 12（全要素数 = 3 × 4）
+int[,] matrix =
+{
+    { 1, 2, 3 },
+    { 4, 5, 6 }
+};
+
+foreach (int value in matrix)
+{
+    Console.Write(value + " ");
+}
+Console.WriteLine();
 ```
+
+```
+1 2 3 4 5 6 
+```
+
+何行目の何列目かがわからなくなるので、行や列を区別したいときは、入れ子の `for` 文を使います。
+
+### Rank と Length
+
+```csharp
+int[,] matrix = new int[3, 4];
+Console.WriteLine(matrix.Rank);
+Console.WriteLine(matrix.Length);
+```
+
+```
+2
+12
+```
+
+`Rank` は次元の数、`Length` はすべての要素の数（3 × 4 = 12）です。2 次元配列の `Length` は、行の数ではないことに注意しましょう。
+
+---
+
+## よくあるミス
+
+### Length を行の数だと思って使う
+
+```csharp
+// ❌ NG: Length（すべての要素の数 12）を行の数として使っている
+// int[,] matrix = new int[3, 4];
+// for (int i = 0; i < matrix.Length; i++)
+// {
+//     Console.WriteLine(matrix[i, 0]);  // i が 3 のとき IndexOutOfRangeException
+// }
+```
+
+2 次元配列の `Length` は、すべての要素の数の `12` です。行の数のつもりで `i < matrix.Length` と書くと、存在しない行 3 までインデックスが進み、`IndexOutOfRangeException` が発生します。行の数は `GetLength(0)`、列の数は `GetLength(1)` で調べます。
 
 ---
 
@@ -148,49 +210,66 @@ Console.WriteLine(matrix.Length); // 12（全要素数 = 3 × 4）
 
 ### 3 次元以上の配列
 
-カンマを増やすことで 3 次元以上の配列も宣言できます。
+`,` を増やすと、3 次元以上の配列も作れます。
 
 ```csharp
-// 3 次元配列（奥行き × 行 × 列のようなイメージ）
 int[,,] cube = new int[2, 3, 4];
-Console.WriteLine(cube.Rank);   // 3
-Console.WriteLine(cube.Length); // 24（2 × 3 × 4）
+Console.WriteLine(cube.Rank);
+Console.WriteLine(cube.Length);
 ```
 
-実用上は 2 次元を超える多次元配列はあまり使われません。代わりにジャグ配列（次のページ）やクラスで表現するのが一般的です。
+```
+3
+24
+```
+
+実際には、3 次元以上の配列はあまり使われません。次のページで学ぶジャグ配列や、後で学ぶクラスを組み合わせて表すことが多いです。
 
 ---
 
 ## まとめ
 
-- `型[,]` で 2 次元配列を宣言し、`new 型[行数, 列数]` または初期化子で初期化する
-- `配列[行, 列]` でアクセスする
-- `GetLength(0)` で行数、`GetLength(1)` で列数を取得する
-- `Rank` で次元数、`Length` で全要素数を確認できる
+- `型[,]` は 2 次元配列の型。`new 型[行数, 列数]` か配列初期化子で作る
+- 要素は `配列[行, 列]` で指定する
+- `GetLength(0)` で行の数、`GetLength(1)` で列の数がわかる。入れ子の `for` 文ですべての要素を処理できる
+- `foreach` 文では、すべての要素が行の順に取り出される
+- `Rank` は次元の数、`Length` はすべての要素の数
 
 ---
 
 ## 理解度チェック
 
-1. `int[,] grid = new int[5, 3]` の行数・列数・全要素数はそれぞれいくつですか？
-2. 2 次元配列のすべての要素の合計を計算するコードを書いてください。
-3. `matrix[1, 2]` と `matrix[2, 1]` は同じ要素を指しますか？
+1. `int[,] grid = new int[5, 3];` の行の数、列の数、すべての要素の数は、それぞれいくつですか？
+2. 次のコードを実行すると何が出力されますか？
+
+   ```csharp
+   int[,] matrix = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+   int sum = 0;
+   for (int i = 0; i < matrix.GetLength(0); i++)
+   {
+       for (int j = 0; j < matrix.GetLength(1); j++)
+       {
+           sum += matrix[i, j];
+       }
+   }
+   Console.WriteLine(sum);
+   Console.WriteLine(matrix[2, 1]);
+   ```
+
+3. `matrix[1, 2]` と `matrix[2, 1]` は、同じ要素を指しますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. 行数 `5`、列数 `3`、全要素数 `15`（`GetLength(0)=5`, `GetLength(1)=3`, `Length=15`）
+1. 行の数は `5`（`GetLength(0)`）、列の数は `3`（`GetLength(1)`）、すべての要素の数は `15`（`Length`）です。
+2. 次のように出力されます。すべての要素の合計は `21` です。`matrix[2, 1]` は行 2 の列 1 なので `6` です。
 
-2. ```csharp
-   int[,] matrix = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
-   int sum = 0;
-   for (int i = 0; i < matrix.GetLength(0); i++)
-       for (int j = 0; j < matrix.GetLength(1); j++)
-           sum += matrix[i, j];
-   Console.WriteLine(sum);  // 21
+   ```
+   21
+   6
    ```
 
-3. 異なる要素です。`matrix[1, 2]` は 行1・列2、`matrix[2, 1]` は 行2・列1 を指します。
+3. 違う要素です。`matrix[1, 2]` は行 1 の列 2、`matrix[2, 1]` は行 2 の列 1 を指します。
 
 </details>
 
@@ -198,4 +277,4 @@ Console.WriteLine(cube.Length); // 24（2 × 3 × 4）
 
 ## 次のステップ
 
-[ジャグ配列](/unity-csharp-learning/csharp/jagged-arrays/) では、行ごとに長さが異なる配列を学び、多次元配列との使い分けを確認します。
+[ジャグ配列](/unity-csharp-learning/csharp/jagged-arrays/) では、行ごとに長さの違う「配列の配列」を学び、多次元配列との使い分けを確かめます。

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 95" width="350" font-family="sans-serif">
+  <text x="70" y="20" text-anchor="middle" font-size="11" fill="#1565c0">[0]</text>
+  <rect x="40" y="28" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="70" y="51" text-anchor="middle" font-size="16" fill="#333">85</text>
+  <text x="70" y="82" text-anchor="middle" font-size="11" fill="#e65100">[^5]</text>
+  <text x="130" y="20" text-anchor="middle" font-size="11" fill="#1565c0">[1]</text>
+  <rect x="100" y="28" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="130" y="51" text-anchor="middle" font-size="16" fill="#333">72</text>
+  <text x="130" y="82" text-anchor="middle" font-size="11" fill="#e65100">[^4]</text>
+  <text x="190" y="20" text-anchor="middle" font-size="11" fill="#1565c0">[2]</text>
+  <rect x="160" y="28" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="190" y="51" text-anchor="middle" font-size="16" fill="#333">90</text>
+  <text x="190" y="82" text-anchor="middle" font-size="11" fill="#e65100">[^3]</text>
+  <text x="250" y="20" text-anchor="middle" font-size="11" fill="#1565c0">[3]</text>
+  <rect x="220" y="28" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="250" y="51" text-anchor="middle" font-size="16" fill="#333">68</text>
+  <text x="250" y="82" text-anchor="middle" font-size="11" fill="#e65100">[^2]</text>
+  <text x="310" y="20" text-anchor="middle" font-size="11" fill="#1565c0">[4]</text>
+  <rect x="280" y="28" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="310" y="51" text-anchor="middle" font-size="16" fill="#333">95</text>
+  <text x="310" y="82" text-anchor="middle" font-size="11" fill="#e65100">[^1]</text>
+  <text x="4" y="20" text-anchor="start" font-size="10" fill="#1565c0">先頭から</text>
+  <text x="4" y="82" text-anchor="start" font-size="10" fill="#e65100">末尾から</text>
+</svg>

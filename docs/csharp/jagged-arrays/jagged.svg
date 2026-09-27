@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 180" width="460" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+  </defs>
+  <text x="60" y="16" text-anchor="middle" font-size="11" fill="#555">外側の配列</text>
+  <text x="20" y="46" text-anchor="end" font-size="11" fill="#999">[0]</text>
+  <rect x="30" y="24" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <circle cx="60" cy="41" r="4" fill="#e65100"/>
+  <line x1="64" y1="41" x2="126" y2="41" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="130" y="24" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="155" y="47" text-anchor="middle" font-size="16" fill="#1565c0">10</text>
+  <rect x="180" y="24" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="205" y="47" text-anchor="middle" font-size="16" fill="#1565c0">20</text>
+  <rect x="230" y="24" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="255" y="47" text-anchor="middle" font-size="16" fill="#1565c0">30</text>
+  <text x="290" y="46" text-anchor="start" font-size="10" fill="#999">3 要素</text>
+  <text x="20" y="96" text-anchor="end" font-size="11" fill="#999">[1]</text>
+  <rect x="30" y="74" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <circle cx="60" cy="91" r="4" fill="#e65100"/>
+  <line x1="64" y1="91" x2="126" y2="91" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="130" y="74" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="155" y="97" text-anchor="middle" font-size="16" fill="#1565c0">1</text>
+  <rect x="180" y="74" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="205" y="97" text-anchor="middle" font-size="16" fill="#1565c0">2</text>
+  <rect x="230" y="74" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="255" y="97" text-anchor="middle" font-size="16" fill="#1565c0">3</text>
+  <rect x="280" y="74" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="305" y="97" text-anchor="middle" font-size="16" fill="#1565c0">4</text>
+  <rect x="330" y="74" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="355" y="97" text-anchor="middle" font-size="16" fill="#1565c0">5</text>
+  <text x="390" y="96" text-anchor="start" font-size="10" fill="#999">5 要素</text>
+  <text x="20" y="146" text-anchor="end" font-size="11" fill="#999">[2]</text>
+  <rect x="30" y="124" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <circle cx="60" cy="141" r="4" fill="#e65100"/>
+  <line x1="64" y1="141" x2="126" y2="141" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="130" y="124" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="155" y="147" text-anchor="middle" font-size="16" fill="#1565c0">7</text>
+  <rect x="180" y="124" width="50" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="205" y="147" text-anchor="middle" font-size="16" fill="#1565c0">8</text>
+  <text x="240" y="146" text-anchor="start" font-size="10" fill="#999">2 要素</text>
+</svg>

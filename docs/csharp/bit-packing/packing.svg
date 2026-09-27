@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 138" width="490" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+  </defs>
+  <text x="70" y="18" text-anchor="end" font-size="11" fill="#555">flags の要素</text>
+  <text x="70" y="70" text-anchor="end" font-size="11" fill="#555">byte のビット</text>
+  <text x="105" y="18" text-anchor="middle" font-size="10" fill="#999">[0]</text>
+  <rect x="80" y="24" width="50" height="26" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="105" y="43" text-anchor="middle" font-size="11" fill="#e65100">true</text>
+  <line x1="105" y1="50" x2="105" y2="58" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="80" y="60" width="50" height="30" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="105" y="81" text-anchor="middle" font-size="16" fill="#e65100">1</text>
+  <text x="105" y="106" text-anchor="middle" font-size="10" fill="#999">bit7</text>
+  <text x="155" y="18" text-anchor="middle" font-size="10" fill="#999">[1]</text>
+  <rect x="130" y="24" width="50" height="26" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="155" y="43" text-anchor="middle" font-size="11" fill="#333">false</text>
+  <line x1="155" y1="50" x2="155" y2="58" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="130" y="60" width="50" height="30" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="155" y="81" text-anchor="middle" font-size="16" fill="#333">0</text>
+  <text x="155" y="106" text-anchor="middle" font-size="10" fill="#999">bit6</text>
+  <text x="205" y="18" text-anchor="middle" font-size="10" fill="#999">[2]</text>
+  <rect x="180" y="24" width="50" height="26" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="205" y="43" text-anchor="middle" font-size="11" fill="#e65100">true</text>
+  <line x1="205" y1="50" x2="205" y2="58" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="180" y="60" width="50" height="30" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="205" y="81" text-anchor="middle" font-size="16" fill="#e65100">1</text>
+  <text x="205" y="106" text-anchor="middle" font-size="10" fill="#999">bit5</text>
+  <text x="255" y="18" text-anchor="middle" font-size="10" fill="#999">[3]</text>
+  <rect x="230" y="24" width="50" height="26" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="255" y="43" text-anchor="middle" font-size="11" fill="#333">false</text>
+  <line x1="255" y1="50" x2="255" y2="58" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="230" y="60" width="50" height="30" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="255" y="81" text-anchor="middle" font-size="16" fill="#333">0</text>
+  <text x="255" y="106" text-anchor="middle" font-size="10" fill="#999">bit4</text>
+  <text x="305" y="18" text-anchor="middle" font-size="10" fill="#999">[4]</text>
+  <rect x="280" y="24" width="50" height="26" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="305" y="43" text-anchor="middle" font-size="11" fill="#333">false</text>
+  <line x1="305" y1="50" x2="305" y2="58" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="280" y="60" width="50" height="30" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="305" y="81" text-anchor="middle" font-size="16" fill="#333">0</text>
+  <text x="305" y="106" text-anchor="middle" font-size="10" fill="#999">bit3</text>
+  <text x="355" y="18" text-anchor="middle" font-size="10" fill="#999">[5]</text>
+  <rect x="330" y="24" width="50" height="26" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="355" y="43" text-anchor="middle" font-size="11" fill="#e65100">true</text>
+  <line x1="355" y1="50" x2="355" y2="58" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="330" y="60" width="50" height="30" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="355" y="81" text-anchor="middle" font-size="16" fill="#e65100">1</text>
+  <text x="355" y="106" text-anchor="middle" font-size="10" fill="#999">bit2</text>
+  <text x="405" y="18" text-anchor="middle" font-size="10" fill="#999">[6]</text>
+  <rect x="380" y="24" width="50" height="26" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="405" y="43" text-anchor="middle" font-size="11" fill="#333">false</text>
+  <line x1="405" y1="50" x2="405" y2="58" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="380" y="60" width="50" height="30" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="405" y="81" text-anchor="middle" font-size="16" fill="#333">0</text>
+  <text x="405" y="106" text-anchor="middle" font-size="10" fill="#999">bit1</text>
+  <text x="455" y="18" text-anchor="middle" font-size="10" fill="#999">[7]</text>
+  <rect x="430" y="24" width="50" height="26" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="455" y="43" text-anchor="middle" font-size="11" fill="#e65100">true</text>
+  <line x1="455" y1="50" x2="455" y2="58" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="430" y="60" width="50" height="30" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="455" y="81" text-anchor="middle" font-size="16" fill="#e65100">1</text>
+  <text x="455" y="106" text-anchor="middle" font-size="10" fill="#999">bit0</text>
+  <text x="280" y="128" text-anchor="middle" font-size="12" fill="#333">0b1010_0101 = 165</text>
+</svg>

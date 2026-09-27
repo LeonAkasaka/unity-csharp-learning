@@ -6,14 +6,16 @@ permalink: /csharp/array-class/
 
 # Array クラスと配列の性質（補足）
 
-配列は単純なデータの並びに見えますが、C# では `System.Array` クラスを継承するオブジェクトです。このページでは配列変数のコピーの挙動と、配列を操作する組み込みメソッドを学びます。
+このページは、[配列の基礎](/unity-csharp-learning/csharp/arrays/) の補足です。配列の変数を別の変数に代入したときに起きることと、配列の情報を調べるプロパティ、配列を並べ替えたりコピーしたりする [Array クラス](https://learn.microsoft.com/dotnet/api/system.array) のメソッドを学びます。
 
 ## 学習目標
 
-- 変数の代入（`b = a`）では同じ配列を指すことになると説明できる
-- `Array.Copy` で独立したコピーを作れる
-- `Length`・`Rank`・`GetLength` で配列の情報を取得できる
-- `Array.Sort`・`Array.Reverse`・`Array.IndexOf`・`Array.Copy`・`Array.Clear` を使える
+このページを読み終えると、以下のことができるようになります。
+
+- 配列の変数を代入すると、同じ配列を指すようになることを説明できる
+- `Array.Copy` で、別の配列に要素をコピーできる
+- `Length`・`Rank`・`GetLength` で、配列の情報を調べられる
+- `Array.Sort`・`Array.Reverse`・`Array.IndexOf`・`Array.Clear` を使える
 
 ## 前提知識
 
@@ -21,302 +23,328 @@ permalink: /csharp/array-class/
 
 ---
 
-## 1. System.Array — 配列の正体
+## 1. 配列の変数に入っているもの
 
-C# のすべての配列は `System.Array` クラスを継承しています。`int[]` を宣言するとき、実は `System.Array` のサブクラスのインスタンスが生成されています。
+`int[] scores` のような配列の変数に入っているのは、配列そのものではなく、**配列がどこにあるかを示す情報**（**参照**）です。配列そのものは、`new` や配列初期化子で作ったときに、変数とは別の場所に作られます。
 
-```csharp
-int[] scores = { 85, 72, 90, 68, 95 };
-Console.WriteLine(scores.GetType());  // System.Int32[]
-Console.WriteLine(scores is Array);   // True
-```
+![変数 scores から、85、72、90、68、95 の配列への矢印が出ている。変数には配列の場所を示す参照が入っている](array-reference.svg)
 
----
-
-## 2. 変数には配列への参照が入る
-
-`int[] scores` のような変数に格納されるのは配列本体ではなく、**配列がどこにあるかを示す参照**です。
-
-<svg viewBox="0 0 360 75" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:460px;display:block;margin:1em 0;font-family:sans-serif;">
-  <defs>
-    <marker id="ac-a1-arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
-  </defs>
-  <rect x="8" y="18" width="75" height="32" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="46" y="38" text-anchor="middle" font-size="13" fill="#555" font-family="monospace">scores</text>
-  <line x1="83" y1="34" x2="112" y2="34" stroke="#555" stroke-width="1.5" marker-end="url(#ac-a1-arr)"/>
-  <rect x="114" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="136" y="39" text-anchor="middle" font-size="16" fill="#1565c0">85</text>
-  <rect x="158" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="180" y="39" text-anchor="middle" font-size="16" fill="#1565c0">72</text>
-  <rect x="202" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="224" y="39" text-anchor="middle" font-size="16" fill="#1565c0">90</text>
-  <rect x="246" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="268" y="39" text-anchor="middle" font-size="16" fill="#1565c0">68</text>
-  <rect x="290" y="14" width="44" height="40" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="312" y="39" text-anchor="middle" font-size="16" fill="#1565c0">95</text>
-  <text x="136" y="64" text-anchor="middle" font-size="10" fill="#999">[0]</text>
-  <text x="180" y="64" text-anchor="middle" font-size="10" fill="#999">[1]</text>
-  <text x="224" y="64" text-anchor="middle" font-size="10" fill="#999">[2]</text>
-  <text x="268" y="64" text-anchor="middle" font-size="10" fill="#999">[3]</text>
-  <text x="312" y="64" text-anchor="middle" font-size="10" fill="#999">[4]</text>
-</svg>
-
-`new` を書くたびに新しい配列が生成されます。変数にはその配列への参照（どこにあるかという情報）が入ります。
-
-```csharp
-int[] a = { 1, 2, 3 };           // new int[] { 1, 2, 3 } と同じ
-int[] b = new int[] { 1, 2, 3 }; // new → 別の配列が作られる
-// a と b は独立した別の配列
-```
-
-### 代入は参照のコピー（同じ配列を指す）
-
-`b = a` と書くと**参照がコピー**されます。`new` が書かれていないので新しい配列は作られず、`a` と `b` は**同じ配列を指す**ことになります。
-
-<svg viewBox="0 0 280 88" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:1em 0;font-family:sans-serif;">
-  <defs>
-    <marker id="ac-a2-arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
-  </defs>
-  <rect x="8" y="10" width="58" height="28" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="37" y="28" text-anchor="middle" font-size="14" fill="#555" font-family="monospace">a</text>
-  <rect x="8" y="50" width="58" height="28" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="37" y="68" text-anchor="middle" font-size="14" fill="#555" font-family="monospace">b</text>
-  <rect x="115" y="29" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="135" y="50" text-anchor="middle" font-size="15" fill="#1565c0">1</text>
-  <rect x="155" y="29" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="175" y="50" text-anchor="middle" font-size="15" fill="#1565c0">2</text>
-  <rect x="195" y="29" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="215" y="50" text-anchor="middle" font-size="15" fill="#1565c0">3</text>
-  <line x1="66" y1="24" x2="113" y2="43" stroke="#555" stroke-width="1.5" marker-end="url(#ac-a2-arr)"/>
-  <line x1="66" y1="64" x2="113" y2="46" stroke="#555" stroke-width="1.5" marker-end="url(#ac-a2-arr)"/>
-  <text x="165" y="82" text-anchor="middle" font-size="11" fill="#c62828">同じ配列を指している</text>
-</svg>
+`new` や配列初期化子を書くたびに、新しい配列が作られます。
 
 ```csharp
 int[] a = { 1, 2, 3 };
-int[] b = a;          // 参照のコピー（new がない → 同じ配列）
+int[] b = { 1, 2, 3 };
 
 b[0] = 99;
-Console.WriteLine(a[0]);  // 99（a も変わっている！）
+Console.WriteLine(a[0]);
+Console.WriteLine(b[0]);
 ```
 
-`Array.Copy` を使うと新しい配列に要素をコピーして独立させることができます。
+```
+1
+99
+```
+
+`a` と `b` は、中身が同じでも別々の配列です。`b[0]` を書き換えても、`a[0]` は変わりません。
+
+### 代入すると同じ配列を指す
+
+`b = a` と書くと、コピーされるのは **参照** です。新しい配列は作られず、`a` と `b` は **同じ配列** を指すようになります。
+
+![変数 a と b の両方から、同じ 1 つの配列への矢印が出ている。先頭の要素は 99 に書き換えられている](shared-reference.svg)
+
+```csharp
+int[] a = { 1, 2, 3 };
+int[] b = a;
+
+b[0] = 99;
+Console.WriteLine(a[0]);
+```
+
+```
+99
+```
+
+`b[0]` を書き換えると、同じ配列を指している `a` からも `99` が見えます。このように、変数に参照が入る型を **参照型** といいます。参照型については、[値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) で詳しく学びます。
+
+別々の配列として扱いたいときは、4 節の `Array.Copy` で要素をコピーします。
 
 ---
 
-## 3. 配列のプロパティ
+## 2. 配列の情報を調べる
 
-### Length / Rank / GetLength
+C# の配列は、どの型の配列でも、`System.Array` という型が持つプロパティやメソッドを使えます。
 
-**`Length`** — 全要素数（すべての次元を含む）。<!-- [公式ドキュメント]() -->
+| メンバー | 説明 |
+|---|---|
+| [Length プロパティ](https://learn.microsoft.com/dotnet/api/system.array.length) | すべての要素の数 |
+| [Rank プロパティ](https://learn.microsoft.com/dotnet/api/system.array.rank) | 配列の次元の数。1 次元の配列は `1` |
+| [GetLength メソッド](https://learn.microsoft.com/dotnet/api/system.array.getlength) | 指定した次元の要素の数 |
 
-**`Rank`** — 配列の次元数。1 次元配列は `1`、2 次元は `2`。<!-- [公式ドキュメント]() -->
-
-**`GetLength(n)`** — 指定した次元の要素数を返します。<!-- [公式ドキュメント]() -->
-
-**書式：GetLength メソッド**
+**書式：[Array.GetLength メソッド](https://learn.microsoft.com/dotnet/api/system.array.getlength)**
 ```csharp
-int GetLength(int dimension);
+public int GetLength(int dimension);
 ```
 
-| パラメータ | 型 | 説明 |
-|---|---|---|
-| `dimension` | `int` | 取得する次元のインデックス（0 始まり） |
+| パラメータ | 説明 |
+|---|---|
+| `dimension` | 要素の数を調べる次元（`0` から数える） |
 
 ```csharp
 int[] arr = { 10, 20, 30, 40 };
-Console.WriteLine(arr.Length);       // 4
-Console.WriteLine(arr.Rank);         // 1
-Console.WriteLine(arr.GetLength(0)); // 4（0 次元目の要素数）
+
+Console.WriteLine(arr.Length);
+Console.WriteLine(arr.Rank);
+Console.WriteLine(arr.GetLength(0));
+Console.WriteLine(arr.GetType());
+```
+
+```
+4
+1
+4
+System.Int32[]
+```
+
+1 次元の配列では、`GetLength(0)` は `Length` と同じ値です。`Rank` と `GetLength` は、次のページで学ぶ多次元配列で役に立ちます。`GetType()` の結果の `System.Int32[]` は、`int` の配列を表します。
+
+---
+
+## 3. 配列の中身をまとめて表示する
+
+このページでは、配列の中身を確かめるために [string.Join メソッド](https://learn.microsoft.com/dotnet/api/system.string.join) を使います。`string.Join` は、配列の要素を、指定した区切り文字でつないだ 1 つの文字列にします。
+
+```csharp
+int[] nums = { 10, 20, 30 };
+Console.WriteLine(string.Join(", ", nums));
+```
+
+```
+10, 20, 30
 ```
 
 ---
 
-## 4. Array クラスの静的メソッド
+## 4. Array クラスのメソッド
 
-### Array.Sort — 昇順に並び替え
+`Array` クラスには、配列を操作する **静的メソッド** が用意されています。静的メソッドは、`Array.Sort(配列)` のように、型名の後に `.` とメソッド名を書いて呼び出します（静的メソッドについては、[static メンバーと static クラス](/unity-csharp-learning/csharp/static-members/) で学びます）。
 
-**`Array.Sort`** — 配列を昇順にソートします（元の配列を直接変更します）。<!-- [公式ドキュメント]() -->
+### Array.Sort — 小さい順に並べ替える
 
-**書式：Array.Sort メソッド**
+**書式：[Array.Sort メソッド](https://learn.microsoft.com/dotnet/api/system.array.sort)**
 ```csharp
-static void Array.Sort(Array array);
+public static void Sort(Array array);
 ```
+
+[Array.Sort メソッド](https://learn.microsoft.com/dotnet/api/system.array.sort) は、配列の要素を小さい順（昇順）に並べ替えます。新しい配列を作るのではなく、渡した配列そのものを並べ替えます。
 
 ```csharp
 int[] nums = { 40, 10, 30, 20 };
 Array.Sort(nums);
+Console.WriteLine(string.Join(", ", nums));
 
-foreach (int n in nums)
-    Console.Write(n + " ");  // 10 20 30 40
+string[] names = { "Carol", "Alice", "Bob" };
+Array.Sort(names);
+Console.WriteLine(string.Join(", ", names));
 ```
 
-### Array.Reverse — 逆順に並び替え
+```
+10, 20, 30, 40
+Alice, Bob, Carol
+```
 
-**`Array.Reverse`** — 配列の要素順を逆にします（元の配列を直接変更します）。<!-- [公式ドキュメント]() -->
+文字列の配列は、辞書の順に並べ替えられます。
 
-**書式：Array.Reverse メソッド**
+### Array.Reverse — 順序を逆にする
+
+**書式：[Array.Reverse メソッド](https://learn.microsoft.com/dotnet/api/system.array.reverse)**
 ```csharp
-static void Array.Reverse(Array array);
+public static void Reverse(Array array);
 ```
+
+[Array.Reverse メソッド](https://learn.microsoft.com/dotnet/api/system.array.reverse) は、配列の要素の順序を逆にします。これも、渡した配列そのものを書き換えます。
 
 ```csharp
 int[] nums = { 10, 20, 30, 40 };
 Array.Reverse(nums);
-
-foreach (int n in nums)
-    Console.Write(n + " ");  // 40 30 20 10
+Console.WriteLine(string.Join(", ", nums));
 ```
 
-### Array.IndexOf — 要素を検索
+```
+40, 30, 20, 10
+```
 
-**`Array.IndexOf`** — 指定した値が最初に見つかったインデックスを返します。見つからない場合は `-1`。<!-- [公式ドキュメント]() -->
+### Array.IndexOf — 要素を探す
 
-**書式：Array.IndexOf メソッド**
+**書式：[Array.IndexOf メソッド](https://learn.microsoft.com/dotnet/api/system.array.indexof)**
 ```csharp
-static int Array.IndexOf(Array array, object? value);
+public static int IndexOf(Array array, object? value);
 ```
 
-| パラメータ | 型 | 説明 |
-|---|---|---|
-| `array` | `Array` | 検索する配列 |
-| `value` | `object?` | 検索する値 |
+| パラメータ | 説明 |
+|---|---|
+| `array` | 探す対象の配列 |
+| `value` | 探す値 |
+
+[Array.IndexOf メソッド](https://learn.microsoft.com/dotnet/api/system.array.indexof) は、指定した値が最初に見つかったインデックスを返します。見つからなかったときは `-1` を返します。
 
 ```csharp
 string[] fruits = { "apple", "banana", "cherry" };
-Console.WriteLine(Array.IndexOf(fruits, "banana"));  // 1
-Console.WriteLine(Array.IndexOf(fruits, "grape"));   // -1（見つからない）
+Console.WriteLine(Array.IndexOf(fruits, "banana"));
+Console.WriteLine(Array.IndexOf(fruits, "grape"));
 ```
 
-### Array.Copy — 独立したコピーを作る
+```
+1
+-1
+```
 
-**`Array.Copy`** — 配列の要素を別の配列にコピーします。`b = a` の代入とは異なり、`Array.Copy` はコピー先として **`new` で新たに作った配列**を使うため、2 つの配列が独立した状態になります。<!-- [公式ドキュメント]() -->
+### Array.Copy — 別の配列にコピーする
 
-<svg viewBox="0 0 300 198" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:380px;display:block;margin:1em 0;font-family:sans-serif;">
-  <defs>
-    <marker id="ac-cmp-arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
-  </defs>
-  <!-- Top: b = a (same array) -->
-  <text x="8" y="13" font-size="11" fill="#888">変数の代入（b = a）</text>
-  <rect x="8" y="20" width="55" height="26" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="36" y="37" text-anchor="middle" font-size="13" fill="#555" font-family="monospace">a</text>
-  <rect x="8" y="58" width="55" height="26" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="36" y="75" text-anchor="middle" font-size="13" fill="#555" font-family="monospace">b</text>
-  <rect x="118" y="34" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="138" y="55" text-anchor="middle" font-size="15" fill="#1565c0">1</text>
-  <rect x="158" y="34" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="55" text-anchor="middle" font-size="15" fill="#1565c0">2</text>
-  <rect x="198" y="34" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="218" y="55" text-anchor="middle" font-size="15" fill="#1565c0">3</text>
-  <line x1="63" y1="33" x2="116" y2="50" stroke="#555" stroke-width="1.5" marker-end="url(#ac-cmp-arr)"/>
-  <line x1="63" y1="71" x2="116" y2="50" stroke="#555" stroke-width="1.5" marker-end="url(#ac-cmp-arr)"/>
-  <text x="170" y="82" text-anchor="middle" font-size="10" fill="#c62828">同じ配列 / b[0]=99 で a[0] も変わる</text>
-  <!-- Divider -->
-  <line x1="0" y1="93" x2="300" y2="93" stroke="#e0e0e0" stroke-width="1"/>
-  <!-- Bottom: Array.Copy (separate arrays) -->
-  <text x="8" y="107" font-size="11" fill="#888">Array.Copy（独立したコピー）</text>
-  <rect x="8" y="114" width="82" height="26" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="49" y="131" text-anchor="middle" font-size="11" fill="#555" font-family="monospace">original</text>
-  <rect x="8" y="154" width="82" height="26" rx="3" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
-  <text x="49" y="171" text-anchor="middle" font-size="11" fill="#555" font-family="monospace">copy</text>
-  <rect x="118" y="114" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="138" y="135" text-anchor="middle" font-size="15" fill="#1565c0">1</text>
-  <rect x="158" y="114" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="135" text-anchor="middle" font-size="15" fill="#1565c0">2</text>
-  <rect x="198" y="114" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="218" y="135" text-anchor="middle" font-size="15" fill="#1565c0">3</text>
-  <!-- copy array: [0] highlighted orange (copy[0] = 99) -->
-  <rect x="118" y="154" width="40" height="32" rx="3" fill="#fff3e0" stroke="#f9a825" stroke-width="2"/><text x="138" y="175" text-anchor="middle" font-size="13" fill="#e65100">99</text>
-  <rect x="158" y="154" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="178" y="175" text-anchor="middle" font-size="15" fill="#1565c0">2</text>
-  <rect x="198" y="154" width="40" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/><text x="218" y="175" text-anchor="middle" font-size="15" fill="#1565c0">3</text>
-  <line x1="90" y1="127" x2="116" y2="127" stroke="#555" stroke-width="1.5" marker-end="url(#ac-cmp-arr)"/>
-  <line x1="90" y1="167" x2="116" y2="167" stroke="#555" stroke-width="1.5" marker-end="url(#ac-cmp-arr)"/>
-  <text x="150" y="195" text-anchor="middle" font-size="10" fill="#555">↑ copy[0]=99 にしても original は変わらない</text>
-</svg>
-
-**書式：Array.Copy メソッド**
+**書式：[Array.Copy メソッド](https://learn.microsoft.com/dotnet/api/system.array.copy)**
 ```csharp
-static void Array.Copy(Array sourceArray, Array destinationArray, int length);
+public static void Copy(Array sourceArray, Array destinationArray, int length);
 ```
 
-| パラメータ | 型 | 説明 |
-|---|---|---|
-| `sourceArray` | `Array` | コピー元の配列 |
-| `destinationArray` | `Array` | コピー先の配列 |
-| `length` | `int` | コピーする要素数 |
+| パラメータ | 説明 |
+|---|---|
+| `sourceArray` | コピー元の配列 |
+| `destinationArray` | コピー先の配列 |
+| `length` | コピーする要素の数 |
+
+[Array.Copy メソッド](https://learn.microsoft.com/dotnet/api/system.array.copy) は、コピー元の配列の要素を、コピー先の配列にコピーします。コピー先の配列は、あらかじめ `new` で作っておきます。
 
 ```csharp
 int[] original = { 1, 2, 3 };
-int[] copy = new int[3];
+int[] copy = new int[original.Length];
 Array.Copy(original, copy, original.Length);
 
 copy[0] = 99;
-Console.WriteLine(original[0]);  // 1（元の配列は変わらない）
-Console.WriteLine(copy[0]);      // 99
+Console.WriteLine(string.Join(", ", original));
+Console.WriteLine(string.Join(", ", copy));
 ```
 
-### Array.Clear — 要素を初期値にリセット
+```
+1, 2, 3
+99, 2, 3
+```
 
-**`Array.Clear`** — 指定した範囲の要素を型の初期値（数値は `0`、参照型は `null`）にリセットします。<!-- [公式ドキュメント]() -->
+`original` と `copy` は別々の配列なので、`copy[0]` を書き換えても `original` は変わりません。1 節の `b = a` とは違う結果です。
 
-**書式：Array.Clear メソッド**
+![Array.Copy でコピーした場合、original と copy は別々の配列を指していて、copy[0] を 99 に書き換えても original は変わらない](copy-vs-assign.svg)
+
+### Array.Clear — 要素を既定値に戻す
+
+**書式：[Array.Clear メソッド](https://learn.microsoft.com/dotnet/api/system.array.clear)**
 ```csharp
-static void Array.Clear(Array array, int index, int length);
+public static void Clear(Array array, int index, int length);
 ```
 
-| パラメータ | 型 | 説明 |
-|---|---|---|
-| `array` | `Array` | 対象の配列 |
-| `index` | `int` | リセット開始インデックス |
-| `length` | `int` | リセットする要素数 |
+| パラメータ | 説明 |
+|---|---|
+| `array` | 対象の配列 |
+| `index` | 既定値に戻し始めるインデックス |
+| `length` | 既定値に戻す要素の数 |
+
+[Array.Clear メソッド](https://learn.microsoft.com/dotnet/api/system.array.clear) は、指定した範囲の要素を、型の既定値（数値なら `0`）に戻します。
 
 ```csharp
 int[] nums = { 10, 20, 30, 40, 50 };
-Array.Clear(nums, 1, 3);  // インデックス 1 〜 3 を 0 に
-
-foreach (int n in nums)
-    Console.Write(n + " ");  // 10 0 0 0 50
+Array.Clear(nums, 1, 3);
+Console.WriteLine(string.Join(", ", nums));
 ```
+
+```
+10, 0, 0, 0, 50
+```
+
+インデックス `1` から 3 つの要素（`1`・`2`・`3`）が `0` になりました。
 
 ---
 
 ## よくあるミス
 
+### Array.IndexOf の -1 を確かめずに使う
+
 ```csharp
-int[] a = { 1, 2, 3 };
+// ❌ NG: 見つからなかったときの -1 を、そのままインデックスに使っている
+// string[] fruits = { "apple", "banana", "cherry" };
+// int index = Array.IndexOf(fruits, "grape");
+// Console.WriteLine(fruits[index]);  // IndexOutOfRangeException
+```
 
-// ❌ NG: 代入は参照のコピー（中身はコピーされない）
-int[] b = a;
-b[0] = 99;  // a[0] も 99 になる
+`Array.IndexOf` は、見つからないと `-1` を返します。`-1` はインデックスとして使えないので、実行すると例外が発生します。戻り値が `-1` でないことを確かめてから使います。
 
-// ✅ OK: Array.Copy で独立したコピーを作る
-int[] c = new int[a.Length];
-Array.Copy(a, c, a.Length);
-c[0] = 99;  // a[0] は変わらない
+```csharp
+string[] fruits = { "apple", "banana", "cherry" };
+int index = Array.IndexOf(fruits, "grape");
+
+if (index != -1)
+{
+    Console.WriteLine(fruits[index]);
+}
+else
+{
+    Console.WriteLine("見つからなかった");
+}
+```
+
+```
+見つからなかった
 ```
 
 ---
 
 ## まとめ
 
-- すべての配列は `System.Array` を継承するオブジェクト
-- 変数には配列への参照が入る。`b = a` では新しい配列は作られず同じ配列を指す
-- `new` を書くたびに新しい配列が生成される
-- 独立したコピーが必要なときは `Array.Copy` を使う
-- `Length`・`Rank`・`GetLength(n)` で配列の構造を確認できる
-- `Array.Sort`・`Array.Reverse` で並び替え、`Array.IndexOf` で検索できる
+- 配列の変数には、配列そのものではなく、配列の場所を示す参照が入る
+- `b = a` では新しい配列は作られず、`a` と `b` は同じ配列を指す
+- 別々の配列にしたいときは、`Array.Copy` で新しい配列に要素をコピーする
+- `Length`・`Rank`・`GetLength` で、配列の要素の数や次元の数を調べられる
+- `Array.Sort` で昇順に並べ替え、`Array.Reverse` で順序を逆にする。どちらも渡した配列そのものを書き換える
+- `Array.IndexOf` は、見つからないと `-1` を返す
+- `Array.Clear` は、指定した範囲の要素を既定値に戻す
 
 ---
 
 ## 理解度チェック
 
-1. `int[] a = {1,2,3}; int[] b = a; b[1] = 99;` を実行後、`a[1]` の値は何ですか？
-2. `Array.Sort` と `Array.Reverse` を組み合わせて配列を降順に並べるコードを書いてください。
-3. 次のコードで `nums` の最終的な内容は何ですか？
+1. 次のコードを実行すると何が出力されますか？
+
+   ```csharp
+   int[] a = { 1, 2, 3 };
+   int[] b = a;
+   b[1] = 99;
+   Console.WriteLine(a[1]);
+   ```
+
+2. `Array.Sort` と `Array.Reverse` を使って、配列 `{ 3, 1, 4, 1, 5 }` を大きい順に並べ替えて表示するコードを書いてください。
+3. 次のコードを実行すると何が出力されますか？
 
    ```csharp
    int[] nums = { 5, 10, 15, 20, 25 };
    Array.Clear(nums, 2, 2);
+   Console.WriteLine(string.Join(", ", nums));
    ```
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. `99` です。`b = a` は参照のコピーのため（`new` が書かれていない）、`b` と `a` は同じ配列を指しています。
-
+1. `99` が出力されます。`b = a` は参照のコピーなので、`b` と `a` は同じ配列を指しています。
 2. ```csharp
    int[] nums = { 3, 1, 4, 1, 5 };
-   Array.Sort(nums);    // 昇順: 1 1 3 4 5
-   Array.Reverse(nums); // 逆順: 5 4 3 1 1
+   Array.Sort(nums);
+   Array.Reverse(nums);
+   Console.WriteLine(string.Join(", ", nums));
    ```
 
-3. `{ 5, 10, 0, 0, 25 }` です。インデックス 2 と 3 が `0` にリセットされます。
+   昇順に並べ替えた `1, 1, 3, 4, 5` を逆にするので、`5, 4, 3, 1, 1` が表示されます。
+
+3. 次のように出力されます。インデックス `2` から 2 つの要素（`2` と `3`）が `0` になります。
+
+   ```
+   5, 10, 0, 0, 25
+   ```
 
 </details>
 
@@ -324,4 +352,4 @@ c[0] = 99;  // a[0] は変わらない
 
 ## 次のステップ
 
-[多次元配列](/unity-csharp-learning/csharp/multidimensional-arrays/) では、行と列を持つ 2 次元配列を学びます。
+[ビットパッキング（補足）](/unity-csharp-learning/csharp/bit-packing/) では、`bool` の配列の値を、1 つの `byte` のビットに詰めて保存する方法を学びます。
