@@ -208,6 +208,56 @@ Container<int>: 0 バイト
 
 ---
 
+## ワンポイントアドバイス
+
+### foreach と構造体の取り出し役
+
+[IEnumerable\<T\> と foreach の仕組み](/unity-csharp-learning/csharp/ienumerable/) で学んだ取り出し役にも、ボクシングが関係します。`List<T>` の `GetEnumerator` メソッドが返す取り出し役は、[List\<T\>.Enumerator](https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1.enumerator) という構造体です。
+
+`foreach` 文は、`IEnumerable<T>` インターフェイスを通すのではなく、まず回そうとしている型そのものに `GetEnumerator` という名前の public メソッドがあるかを探し、あればそれを呼びます。そのため、`List<int>` 型の変数を `foreach` で回すと、構造体の取り出し役がそのまま使われ、ヒープにオブジェクトは作られません。
+
+一方、同じ `List<int>` を `IEnumerable<int>` 型の変数に入れて回すと、呼ばれるのはインターフェイスの `GetEnumerator` で、その戻り値の型は `IEnumerator<int>` です。構造体の取り出し役がインターフェイス型として返されるので、ボクシングが起こります。
+
+```csharp
+List<int> list = new List<int> { 1, 2, 3 };
+IEnumerable<int> sequence = list;
+int total = 0;
+
+long before = GC.GetAllocatedBytesForCurrentThread();
+for (int i = 0; i < 1000; i++)
+{
+    foreach (int n in list)
+    {
+        total += n;
+    }
+}
+long listBytes = GC.GetAllocatedBytesForCurrentThread() - before;
+
+before = GC.GetAllocatedBytesForCurrentThread();
+for (int i = 0; i < 1000; i++)
+{
+    foreach (int n in sequence)
+    {
+        total += n;
+    }
+}
+long sequenceBytes = GC.GetAllocatedBytesForCurrentThread() - before;
+
+Console.WriteLine($"List<int> で回す: {listBytes} バイト");
+Console.WriteLine($"IEnumerable<int> で回す: {sequenceBytes} バイト");
+```
+
+64 ビットの環境での実行結果の例です。バイト数は実行環境によって変わることがあります。
+
+```
+List<int> で回す: 0 バイト
+IEnumerable<int> で回す: 40000 バイト
+```
+
+`IEnumerable<int>` で回すと、`foreach` 1 回ごとに、40 バイトのボックスに入った取り出し役が作られています。ふつうのプログラムで気にする必要はありませんが、何度も繰り返し実行される処理では、`IEnumerable<T>` ではなく具体的なコレクションの型のまま回すと、ヒープへの割り当てを避けられます。
+
+---
+
 ## まとめ
 
 - 値型の値を `object` 型やインターフェイス型の変数に入れると、ヒープにボックスが作られ、値がコピーされる（ボクシング）

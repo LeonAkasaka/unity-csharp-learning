@@ -352,7 +352,7 @@ IEnumerable<int> Numbers()
 
 ### yield return を書けない場所
 
-`catch` を持つ `try` ブロックの中には、`yield return` を書けません（CS1626）。`finally` だけを持つ `try` ブロックの中には書けます。`foreach` を途中で `break` したときにその `finally` がいつ実行されるかは、[IDisposable と using](/unity-csharp-learning/csharp/dispose-using/) で学ぶ `Dispose` と関係があります。
+`catch` を持つ `try` ブロックの中には、`yield return` を書けません（CS1626）。`finally` だけを持つ `try` ブロックの中には書けます。`foreach` を途中で `break` したときにその `finally` がいつ実行されるかは、[IDisposable と using](/unity-csharp-learning/csharp/dispose-using/) で学ぶ `Dispose` と関係があります。詳しくは [イテレーターの後片付け（補足）](/unity-csharp-learning/csharp/iterator-dispose/) で学びます。
 
 ---
 

@@ -433,4 +433,4 @@ ObjectDisposedException: A
 
 ## 次のステップ
 
-[スレッドの基本](/unity-csharp-learning/csharp/threads/) では、複数の処理を同時に進めるためのスレッドを学びます。
+[イテレーターの後片付け（補足）](/unity-csharp-learning/csharp/iterator-dispose/) では、`foreach` が `Dispose` を呼ぶ仕組みと、イテレーターの中の `finally` や `using` がいつ実行されるかを学びます。
