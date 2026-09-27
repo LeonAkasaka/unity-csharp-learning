@@ -98,11 +98,11 @@ Microsoft .NET SDK 10.0.202  Microsoft.DotNet.SDK  10.0.202  winget
 **ソリューション**は「複数プロジェクトをまとめる入れ物」です。関連するプロジェクトを1つのソリューション（`.sln` ファイル）で管理します。Visual Studio でプロジェクトを開くときは、この `.sln` ファイルを開きます。
 
 ```
-HelloSln/               ← ソリューションフォルダー
-├── HelloSln.sln        ← ソリューションファイル
-└── HelloApp/           ← プロジェクトフォルダー
-    ├── HelloApp.csproj ← プロジェクト設定ファイル
-    └── Program.cs      ← コードファイル
+SampleSln/               ← ソリューションフォルダー
+├── SampleSln.sln        ← ソリューションファイル
+└── SampleApp/           ← プロジェクトフォルダー
+    ├── SampleApp.csproj ← プロジェクト設定ファイル
+    └── Program.cs       ← コードファイル
 ```
 
 ---
@@ -120,8 +120,8 @@ cd C:\Users\YourName\Documents  # 任意の場所でOK
 ### ② ソリューションを作成する
 
 ```powershell
-dotnet new sln -n HelloSln
-cd HelloSln
+dotnet new sln -n SampleSln
+cd SampleSln
 ```
 
 `dotnet new sln` はソリューションファイルを作成します。`-n` オプションで名前を指定します。
@@ -129,10 +129,10 @@ cd HelloSln
 ### ③ コンソールアプリのプロジェクトを作成する
 
 ```powershell
-dotnet new console -n HelloApp
+dotnet new console -n SampleApp
 ```
 
-`dotnet new console` はコンソールアプリのテンプレートからプロジェクトを作成します。`HelloApp` フォルダーが作られ、中に `HelloApp.csproj` と `Program.cs` が生成されます。
+`dotnet new console` はコンソールアプリのテンプレートからプロジェクトを作成します。`SampleApp` フォルダーが作られ、中に `SampleApp.csproj` と `Program.cs` が生成されます。
 
 生成された `Program.cs` を見てみましょう。
 
@@ -146,7 +146,7 @@ C# 9 以降で使えるトップレベルステートメントという書き方
 ### ④ ソリューションにプロジェクトを追加する
 
 ```powershell
-dotnet sln add HelloApp/HelloApp.csproj
+dotnet sln add SampleApp/SampleApp.csproj
 ```
 
 このコマンドで `.sln` ファイルに `.csproj` の参照が追加されます。これを行わないと、Visual Studio でソリューションを開いたときにプロジェクトが見えません。
@@ -170,7 +170,7 @@ dotnet build
 ### ⑥ 実行する
 
 ```powershell
-dotnet run --project HelloApp
+dotnet run --project SampleApp
 ```
 
 ```
@@ -185,11 +185,11 @@ Hello, World!
 
 | ファイル / フォルダー | 説明 |
 |---|---|
-| `HelloSln.sln` | ソリューション定義ファイル。プロジェクトの一覧を記録する |
-| `HelloApp/HelloApp.csproj` | プロジェクト設定ファイル。対象フレームワーク・依存パッケージなどを記述する |
-| `HelloApp/Program.cs` | コードファイル。実際に書くのはここ |
-| `HelloApp/bin/` | ビルド成果物（実行ファイル）。git 管理対象外が推奨 |
-| `HelloApp/obj/` | ビルド中間ファイル。git 管理対象外が推奨 |
+| `SampleSln.sln` | ソリューション定義ファイル。プロジェクトの一覧を記録する |
+| `SampleApp/SampleApp.csproj` | プロジェクト設定ファイル。対象フレームワーク・依存パッケージなどを記述する |
+| `SampleApp/Program.cs` | コードファイル。実際に書くのはここ |
+| `SampleApp/bin/` | ビルド成果物（実行ファイル）。git 管理対象外が推奨 |
+| `SampleApp/obj/` | ビルド中間ファイル。git 管理対象外が推奨 |
 
 `.csproj` ファイルの中身は XML 形式です。
 
@@ -245,7 +245,7 @@ Visual Studio は内部でこれらのコマンドを呼び出しています。
 ## 理解度チェック
 
 1. .NET SDK と .NET ランタイムの違いを説明してください。
-2. 次のコマンドは何をしますか？ `dotnet sln add HelloApp/HelloApp.csproj`
+2. 次のコマンドは何をしますか？ `dotnet sln add SampleApp/SampleApp.csproj`
 3. `bin/` フォルダーと `obj/` フォルダーにはそれぞれ何が入っていますか？
 
 <details markdown="1">
