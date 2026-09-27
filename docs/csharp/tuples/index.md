@@ -284,7 +284,7 @@ True
 | メソッドの中や、近くのメソッドどうしで、一時的に値をまとめる | タプル |
 | 多くの場所で使う、意味のある値の組み合わせ（座標、商品の情報など） | 構造体やクラス |
 
-構造体やクラスなら、メソッドやプロパティを加えたり、[構造体の制約](/unity-csharp-learning/csharp/struct-constraints/) で学んだ `readonly struct` で書き換えを禁止したりできます。C# には、このような「値をまとめるための型」を短く書ける `record` という機能もあります。
+構造体やクラスなら、メソッドやプロパティを加えたり、[構造体の制約](/unity-csharp-learning/csharp/struct-constraints/) で学んだ `readonly struct` で書き換えを禁止したりできます。C# には、このような「値をまとめるための型」を短く書ける `record` という機能もあります。`record` は、次のページの [record](/unity-csharp-learning/csharp/records/) で学びます。
 
 ---
 
@@ -358,4 +358,4 @@ C# 7.0 で、構造体の `ValueTuple` と、`(int, string)` のようなタプ�
 
 ## 次のステップ
 
-[列挙型](/unity-csharp-learning/csharp/enums/) では、関連する定数に名前を付けてまとめる `enum` を学びます。
+[record](/unity-csharp-learning/csharp/records/) では、中身で比べる `==` や `ToString` をコンパイラーが作ってくれる、値のまとまりを表す型を学びます。
