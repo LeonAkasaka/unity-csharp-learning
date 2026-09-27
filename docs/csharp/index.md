@@ -73,13 +73,13 @@ C# プログラミングをゼロから学びます。
 
 | # | トピック | 概要 |
 |---|---|---|
-| 26 | [継承](/unity-csharp-learning/csharp/inheritance/) | 基底クラス・派生クラス・`: base(...)` による基底クラスのコンストラクターの呼び出し・`object` |
-| 27 | [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) | アップキャスト・ダウンキャスト・`is`・`as`・パターンマッチング |
-| 28 | [protected 修飾子](/unity-csharp-learning/csharp/protected-modifier/) | `protected` のアクセス範囲・継承チェーンでの到達範囲・`internal` |
-| 29 | [オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) | `virtual`・`override`・動的ディスパッチ・`base.メソッド名()`・`ToString` のオーバーライド |
-| 30 | [メソッドの隠ぺいと sealed](/unity-csharp-learning/csharp/method-hiding/) | `new` 修飾子・`override` との違い・`sealed class`・`sealed override` |
-| 31 | [抽象クラスと抽象メソッド](/unity-csharp-learning/csharp/abstract-classes/) | `abstract class`・`abstract` メソッド・派生クラスでの強制実装 |
-| 32 | [インターフェイス](/unity-csharp-learning/csharp/interfaces/) | `interface` 宣言・実装・多重実装・抽象クラスとの違い |
+| 26 | [継承](/unity-csharp-learning/csharp/inheritance/) | 似たクラスを別々に書く問題・基底クラスと派生クラス・メンバーの追加・`: base(...)` とコンストラクターの実行順・継承の多段化と `object`・継承を使う目安 |
+| 27 | [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) | 基底クラスの型でまとめて扱う・変数の型と実体の型・アップキャストとダウンキャスト・`is`・`as`・型パターン |
+| 28 | [protected 修飾子](/unity-csharp-learning/csharp/protected-modifier/) | `private` と `public` の間が必要な理由・`protected` と `{ get; protected set; }`・継承を重ねた場合・`internal` |
+| 29 | [オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) | 種類ごとの `is` 分岐の問題・`virtual`・`override`・実体の型でメソッドが決まる（動的ディスパッチ）・`base.メソッド名()`・`ToString` のオーバーライド |
+| 30 | [メソッドの隠ぺいと sealed](/unity-csharp-learning/csharp/method-hiding/) | 基底クラスと同じ名前のメソッドを隠す・`new` 修飾子・`override` との違い・`sealed class`・`sealed override` |
+| 31 | [抽象クラスと抽象メソッド](/unity-csharp-learning/csharp/abstract-classes/) | `virtual` では防げない誤り・`abstract class`・`abstract` メソッドとプロパティ・派生クラスでの強制実装・`virtual` との使い分け |
+| 32 | [インターフェイス](/unity-csharp-learning/csharp/interfaces/) | 継承の関係がないクラスをまとめて扱う・`interface` の宣言と実装・インターフェイス型のパラメータ・複数の実装・抽象クラスとの違い |
 | 33 | [インターフェイスの明示的実装](/unity-csharp-learning/csharp/explicit-interface/) | 同名メンバーの衝突・明示的実装の書き方・暗黙的実装との比較 |
 
 ### C# ジェネリクス

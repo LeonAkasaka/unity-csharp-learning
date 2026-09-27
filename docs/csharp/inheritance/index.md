@@ -6,26 +6,84 @@ permalink: /csharp/inheritance/
 
 # 継承
 
-**継承**（inheritance）は、既存のクラスのメンバーを引き継いで、新しいクラスを定義する仕組みです。引き継ぐ元のクラスを **基底クラス**（base class）、引き継いで新しく定義したクラスを **派生クラス**（derived class）といいます。派生クラスは、基底クラスのメンバーをそのまま使えるうえに、新しいメンバーを追加できます。
+プレイヤーと敵のように、似ているけれど少しずつ違うクラスを作ることがあります。共通の部分をクラスごとに書くと、手間がかかるうえに、直し忘れの原因になります。**継承**（inheritance）は、既存のクラスのメンバーを引き継いで、新しいクラスを定義する仕組みです。このページでは、継承の書き方、派生クラスへのメンバーの追加、基底クラスのコンストラクターの呼び出し、すべてのクラスの元になる `object` を学びます。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
-- `class B : A` の形で、クラスを継承できる
-- 派生クラスが、基底クラスのメンバーを引き継ぐことを説明できる
+- 似たクラスを別々に書くと何が困るかを説明できる
+- `class 派生クラス名 : 基底クラス名` の形で、クラスを継承できる
+- 派生クラスが基底クラスのメンバーを引き継ぎ、新しいメンバーを追加できることを説明できる
 - `: base(...)` で、基底クラスのコンストラクターを呼び出せる
-- C# のクラスが継承できる基底クラスは 1 つだけであることと、すべてのクラスが `object` を継承していることを説明できる
+- 継承できる基底クラスは 1 つだけであることと、すべてのクラスが `object` を継承していることを説明できる
 
 ## 前提知識
 
-- [クラスとフィールド](/unity-csharp-learning/csharp/classes/) を読んでいること
 - [コンストラクター](/unity-csharp-learning/csharp/constructors/) を読んでいること
 - [アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) を読んでいること
+- [プロパティ](/unity-csharp-learning/csharp/properties/) を読んでいること
 
 ---
 
-## 1. 継承の書き方
+## 1. 似たクラスを別々に書くと困ること
+
+ゲームに、プレイヤーと敵を登場させます。どちらも名前と HP を持ち、ダメージを受けると HP が減ります。`Player` と `Enemy` の 2 つのクラスを、それぞれ定義します。
+
+```csharp
+Player player = new Player();
+player.Name = "Alice";
+player.Hp = 20;
+player.TakeDamage(30);
+
+Enemy enemy = new Enemy();
+enemy.Name = "Slime";
+enemy.Hp = 20;
+enemy.TakeDamage(30);
+
+class Player
+{
+    public string Name { get; set; } = "";
+    public int Hp { get; set; }
+
+    public void TakeDamage(int damage)
+    {
+        Hp -= damage;
+        if (Hp < 0)
+        {
+            Hp = 0;
+        }
+        Console.WriteLine($"{Name} が {damage} ダメージ。残り HP={Hp}");
+    }
+}
+
+class Enemy
+{
+    public string Name { get; set; } = "";
+    public int Hp { get; set; }
+
+    public void TakeDamage(int damage)
+    {
+        Hp -= damage;
+        Console.WriteLine($"{Name} が {damage} ダメージ。残り HP={Hp}");
+    }
+}
+```
+
+```
+Alice が 30 ダメージ。残り HP=0
+Slime が 30 ダメージ。残り HP=-10
+```
+
+`Name`・`Hp`・`TakeDamage` は、2 つのクラスでほとんど同じコードです。同じコードを 2 か所に書いたので、`Player` の `TakeDamage` に「HP を 0 未満にしない」処理を足したとき、`Enemy` を直し忘れてしまいました。その結果、敵の HP だけが `-10` になっています。
+
+ボスや仲間のキャラクターなど、クラスが増えるたびに、同じコードを書き写す場所も増えます。共通の部分を 1 か所にまとめ、クラスごとに違う部分だけをそれぞれのクラスに書けると便利です。
+
+---
+
+## 2. 継承で共通の部分をまとめる
+
+共通の部分を 1 つのクラスにまとめ、ほかのクラスがそれを引き継ぐようにできます。これを **継承** といいます。引き継ぐ元のクラスを **基底クラス**（base class）、引き継いで新しく定義したクラスを **派生クラス**（derived class）といいます。
 
 **書式：[継承](https://learn.microsoft.com/dotnet/csharp/fundamentals/object-oriented/inheritance)**
 ```
@@ -41,78 +99,13 @@ class 派生クラス名 : 基底クラス名
 | `:` | 継承することを表す |
 | `基底クラス名` | メンバーを引き継ぐ元のクラスの名前 |
 
-```csharp
-B b = new B();
-b.M();
-
-class A
-{
-    public void M()
-    {
-        Console.WriteLine("A.M");
-    }
-}
-
-class B : A
-{
-}
-```
-
-```
-A.M
-```
-
-`B` には何も書いていませんが、`A` を継承しているので、`A` の `M` メソッドを持っています。
-
----
-
-## 2. 派生クラスにメンバーを追加する
-
-派生クラスには、基底クラスにないメンバーを追加できます。
-
-```csharp
-B b = new B();
-b.M();
-b.N();
-
-A a = new A();
-a.M();
-
-class A
-{
-    public void M()
-    {
-        Console.WriteLine("A.M");
-    }
-}
-
-class B : A
-{
-    public void N()
-    {
-        Console.WriteLine("B.N");
-    }
-}
-```
-
-```
-A.M
-B.N
-A.M
-```
-
-`B` のインスタンスは、`A` から引き継いだ `M` と、自分で追加した `N` の両方を持ちます。`A` のインスタンスは `M` だけを持ち、`N` は持ちません。
-
-### 具体的な例
-
-ゲームのキャラクターで考えます。プレイヤーも敵も、名前と HP を持ち、ダメージを受けます。共通する部分を基底クラス `Character` にまとめ、それぞれに固有の部分を派生クラスに書きます。
+プレイヤーと敵に共通する部分を、基底クラス `Character`（キャラクター）にまとめます。`Player` と `Enemy` は `Character` を継承します。
 
 ```csharp
 Player player = new Player();
 player.Name = "Alice";
-player.Hp = 100;
+player.Hp = 20;
 player.TakeDamage(30);
-player.UsePotion();
 
 Enemy enemy = new Enemy();
 enemy.Name = "Slime";
@@ -121,8 +114,60 @@ enemy.TakeDamage(30);
 
 class Character
 {
-    public string Name = "";
-    public int Hp;
+    public string Name { get; set; } = "";
+    public int Hp { get; set; }
+
+    public void TakeDamage(int damage)
+    {
+        Hp -= damage;
+        if (Hp < 0)
+        {
+            Hp = 0;
+        }
+        Console.WriteLine($"{Name} が {damage} ダメージ。残り HP={Hp}");
+    }
+}
+
+class Player : Character
+{
+}
+
+class Enemy : Character
+{
+}
+```
+
+```
+Alice が 30 ダメージ。残り HP=0
+Slime が 30 ダメージ。残り HP=0
+```
+
+`Player` と `Enemy` の中には何も書いていませんが、`Character` を継承しているので、`Name`・`Hp`・`TakeDamage` を持っています。`TakeDamage` は `Character` の 1 か所にしかないので、直せば `Player` と `Enemy` の両方に反映されます。
+
+継承は、「プレイヤーはキャラクターの一種」「敵はキャラクターの一種」という関係を表します。
+
+---
+
+## 3. 派生クラスにメンバーを追加する
+
+派生クラスには、基底クラスにないメンバーを追加できます。プレイヤーだけが回復薬を使えるように、`Player` に `UsePotion` メソッドを追加します。
+
+```csharp
+Player player = new Player();
+player.Name = "Alice";
+player.Hp = 20;
+player.TakeDamage(15);
+player.UsePotion();
+
+Enemy enemy = new Enemy();
+enemy.Name = "Slime";
+enemy.Hp = 20;
+enemy.TakeDamage(15);
+
+class Character
+{
+    public string Name { get; set; } = "";
+    public int Hp { get; set; }
 
     public void TakeDamage(int damage)
     {
@@ -150,29 +195,54 @@ class Enemy : Character
 ```
 
 ```
-Alice が 30 ダメージ。残り HP=70
-Alice は回復薬を使った。HP=90
-Slime が 30 ダメージ。残り HP=0
+Alice が 15 ダメージ。残り HP=5
+Alice は回復薬を使った。HP=25
+Slime が 15 ダメージ。残り HP=5
 ```
 
-`TakeDamage` は `Character` に 1 回書くだけで、`Player` と `Enemy` の両方で使えます。
+`Player` のインスタンスは、`Character` から引き継いだメンバーと、自分で追加した `UsePotion` の両方を持ちます。`UsePotion` の中でも、引き継いだ `Hp` と `Name` を、自分のメンバーと同じように使えます。
+
+`Enemy` は `UsePotion` を持たないので、`enemy.UsePotion()` と書くとコンパイルエラーになります。
+
+```csharp
+// ❌ NG: UsePotion は Player に追加したメソッドなので、Enemy にはない（CS1061）
+// enemy.UsePotion();
+```
+
+3 つのクラスの関係を図にすると、次のようになります。矢印は、派生クラスから基底クラスに向かって引きます。
+
+```mermaid
+classDiagram
+    Character <|-- Player
+    Character <|-- Enemy
+    class Character {
+        +Name string
+        +Hp int
+        +TakeDamage(damage int)
+    }
+    class Player {
+        +UsePotion()
+    }
+```
+
+`Player` と `Enemy` の枠の中には、そのクラスで追加したメンバーだけを書いています。`Character` のメンバーは、矢印の先から引き継ぎます。
 
 ### private のメンバーは、派生クラスからも使えない
 
-派生クラスは、基底クラスの `private` のメンバーも内部に持っていますが、派生クラスのメソッドから直接使うことはできません。`private` は、そのクラスの中からだけ使えるからです。
+派生クラスのインスタンスは、基底クラスの `private` のメンバーも内部に持っています。しかし、派生クラスのメソッドから直接使うことはできません。[アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) で学んだように、`private` のメンバーは、そのクラスの中からだけ使えるからです。
 
 ```csharp
 // ❌ NG: 基底クラスの private のメンバーは、派生クラスからも使えない
-// class A
+// class Character
 // {
-//     private int _secret = 1;
+//     private int _defense = 5;
 // }
 //
-// class B : A
+// class Player : Character
 // {
-//     public void Show()
+//     public void ShowDefense()
 //     {
-//         Console.WriteLine(_secret);  // CS0122
+//         Console.WriteLine(_defense);  // CS0122
 //     }
 // }
 ```
@@ -181,36 +251,13 @@ Slime が 30 ダメージ。残り HP=0
 
 ---
 
-## 3. 基底クラスのコンストラクターを呼び出す
+## 4. 基底クラスのコンストラクターを呼び出す
 
-コンストラクターは、継承されません。派生クラスのインスタンスを作ると、派生クラスのコンストラクターの本体より先に、基底クラスのコンストラクターが実行されます。
+ここまでの例では、インスタンスを作ってから `Name` と `Hp` に値を入れていました。これでは、値を入れ忘れてもコンパイラーは気付きません。[コンストラクター](/unity-csharp-learning/csharp/constructors/) で学んだように、必ず必要な値は、コンストラクターのパラメータで受け取るようにします。
 
-```csharp
-B b = new B();
+`Character` に、名前と HP を受け取るコンストラクターを定義します。すると、`Player` にもコンストラクターが必要になります。**コンストラクターは継承されない** ので、`Character` のコンストラクターを `new Player("Alice", 100)` のように使うことはできないからです。
 
-class A
-{
-    public A()
-    {
-        Console.WriteLine("A のコンストラクター");
-    }
-}
-
-class B : A
-{
-    public B()
-    {
-        Console.WriteLine("B のコンストラクター");
-    }
-}
-```
-
-```
-A のコンストラクター
-B のコンストラクター
-```
-
-基底クラスのコンストラクターにパラメータがあるときは、派生クラスのコンストラクターに `: base(引数)` と書いて、どのコンストラクターにどの値を渡すかを指定します。
+派生クラスのコンストラクターから基底クラスのコンストラクターに値を渡すには、`: base(引数)` と書きます。
 
 **書式：[基底クラスのコンストラクターの呼び出し](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/base)**
 ```
@@ -220,17 +267,22 @@ public 派生クラス名(パラメータ) : base(引数)
 }
 ```
 
+| 要素 | 説明 |
+|---|---|
+| `base(引数)` | 基底クラスのコンストラクターを、指定した引数で呼び出す |
+
 ```csharp
-Player p = new Player("Alice", 100, 3);
-Console.WriteLine($"{p.Name}: HP={p.Hp}, 回復薬={p.Potions}");
+Player player = new Player("Alice", 100, 3);
+Console.WriteLine($"{player.Name}: HP={player.Hp}, 回復薬={player.Potions}");
 
 class Character
 {
     public string Name { get; }
-    public int Hp { get; }
+    public int Hp { get; set; }
 
     public Character(string name, int hp)
     {
+        Console.WriteLine("Character のコンストラクター");
         Name = name;
         Hp = hp;
     }
@@ -238,98 +290,124 @@ class Character
 
 class Player : Character
 {
-    public int Potions { get; }
+    public int Potions { get; set; }
 
     public Player(string name, int hp, int potions) : base(name, hp)
     {
+        Console.WriteLine("Player のコンストラクター");
         Potions = potions;
     }
 }
 ```
 
 ```
+Character のコンストラクター
+Player のコンストラクター
 Alice: HP=100, 回復薬=3
 ```
 
-`new Player("Alice", 100, 3)` では、まず `: base(name, hp)` で `Character` のコンストラクターが実行されて `Name` と `Hp` が初期化され、その後で `Player` のコンストラクターの本体が実行されます。
+`new Player("Alice", 100, 3)` では、次の順に処理が進みます。
 
-基底クラスにパラメータのないコンストラクターがないときは、`: base(...)` を省略できません（よくあるミスを参照）。
+1. `: base(name, hp)` で、`Character` のコンストラクターが実行され、`Name` と `Hp` が初期化される
+2. `Player` のコンストラクターの本体が実行され、`Potions` が初期化される
+
+基底クラスの部分が先に初期化されるので、派生クラスのコンストラクターの本体では、`Name` や `Hp` をもう使えます。
+
+派生クラスで初期化するものがなくても、基底クラスのコンストラクターにパラメータがあるなら、`: base(...)` を書いたコンストラクターが必要です。たとえば `Enemy` なら、`public Enemy(string name, int hp) : base(name, hp) { }` と書きます（よくあるミスを参照）。
 
 ---
 
-## 4. 単一継承と object
+## 5. 継承を重ねる
 
-C# のクラスが継承できる基底クラスは、**1 つだけ** です（単一継承）。ただし、継承は何段でも重ねられます。
+派生クラスを、さらに継承することもできます。強い敵のボス `Boss` を、`Enemy` の派生クラスとして定義します。
 
 ```csharp
-C c = new C();
-c.MA();
-c.MB();
-c.MC();
+Boss boss = new Boss("Dragon", 500);
+boss.TakeDamage(30);
+boss.Roar();
+Console.WriteLine(boss.ToString());
 
-class A
+class Character
 {
-    public void MA() { Console.WriteLine("A.MA"); }
+    public string Name { get; }
+    public int Hp { get; set; }
+
+    public Character(string name, int hp)
+    {
+        Name = name;
+        Hp = hp;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Hp -= damage;
+        if (Hp < 0)
+        {
+            Hp = 0;
+        }
+        Console.WriteLine($"{Name} が {damage} ダメージ。残り HP={Hp}");
+    }
 }
 
-class B : A
+class Enemy : Character
 {
-    public void MB() { Console.WriteLine("B.MB"); }
+    public Enemy(string name, int hp) : base(name, hp)
+    {
+    }
 }
 
-class C : B
+class Boss : Enemy
 {
-    public void MC() { Console.WriteLine("C.MC"); }
+    public Boss(string name, int hp) : base(name, hp)
+    {
+    }
+
+    public void Roar()
+    {
+        Console.WriteLine($"{Name} がほえた");
+    }
 }
 ```
 
 ```
-A.MA
-B.MB
-C.MC
+Dragon が 30 ダメージ。残り HP=470
+Dragon がほえた
+Boss
 ```
 
-`C` は `B` を継承し、`B` は `A` を継承しているので、`C` は 3 つのメソッドをすべて持ちます。
+`Boss` は `Enemy` を継承し、`Enemy` は `Character` を継承しているので、`Boss` は `Character` の `TakeDamage` も持っています。`Boss` の `: base(name, hp)` が呼び出すのは、すぐ上の基底クラスである `Enemy` のコンストラクターです。
 
-継承の元をたどっていくと、最後は [object](https://learn.microsoft.com/dotnet/api/system.object) にたどり着きます。基底クラスを書かずに定義したクラスは、自動的に `object` を継承します。`object` は、C# のすべての型の基底となる型です。
+### すべてのクラスは object を継承している
+
+最後の行の `ToString()` は、どのクラスにも定義していません。それでも呼び出せるのは、すべてのクラスが [object](https://learn.microsoft.com/dotnet/api/system.object) を継承しているからです。基底クラスを書かずに定義したクラスは、自動的に `object` を継承します。`object` の `ToString` は、ふつうは型の名前を返します。
+
+継承の関係を元へたどると、どのクラスも最後は `object` にたどり着きます。
 
 ```mermaid
 classDiagram
-    object <|-- A
-    A <|-- B
-    B <|-- C
+    object <|-- Character
+    Character <|-- Player
+    Character <|-- Enemy
+    Enemy <|-- Boss
     class object {
         +ToString() string
         +Equals(object) bool
         +GetHashCode() int
+        +GetType() Type
     }
-    class A {
-        +MA()
+    class Character {
+        +Name string
+        +Hp int
+        +TakeDamage(damage int)
     }
-    class B {
-        +MB()
-    }
-    class C {
-        +MC()
+    class Boss {
+        +Roar()
     }
 ```
 
-これまで使ってきた `GetType()` や `ToString()` は、`object` から引き継いだメソッドです。そのため、どのクラスのインスタンスでも使えます。
+### 基底クラスは 1 つだけ
 
-```csharp
-C c = new C();
-Console.WriteLine(c.ToString());
-
-class A { }
-class B : A { }
-class C : B { }
-```
-
-```
-C
-```
-
-`object` の `ToString` は、ふつうは型の名前を返します。
+継承は何段でも重ねられますが、1 つのクラスが直接継承できる基底クラスは、**1 つだけ** です（単一継承）。`class C : A, B` のように、2 つのクラスを並べて継承することはできません。2 つの基底クラスが同じ名前のメンバーを持っていたときに、どちらを使うのかがあいまいになるからです。複数の種類の性質を持たせたいときは、後で学ぶ [インターフェイス](/unity-csharp-learning/csharp/interfaces/) を使います。
 
 ---
 
@@ -338,28 +416,30 @@ C
 ### 基底クラスのコンストラクターを呼び出さない
 
 ```csharp
-// ❌ NG: A にはパラメータのないコンストラクターがないのに、: base(...) がない
-// class A
+// ❌ NG: Character にはパラメータのないコンストラクターがないのに、: base(...) がない
+// class Character
 // {
-//     public A(int value)
+//     public Character(string name, int hp)
 //     {
 //     }
 // }
 //
-// class B : A
+// class Enemy : Character
 // {
-//     public B(int value)  // CS7036
+//     public Enemy(string name, int hp)  // CS7036
 //     {
 //     }
 // }
 ```
 
-`: base(...)` を書かないと、コンパイラーは、基底クラスのパラメータのないコンストラクターを呼び出そうとします。`A` にはそれがないので、コンパイルエラーになります。`public B(int value) : base(value)` と書きます。
+`: base(...)` を書かないと、コンパイラーは、基底クラスのパラメータのないコンストラクターを呼び出そうとします。`Character` にはそれがないので、コンパイルエラーになります。`public Enemy(string name, int hp) : base(name, hp)` と書きます。
+
+派生クラスにコンストラクターを 1 つも書かなかった場合も同じです。コンパイラーが用意するパラメータのないコンストラクターが、基底クラスのパラメータのないコンストラクターを呼び出そうとして、CS7036 になります。
 
 ### 2 つのクラスを継承しようとする
 
 ```csharp
-// ❌ NG: 基底クラスは 1 つだけ
+// ❌ NG: 直接継承できる基底クラスは 1 つだけ
 // class A { }
 // class B { }
 // class C : A, B { }  // CS1721
@@ -367,20 +447,29 @@ C
 
 ---
 
+## ワンポイントアドバイス
+
+### 継承を使うかどうかの目安
+
+継承は、「派生クラスは基底クラスの一種」と言えるときに使います。「プレイヤーはキャラクターの一種」は自然なので、`Player : Character` は適切です。
+
+一方、「プレイヤーは回復薬の数を数えるので、数を数えるクラス `Counter` を継承する」のは不適切です。プレイヤーは数を数える道具の一種ではありません。このようなときは、`Player` のフィールドやプロパティとして `Counter` を持たせます。コードを共通にしたいというだけで継承を使うと、基底クラスの不要なメンバーまで引き継いでしまいます。
+
+---
+
 ## まとめ
 
+- 似たクラスを別々に書くと、同じコードを何か所にも書くことになり、直し忘れが起きやすい
 - `class B : A` と書くと、`B` は `A` を継承する。`A` が基底クラス、`B` が派生クラス
-- 派生クラスは、基底クラスのメンバーを引き継ぎ、新しいメンバーを追加できる
-- 基底クラスの `private` のメンバーは、派生クラスからも使えない
-- コンストラクターは継承されない。派生クラスのインスタンスを作ると、基底クラスのコンストラクターが先に実行される
-- `: base(引数)` で、基底クラスのコンストラクターに値を渡す
-- C# のクラスが継承できる基底クラスは 1 つだけ。すべてのクラスは、最後は `object` を継承している
+- 派生クラスは、基底クラスのメンバーを引き継ぎ、新しいメンバーを追加できる。基底クラスの `private` のメンバーは、派生クラスからも使えない
+- コンストラクターは継承されない。`: base(引数)` で基底クラスのコンストラクターに値を渡す。基底クラスのコンストラクターが先に実行される
+- 継承は何段でも重ねられるが、直接継承できる基底クラスは 1 つだけ。すべてのクラスは、最後は `object` を継承している
 
 ---
 
 ## 理解度チェック
 
-1. `class B : A` の `:` は何を表しますか？
+1. 似たクラスを継承を使わずに別々に書くと、どのような問題が起きやすいですか？
 2. 次のコードを実行すると何が出力されますか？
 
    ```csharp
@@ -402,13 +491,17 @@ C
    }
    ```
 
-3. 基底クラス `A` に `public A(int x)` しかないとき、派生クラス `B` の `int` を受け取るコンストラクターは、どう書きますか？
+3. 5 節の `Boss` のインスタンスで使えるメンバーを、次の中からすべて選んでください。
+
+   `Name`・`Hp`・`TakeDamage`・`Roar`・`ToString`・`UsePotion`（3 節で `Player` に追加したメソッド）
+
+4. 基底クラス `A` に `public A(int x)` しかないとき、派生クラス `B` の `int` を受け取るコンストラクターは、どう書きますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. `B` が `A` を継承することを表します。
-2. 次のように出力されます。派生クラスのインスタンスを作ると、基底クラスのコンストラクターから順に実行されます。
+1. 同じコードを何か所にも書くことになります。処理を直すときにすべての場所を直す必要があり、1 か所でも直し忘れると、クラスによって動作が食い違います。
+2. 次のように出力されます。派生クラスのインスタンスを作ると、いちばん元の基底クラスのコンストラクターから順に実行されます。
 
    ```
    A
@@ -416,7 +509,8 @@ C
    C
    ```
 
-3. `public B(int x) : base(x) { }` と書きます。
+3. `Name`・`Hp`・`TakeDamage`・`Roar`・`ToString` です。`Name`・`Hp`・`TakeDamage` は `Character` から、`ToString` は `object` から引き継いでいます。`UsePotion` は `Player` に追加したメソッドで、`Boss` の継承の関係の中にはないので使えません。
+4. `public B(int x) : base(x) { }` と書きます。
 
 </details>
 
@@ -424,4 +518,4 @@ C
 
 ## 次のステップ
 
-[型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) では、基底クラスと派生クラスの間での型の変換と、型を調べる方法を学びます。
+[型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) では、派生クラスのインスタンスを基底クラスの型の変数で扱う方法と、実際の型を調べる方法を学びます。

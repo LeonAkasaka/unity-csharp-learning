@@ -6,16 +6,16 @@ permalink: /csharp/method-hiding/
 
 # メソッドの隠ぺいと sealed
 
-`override` は、基底クラスのメソッドを書き換える仕組みでした。これとは別に、基底クラスのメソッドを書き換えずに、同じ名前の別のメソッドで **隠す** `new` 修飾子があります。また、`sealed` を使うと、それ以上の継承やオーバーライドを禁止できます。
+派生クラスに、基底クラスと同じ名前のメソッドを定義すると、`override` を付けなければ、基底クラスのメソッドを書き換えずに **隠す** ことになります。このページでは、メソッドが隠されるとどうなるかと、隠すことを明示する `new` 修飾子、オーバーライドとの違いを学びます。また、それ以上の継承やオーバーライドを禁止する `sealed` も学びます。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
-- `new` 修飾子で、基底クラスのメソッドを隠せる
+- 基底クラスと同じ名前のメソッドを定義すると、メソッドが隠されることを説明できる
+- `new` 修飾子で、メソッドを隠すことを明示できる
 - 基底クラスの型の変数から呼び出したとき、`new` と `override` で結果が違うことを説明できる
-- `sealed class` で、クラスの継承を禁止できる
-- `sealed override` で、それ以上のオーバーライドを禁止できる
+- `sealed class` と `sealed override` で、継承やオーバーライドを禁止できる
 
 ## 前提知識
 
@@ -23,9 +23,66 @@ permalink: /csharp/method-hiding/
 
 ---
 
-## 1. new 修飾子でメソッドを隠す
+## 1. 基底クラスと同じ名前のメソッド
 
-派生クラスで、基底クラスのメソッドと同じシグネチャのメソッドを定義し、[new 修飾子](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/new-modifier) を付けると、基底クラスのメソッドを **隠す** ことになります。インスタンスを作る `new` 演算子とは、同じキーワードですが別の機能です。
+基底クラスと派生クラスを、別々の人が作ることがあります。たとえば、`Character` クラスはライブラリとして提供されていて、自分では変更できないとします。自分は `Character` を継承して `Player` を作り、回復薬を使う `Heal` メソッドを追加しました。
+
+その後、ライブラリが新しくなり、`Character` にも `Heal` メソッドが追加されました。`Character` の `Heal` は、`virtual` ではありません。自分の `Player` の `Heal` と、名前もパラメータも同じです。
+
+```csharp
+Player player = new Player("Alice");
+player.Heal();
+
+Character c = player;
+c.Heal();
+
+// ライブラリの Character（後から Heal が追加された）
+class Character
+{
+    public string Name { get; }
+
+    public Character(string name)
+    {
+        Name = name;
+    }
+
+    public void Heal()
+    {
+        Console.WriteLine($"{Name} は休んで HP を 10 回復した");
+    }
+}
+
+// 自分で作った Player
+class Player : Character
+{
+    public Player(string name) : base(name) { }
+
+    public void Heal()
+    {
+        Console.WriteLine($"{Name} は回復薬で HP を 50 回復した");
+    }
+}
+```
+
+```
+Alice は回復薬で HP を 50 回復した
+Alice は休んで HP を 10 回復した
+```
+
+`Character` の `Heal` は `virtual` ではないので、`Player` の `Heal` はオーバーライドにはなりません。`Player` の `Heal` は、`Character` の `Heal` とは別のメソッドとして、`Character` の `Heal` を **隠し**（hide）ます。
+
+隠したメソッドは、変数の型によって、どちらが実行されるかが決まります。
+
+- `Player` の型の変数 `player` から呼び出すと、`Player` の `Heal` が実行される
+- `Character` の型の変数 `c` から呼び出すと、実体は `Player` でも、`Character` の `Heal` が実行される
+
+同じインスタンスなのに、どの型の変数から呼び出すかで動作が変わるのは、まぎらわしい状態です。そのため、コンパイラーは、このコードに警告（CS0108）を出します。「基底クラスの `Heal` を隠している。意図して隠すなら `new` を付けること」という内容です。
+
+---
+
+## 2. new 修飾子で隠すことを明示する
+
+基底クラスのメソッドを意図して隠すときは、派生クラスのメソッドに [new 修飾子](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/new-modifier) を付けます。インスタンスを作る `new` 演算子とは、同じキーワードですが別の機能です。
 
 **書式：[new 修飾子](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/new-modifier)**
 ```
@@ -35,93 +92,98 @@ permalink: /csharp/method-hiding/
 }
 ```
 
+1 節の `Player` の `Heal` に `new` を付けます。
+
 ```csharp
-B b = new B();
-b.M();
-
-class A
+class Player : Character
 {
-    public void M()
-    {
-        Console.WriteLine("A.M");
-    }
-}
+    public Player(string name) : base(name) { }
 
-class B : A
-{
-    public new void M()
+    public new void Heal()
     {
-        Console.WriteLine("B.M");
+        Console.WriteLine($"{Name} は回復薬で HP を 50 回復した");
     }
 }
 ```
 
-```
-B.M
-```
+`new` を付けても、動作は 1 節と変わりません。変わるのは、コンパイラーの警告が消えることです。`new` は、「基底クラスに同じメソッドがあることを知ったうえで、隠している」ことを、コンパイラーとコードを読む人に伝えるためのものです。
 
-`B` の型の変数から呼び出すと、`B` の `M` が実行されます。ここまでは、オーバーライドと同じように見えます。
+ただし、隠すことは、1 節のようなまぎらわしさを残します。自分のメソッドの名前を変えられるなら（たとえば `UsePotion` にする）、名前を変えるほうがわかりやすくなります。`new` は、名前を変えられない事情があるときなどに限って使います。
 
 ---
 
-## 2. new と override の違い
+## 3. new と override の違い
 
-違いが表れるのは、**基底クラスの型の変数から呼び出したとき** です。
+`new` と `override` の違いが表れるのは、**基底クラスの型の変数から呼び出したとき** です。`Character` に、`virtual` の `Attack` と、`virtual` でない `Greet` を用意します。`Warrior` は、`Attack` を `override` で書き換え、`Greet` を `new` で隠します。
 
 ```csharp
-A x = new B();
-x.M();
+Warrior w = new Warrior("Alice");
+Character c = w;
 
-A y = new C();
-y.M();
+w.Attack();
+c.Attack();
 
-C z = new C();
-z.M();
+w.Greet();
+c.Greet();
 
-class A
+class Character
 {
-    public virtual void M()
+    public string Name { get; }
+
+    public Character(string name)
     {
-        Console.WriteLine("A.M");
+        Name = name;
+    }
+
+    public virtual void Attack()
+    {
+        Console.WriteLine($"{Name} の攻撃");
+    }
+
+    public void Greet()
+    {
+        Console.WriteLine($"{Name}: よろしく");
     }
 }
 
-class B : A
+class Warrior : Character
 {
-    public override void M()
-    {
-        Console.WriteLine("B.M（override）");
-    }
-}
+    public Warrior(string name) : base(name) { }
 
-class C : A
-{
-    public new void M()
+    public override void Attack()
     {
-        Console.WriteLine("C.M（new）");
+        Console.WriteLine($"{Name} は剣で斬りつけた（override）");
+    }
+
+    public new void Greet()
+    {
+        Console.WriteLine($"{Name}: 剣なら任せて（new）");
     }
 }
 ```
 
 ```
-B.M（override）
-A.M
-C.M（new）
+Alice は剣で斬りつけた（override）
+Alice は剣で斬りつけた（override）
+Alice: 剣なら任せて（new）
+Alice: よろしく
 ```
 
-- `B` の `M` はオーバーライドなので、`A` の型の変数 `x` から呼び出しても、実体の `B` の `M` が実行されます
-- `C` の `M` は `A` の `M` を隠しているだけなので、`A` の型の変数 `y` から呼び出すと、`A` の `M` が実行されます。`C` の型の変数 `z` から呼び出したときだけ、`C` の `M` が実行されます
+- `Attack` はオーバーライドなので、`Character` の型の変数 `c` から呼び出しても、実体の `Warrior` の `Attack` が実行されます
+- `Greet` は隠しているだけなので、`Character` の型の変数 `c` から呼び出すと、`Character` の `Greet` が実行されます
 
 | 変数の型 | 実体 | `override` の場合 | `new` の場合 |
 |---|---|---|---|
 | 基底クラス | 派生クラス | 派生クラスのメソッド | 基底クラスのメソッド |
 | 派生クラス | 派生クラス | 派生クラスのメソッド | 派生クラスのメソッド |
 
-`override` では実体の型でメソッドが決まり、`new` では変数の型でメソッドが決まります。ポリモーフィズムを使いたいなら `override` を使います。`new` は、基底クラスを変更できない事情があるときなどに限って使います。
+`override` では実体の型でメソッドが決まり、`new` では変数の型でメソッドが決まります。[オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) で学んだように、基底クラスの型の配列にまとめて同じ書き方で扱えるのは、`override` のときだけです。種類ごとに動作を変えたいなら、`override` を使います。
 
 ---
 
-## 3. sealed class
+## 4. sealed class
+
+継承は便利ですが、どのクラスでも継承してよいわけではありません。派生クラスは基底クラスの `protected` のメンバーを使い、`virtual` のメソッドを書き換えられます。継承されることを想定して作られていないクラスを継承されると、基底クラスの中の処理が、作った人の意図しない形で変えられてしまうことがあります。また、基底クラスを変更したときに、どこかの派生クラスが壊れる心配も生まれます。
 
 クラスに [sealed](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/sealed) を付けると、そのクラスを継承できなくなります。
 
@@ -134,34 +196,40 @@ sealed class クラス名
 ```
 
 ```csharp
-Settings s = new Settings();
+GameSettings s = new GameSettings();
 s.Show();
 
-sealed class Settings
+sealed class GameSettings
 {
+    public int Volume { get; set; } = 80;
+
     public void Show()
     {
-        Console.WriteLine("Settings.Show");
+        Console.WriteLine($"音量: {Volume}");
     }
 }
 ```
 
 ```
-Settings.Show
+音量: 80
 ```
+
+`GameSettings` のインスタンスは、ふつうのクラスと同じように作って使えます。継承しようとすると、コンパイルエラーになります。
 
 ```csharp
-// ❌ NG: sealed のクラスは継承できない
-// class MySettings : Settings { }  // CS0509
+// ❌ NG: sealed のクラスは継承できない（CS0509）
+// class MySettings : GameSettings { }
 ```
 
-継承されることを想定していないクラスに `sealed` を付けると、意図しない派生クラスが作られるのを防げます。.NET の `string` も `sealed` のクラスです。
+継承されることを想定していないクラスに `sealed` を付けておくと、意図しない派生クラスが作られるのを防げます。.NET の `string` も `sealed` のクラスです。
 
 ---
 
-## 4. sealed override
+## 5. sealed override
 
-`override` に `sealed` を付けると、そのメソッドを、さらに派生したクラスでオーバーライドできなくなります。
+クラス全体ではなく、特定のメソッドのオーバーライドだけを止めたいこともあります。`override` に `sealed` を付けると、そのメソッドを、さらに派生したクラスでオーバーライドできなくなります。
+
+騎士 `Knight` の攻撃は、「ふつうの攻撃の後に盾で押し返す」ものと決めて、`Knight` の派生クラスには変えさせないようにします。
 
 **書式：[sealed override](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/sealed)**
 ```
@@ -172,86 +240,68 @@ Settings.Show
 ```
 
 ```csharp
-A a = new C();
-a.M();
+Character c = new HolyKnight("Alice");
+c.Attack();
 
-class A
+class Character
 {
-    public virtual void M()
+    public string Name { get; }
+
+    public Character(string name)
     {
-        Console.WriteLine("A.M");
+        Name = name;
+    }
+
+    public virtual void Attack()
+    {
+        Console.WriteLine($"{Name} の攻撃");
     }
 }
 
-class B : A
+class Knight : Character
 {
-    public sealed override void M()
+    public Knight(string name) : base(name) { }
+
+    public sealed override void Attack()
     {
-        Console.WriteLine("B.M");
+        base.Attack();
+        Console.WriteLine("さらに盾で押し返した");
     }
 }
 
-class C : B
+class HolyKnight : Knight
 {
+    public HolyKnight(string name) : base(name) { }
 }
 ```
 
 ```
-B.M
+Alice の攻撃
+さらに盾で押し返した
 ```
 
-`C` は `B` を継承できますが、`B` の `M` は `sealed override` なので、`C` で `M` をオーバーライドすることはできません。
+聖騎士 `HolyKnight` は `Knight` を継承できて、`Knight` の `Attack` をそのまま引き継いでいます。しかし、`Knight` の `Attack` は `sealed override` なので、`HolyKnight` で `Attack` をオーバーライドすることはできません。
 
 ```csharp
 // ❌ NG: sealed override のメソッドは、それ以上オーバーライドできない
-// class C : B
+// class HolyKnight : Knight
 // {
-//     public override void M() { }  // CS0239
+//     public HolyKnight(string name) : base(name) { }
+//
+//     public override void Attack() { }  // CS0239
 // }
 ```
 
 ---
 
-## よくあるミス
-
-### new を付けずに同じ名前のメソッドを定義する
-
-```csharp
-B b = new B();
-b.M();
-
-class A
-{
-    public void M()
-    {
-        Console.WriteLine("A.M");
-    }
-}
-
-class B : A
-{
-    public void M()
-    {
-        Console.WriteLine("B.M");
-    }
-}
-```
-
-```
-B.M
-```
-
-`new` を付けなくても、基底クラスのメソッドは隠されます。ただし、コンパイラーは「意図して隠すなら `new` を付けること」という警告（CS0108）を出します。基底クラスに同じ名前のメソッドがあることに気付かずに定義してしまった可能性があるからです。オーバーライドしたいのか、隠したいのかを決め、`override` か `new` を明示します。
-
----
-
 ## まとめ
 
-- `new` 修飾子は、基底クラスのメソッドを隠す。基底クラスの型の変数から呼び出すと、基底クラスのメソッドが実行される
-- `override` は、基底クラスのメソッドを書き換える。どの型の変数から呼び出しても、実体の型のメソッドが実行される
+- 派生クラスに基底クラスと同じメソッドを `override` なしで定義すると、基底クラスのメソッドを隠す。`new` を付けないと、コンパイラーが警告（CS0108）を出す
+- `new` 修飾子は、基底クラスのメソッドを意図して隠すことを明示する
+- 隠したメソッドは変数の型で、オーバーライドしたメソッドは実体の型で、実行されるメソッドが決まる
+- 同じシグネチャのメソッドを定義するときは、`override` か `new` を明示する。種類ごとに動作を変えたいなら `override` を使う
 - `sealed class` は、継承できないクラスになる
 - `sealed override` のメソッドは、それ以上オーバーライドできない
-- 同じシグネチャのメソッドを定義するときは、`override` か `new` を明示する
 
 ---
 
@@ -281,7 +331,8 @@ B.M
    }
    ```
 
-3. `sealed class` とは、どのようなクラスですか？
+3. 派生クラスで、基底クラスと同じ名前・同じパラメータのメソッドを、`override` も `new` も付けずに定義すると、どうなりますか？
+4. `sealed class` とは、どのようなクラスですか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
@@ -296,7 +347,8 @@ B.M
    B.N
    ```
 
-3. 継承できないクラスです。`sealed` のクラスを基底クラスにしようとすると、コンパイルエラー（CS0509）になります。
+3. 基底クラスのメソッドを隠すことになります（`new` を付けたときと同じ動作）。コンパイラーは、基底クラスのメソッドが `virtual` でなければ警告 CS0108 を、`virtual` なら警告 CS0114 を出します。
+4. 継承できないクラスです。`sealed` のクラスを基底クラスにしようとすると、コンパイルエラー（CS0509）になります。
 
 </details>
 

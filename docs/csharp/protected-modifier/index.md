@@ -6,56 +6,79 @@ permalink: /csharp/protected-modifier/
 
 # protected 修飾子
 
-[アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) では、どこからでも使える `public` と、同じクラスの中からだけ使える `private` を学びました。継承を使うと、「派生クラスからは使いたいが、クラスの外には公開したくない」メンバーが出てきます。このときに使うのが `protected` です。
+[アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) では、どこからでも使える `public` と、同じクラスの中からだけ使える `private` を学びました。継承を使うと、この 2 つだけでは足りない場面が出てきます。「派生クラスからは使いたいが、クラスの外には公開したくない」メンバーです。このページでは、そのようなメンバーを作る **protected** と、同じアセンブリの中に公開する **internal** を学びます。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
-- `protected` のメンバーを使える範囲を説明できる
-- `public`・`private`・`protected` の違いを比べられる
-- 継承を重ねても、`protected` のメンバーを派生クラスから使えることを確かめられる
+- `private` と `public` だけでは困る場面を説明できる
+- `protected` で、派生クラスからだけ使えるメンバーを作れる
+- `public`・`protected`・`private` のそれぞれで、メンバーを使える場所を比べられる
 - `internal` の意味を説明できる
 
 ## 前提知識
 
-- [継承](/unity-csharp-learning/csharp/inheritance/) を読んでいること
+- [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) を読んでいること
 - [アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) を読んでいること
 
 ---
 
-## 1. アクセス修飾子の比較
+## 1. private では派生クラスから使えない
 
-| 修飾子 | 使える範囲 |
-|---|---|
-| `public` | どこからでも |
-| `private` | 同じクラスの中からだけ |
-| [protected](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/protected) | 同じクラスの中と、派生クラスの中から |
-| [internal](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/internal) | 同じアセンブリ（同じプロジェクトからビルドされたプログラム）の中から |
+[アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) では、HP を負の値にされないように、HP を変える処理をクラスの中に閉じ込めました。`Character` でも同じように、`Hp` の `set` を `private` にし、HP を減らすのは `TakeDamage` メソッドだけにします。
 
-`private` と `protected` の違いは、**派生クラスの中から使えるかどうか** です。どちらも、クラスの外からは使えません。
+プレイヤーには、休憩して HP を回復する `Rest` メソッドを追加したいとします。ところが、`Player` の中から `Hp` を変えようとすると、コンパイルエラーになります。
+
+```csharp
+// ❌ NG: Hp の set は private なので、派生クラスの Player からも使えない
+// class Character
+// {
+//     public string Name { get; }
+//     public int Hp { get; private set; }
+//     ...
+// }
+//
+// class Player : Character
+// {
+//     public void Rest()
+//     {
+//         Hp += 10;  // CS0272
+//     }
+// }
+```
+
+[継承](/unity-csharp-learning/csharp/inheritance/) で学んだように、基底クラスの `private` のメンバーは、派生クラスからも使えません。
+
+それなら `set` を `public` にすればよいかというと、そうすると今度は、クラスの外から `player.Hp = -500;` のように、どんな値でも入れられてしまいます。HP を守るために `private` にしたのが、無駄になります。
+
+欲しいのは、「`Character` とその派生クラスの中からは使えるが、クラスの外からは使えない」という、`private` と `public` の中間の範囲です。
 
 ---
 
 ## 2. protected のメンバー
 
+メンバーに [protected](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/protected) を付けると、そのメンバーは、同じクラスの中と、派生クラスの中から使えるようになります。クラスの外からは使えません。
+
 **書式：[protected のメンバー](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/protected)**
 ```
 protected 型 フィールド名;
 protected 戻り値の型 メソッド名(パラメータ)
+public 型 プロパティ名 { get; protected set; }
 ```
 
-基底クラス `Character` の HP を、派生クラスからは変更できて、クラスの外からは変更できないようにします。
+`Hp` の `set` を `protected` にし、派生クラスで使うためのログ出力のメソッド `Log` も `protected` で用意します。
 
 ```csharp
-Player p = new Player("Alice", 100);
-p.Rest();
-Console.WriteLine($"{p.Name}: HP={p.GetHp()}");
+Player player = new Player("Alice", 100);
+player.TakeDamage(30);
+player.Rest();
+Console.WriteLine($"{player.Name}: HP={player.Hp}");
 
 class Character
 {
     public string Name { get; }
-    protected int Hp;
+    public int Hp { get; protected set; }
 
     public Character(string name, int hp)
     {
@@ -63,9 +86,14 @@ class Character
         Hp = hp;
     }
 
-    public int GetHp()
+    public void TakeDamage(int damage)
     {
-        return Hp;
+        Hp -= damage;
+        if (Hp < 0)
+        {
+            Hp = 0;
+        }
+        Log($"{damage} ダメージを受けた");
     }
 
     protected void Log(string message)
@@ -89,65 +117,81 @@ class Player : Character
 ```
 
 ```
+[Alice] 30 ダメージを受けた
 [Alice] 休憩して HP が 10 回復した
-Alice: HP=110
+Alice: HP=80
 ```
 
-`Hp` と `Log` は `protected` なので、派生クラス `Player` の `Rest` メソッドから使えます。クラスの外から `p.Hp` や `p.Log(...)` と書くと、コンパイルエラーになります。
+`Hp` の `set` と `Log` は `protected` なので、派生クラス `Player` の `Rest` メソッドから使えます。`Hp` の `get` は `public` のままなので、クラスの外からも HP を読むことはできます。
+
+クラスの外から HP を書き換えたり、`Log` を呼び出したりすると、コンパイルエラーになります。
 
 ```csharp
 // ❌ NG: protected のメンバーは、クラスの外からは使えない
-// p.Hp = 999;  // CS0122
+// player.Hp = -500;        // CS0272
+// player.Log("不正な記録");  // CS0122
 ```
 
 ---
 
-## 3. 継承を重ねた場合
+## 3. アクセス修飾子の比較
 
-`protected` のメンバーは、派生クラスのさらに派生クラスからも使えます。
+`public`・`protected`・`private` の違いを、メンバーを使う場所ごとに比べると、次のようになります。
+
+| 修飾子 | 同じクラスの中 | 派生クラスの中 | クラスの外 |
+|---|---|---|---|
+| `public` | 使える | 使える | 使える |
+| `protected` | 使える | 使える | 使えない |
+| `private` | 使える | 使えない | 使えない |
+
+`private` と `protected` の違いは、**派生クラスの中から使えるかどうか** だけです。どちらも、クラスの外からは使えません。
+
+`protected` にしたメンバーは、派生クラスを作る人が使う前提のものです。基底クラスを変更するときは、派生クラスで使われていることを考える必要があります。派生クラスから使う必要のないメンバーは、`private` のままにしておきます。
+
+---
+
+## 4. 継承を重ねた場合
+
+`protected` のメンバーは、派生クラスのさらに派生クラスからも使えます。2 節の `Character` に、`Enemy` と、その派生クラスのボス `Boss` を追加します。`Character` クラスは、2 節と同じものを使います。
 
 ```csharp
-C c = new C();
-c.CallFromB();
-c.CallFromC();
+Boss boss = new Boss("Dragon", 500);
+boss.TakeDamage(30);
+boss.Regenerate();
 
-class A
+class Enemy : Character
 {
-    protected void M()
+    public Enemy(string name, int hp) : base(name, hp)
     {
-        Console.WriteLine("A.M");
     }
 }
 
-class B : A
+class Boss : Enemy
 {
-    public void CallFromB()
+    public Boss(string name, int hp) : base(name, hp)
     {
-        M();
     }
-}
 
-class C : B
-{
-    public void CallFromC()
+    public void Regenerate()
     {
-        M();
+        Hp += 50;
+        Log($"再生した。HP={Hp}");
     }
 }
 ```
 
 ```
-A.M
-A.M
+[Dragon] 30 ダメージを受けた
+[Dragon] 再生した。HP=520
 ```
 
-`C` は `A` を直接継承していませんが、`B` を通して `A` を継承しているので、`A` の `protected` のメンバーを使えます。
+`Boss` は `Character` を直接継承していませんが、`Enemy` を通して `Character` を継承しているので、`Character` の `protected` のメンバーを使えます。
 
 ---
 
-## 4. internal
+## 5. internal
 
-`internal` を付けたメンバーやクラスは、同じアセンブリの中なら、どこからでも使えます。アセンブリは、1 つのプロジェクトをビルドしてできるプログラム（`.dll` や `.exe`）のことです。
+アクセス修飾子には、クラスの継承とは関係のない [internal](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/internal) もあります。`internal` を付けたメンバーやクラスは、同じアセンブリの中なら、どこからでも使えます。**アセンブリ** は、1 つのプロジェクトをビルドしてできるプログラム（`.dll` や `.exe`）のことです。
 
 ```csharp
 Tool t = new Tool();
@@ -172,32 +216,43 @@ Tool.Use
 
 ## よくあるミス
 
-### 派生クラスの中で、基底クラスの型の別のインスタンスの protected メンバーを使う
+### 派生クラスの中で、基底クラスの型の変数を通して protected のメンバーを使う
 
 ```csharp
-// ❌ NG: 基底クラス A の型の変数を通して、protected のメンバーは使えない
-// class A
+// ❌ NG: Character の型の変数を通して、protected のメンバーは使えない
+// class Player : Character
 // {
-//     protected void M() { }
-// }
-//
-// class B : A
-// {
-//     public void Test(A other)
+//     public void HealOther(Character other)
 //     {
-//         other.M();  // CS1540
+//         other.Hp += 10;  // CS1540
 //     }
 // }
 ```
 
-派生クラス `B` の中でも、`protected` のメンバーを使えるのは、自分自身（`M()` や `this.M()`）か、`B` の型の変数を通したときだけです。`A` の型の変数 `other` の実体は、`B` とは関係のない、`A` を継承した別のクラスかもしれないからです。
+派生クラス `Player` の中でも、`protected` のメンバーを使えるのは、自分自身（`Hp` や `this.Hp`）か、`Player` の型の変数を通したときだけです。`Character` の型の変数 `other` の実体は、`Enemy` のような、`Player` とは別の派生クラスかもしれません。`protected` は「自分の派生クラスとしての部分」を使うための許可なので、関係のない別のクラスのインスタンスには使えないのです。
+
+---
+
+## ワンポイントアドバイス
+
+### protected と internal の組み合わせ
+
+`protected` と `internal` を組み合わせた、次の 2 つのアクセス修飾子もあります。
+
+| 修飾子 | 使える場所 |
+|---|---|
+| [protected internal](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/protected-internal) | 同じアセンブリの中か、派生クラスの中（どちらか一方を満たせばよい） |
+| [private protected](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/private-protected) | 同じアセンブリの中にある派生クラスの中（両方を満たす必要がある） |
+
+複数のプロジェクトに分けて、ほかのプロジェクトからも継承されるクラスを作るときに使います。
 
 ---
 
 ## まとめ
 
+- `private` のメンバーは派生クラスから使えず、`public` にするとクラスの外からも使えてしまう
 - `protected` のメンバーは、同じクラスの中と、派生クラスの中から使える。クラスの外からは使えない
-- `private` は派生クラスからも使えず、`protected` は派生クラスから使える
+- `{ get; protected set; }` のように、プロパティの `set` だけを `protected` にすることもできる
 - `protected` のメンバーは、継承を何段重ねても、派生クラスから使える
 - `internal` のメンバーやクラスは、同じアセンブリの中から使える
 
@@ -219,6 +274,7 @@ Tool.Use
    ```
 
 3. `B` が `A` を継承し、`C` が `B` を継承しています。`A` に `protected void M()` があるとき、`C` のメソッドから `M()` を呼び出せますか？
+4. 「クラスの外からは読めるが、書き換えられるのは、そのクラスと派生クラスの中からだけ」という `int` 型のプロパティ `Score` は、どう書きますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
@@ -226,6 +282,7 @@ Tool.Use
 1. どちらもクラスの外からは使えませんが、`private` は同じクラスの中からだけ、`protected` は同じクラスの中と派生クラスの中から使えます。
 2. できません（CS0122）。`protected` のメンバーは、クラスの外からは使えません。
 3. 呼び出せます。`C` は `B` を通して `A` を継承しているので、`A` の `protected` のメンバーを使えます。
+4. `public int Score { get; protected set; }` と書きます。
 
 </details>
 
@@ -233,4 +290,4 @@ Tool.Use
 
 ## 次のステップ
 
-[オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) では、`virtual` と `override` で、派生クラスごとにメソッドの動作を変える仕組みを学びます。
+[オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) では、基底クラスのメソッドの動作を、派生クラスごとに書き換える仕組みを学びます。

@@ -6,16 +6,17 @@ permalink: /csharp/polymorphism/
 
 # オーバーライドとポリモーフィズム
 
-**オーバーライド**（override）は、基底クラスで定義されたメソッドの動作を、派生クラスで書き換える仕組みです。オーバーライドしたメソッドは、基底クラスの型の変数から呼び出しても、インスタンスの実体の型のメソッドが実行されます。この性質を **ポリモーフィズム**（polymorphism、多態性）といいます。
+戦士は剣で、魔法使いは魔法で攻撃するように、同じ「攻撃」でも、キャラクターの種類によって動作を変えたいことがあります。**オーバーライド**（override）は、基底クラスで定義されたメソッドの動作を、派生クラスで書き換える仕組みです。オーバーライドしたメソッドは、基底クラスの型の変数から呼び出しても、インスタンスの実体の型のメソッドが実行されます。この性質を **ポリモーフィズム**（polymorphism、多態性）といいます。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
+- 種類ごとの動作の違いを `is` の分岐で書くと何が困るかを説明できる
 - `virtual` と `override` で、基底クラスのメソッドを派生クラスで書き換えられる
 - 基底クラスの型の変数から呼び出しても、実体の型のメソッドが実行されることを説明できる
-- 基底クラスの型の配列で、いろいろな派生クラスのインスタンスをまとめて扱える
 - `base.メソッド名()` で、オーバーライドする前の基底クラスのメソッドを呼び出せる
+- `object` の `ToString` をオーバーライドできる
 
 ## 前提知識
 
@@ -24,9 +25,93 @@ permalink: /csharp/polymorphism/
 
 ---
 
-## 1. virtual と override
+## 1. 種類ごとに動作を変えたい
 
-基底クラスのメソッドに [virtual](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/virtual) を付けると、派生クラスでオーバーライドできるようになります。派生クラスでは、同じシグネチャのメソッドに [override](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/override) を付けて、動作を書き換えます。
+パーティーに、剣で戦う戦士 `Warrior` と、魔法を使う魔法使い `Wizard` がいるとします。どちらも `Character` の派生クラスで、`Character` の型の配列にまとめてあります。全員に順に攻撃させたいのですが、攻撃の仕方は種類ごとに違います。
+
+[型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) で学んだ型パターンを使うと、次のように書けます。途中で、弓で戦う弓使い `Archer` も仲間に加えました。
+
+```csharp
+Character[] party =
+{
+    new Warrior("Alice"),
+    new Wizard("Bob"),
+    new Archer("Carol")
+};
+
+foreach (Character c in party)
+{
+    if (c is Warrior warrior)
+    {
+        warrior.Slash();
+    }
+    else if (c is Wizard wizard)
+    {
+        wizard.CastFire();
+    }
+}
+
+class Character
+{
+    public string Name { get; }
+
+    public Character(string name)
+    {
+        Name = name;
+    }
+}
+
+class Warrior : Character
+{
+    public Warrior(string name) : base(name) { }
+
+    public void Slash()
+    {
+        Console.WriteLine($"{Name} は剣で斬りつけた");
+    }
+}
+
+class Wizard : Character
+{
+    public Wizard(string name) : base(name) { }
+
+    public void CastFire()
+    {
+        Console.WriteLine($"{Name} は炎の魔法を唱えた");
+    }
+}
+
+class Archer : Character
+{
+    public Archer(string name) : base(name) { }
+
+    public void Shoot()
+    {
+        Console.WriteLine($"{Name} は矢を放った");
+    }
+}
+```
+
+```
+Alice は剣で斬りつけた
+Bob は炎の魔法を唱えた
+```
+
+弓使いの `Carol` が攻撃していません。`Archer` クラスを追加したのに、`foreach` の中の分岐に `Archer` を書き足し忘れたからです。コンパイラーは、この書き忘れを教えてくれません。
+
+この書き方には、次の問題があります。
+
+- キャラクターの種類を追加するたびに、種類で分岐しているすべての場所を探して書き足す必要がある
+- 書き足し忘れても、エラーにならず、黙って何もしない
+- 攻撃の仕方を知っているのは各クラスなのに、呼び出す側が種類ごとのメソッド名を知っている必要がある
+
+呼び出す側は、どのキャラクターにも同じ `c.Attack()` と書くだけにして、何をするかは各クラスが決める、という形にできれば、これらの問題はなくなります。
+
+---
+
+## 2. virtual と override
+
+基底クラスのメソッドに [virtual](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/virtual) を付けると、派生クラスでそのメソッドの動作を書き換えられるようになります。派生クラスでは、同じ名前・同じパラメータのメソッドに [override](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/override) を付けて、新しい動作を書きます。これを **オーバーライド** といいます。
 
 **書式：[virtual メソッドと override メソッド](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/override)**
 ```
@@ -45,83 +130,17 @@ permalink: /csharp/polymorphism/
 
 | 要素 | 説明 |
 |---|---|
-| `virtual` | 派生クラスでオーバーライドしてよいことを表す |
+| `virtual` | 派生クラスでオーバーライドしてよいことを表す。派生クラスがオーバーライドしなければ、この動作が使われる |
 | `override` | 基底クラスの `virtual` のメソッドを書き換えることを表す。名前・パラメータ・戻り値の型・アクセス修飾子を、基底クラスのメソッドと同じにする |
 
-```csharp
-A a = new A();
-a.M();
-
-B b = new B();
-b.M();
-
-class A
-{
-    public virtual void M()
-    {
-        Console.WriteLine("A.M");
-    }
-}
-
-class B : A
-{
-    public override void M()
-    {
-        Console.WriteLine("B.M");
-    }
-}
-```
-
-```
-A.M
-B.M
-```
-
-`virtual` を付けていないメソッドは、オーバーライドできません（よくあるミスを参照）。
-
----
-
-## 2. ポリモーフィズム
-
-オーバーライドしたメソッドは、基底クラスの型の変数から呼び出しても、**インスタンスの実体の型** のメソッドが実行されます。
-
-```csharp
-A x = new B();
-x.M();
-
-class A
-{
-    public virtual void M()
-    {
-        Console.WriteLine("A.M");
-    }
-}
-
-class B : A
-{
-    public override void M()
-    {
-        Console.WriteLine("B.M");
-    }
-}
-```
-
-```
-B.M
-```
-
-変数 `x` の型は `A` ですが、実体は `B` なので、`B` の `M` が実行されます。どのメソッドを実行するかが、実行したときの実体の型で決まることを、**動的ディスパッチ** といいます。
-
-### 基底クラスの型でまとめて扱う
-
-ポリモーフィズムを使うと、いろいろな派生クラスのインスタンスを、基底クラスの型の配列にまとめて、同じ書き方で扱えます。
+1 節の例を、`Character` の `virtual` の `Attack` メソッドと、それをオーバーライドする形に書き直します。
 
 ```csharp
 Character[] party =
 {
     new Warrior("Alice"),
     new Wizard("Bob"),
-    new Warrior("Carol")
+    new Archer("Carol")
 };
 
 foreach (Character c in party)
@@ -146,9 +165,7 @@ class Character
 
 class Warrior : Character
 {
-    public Warrior(string name) : base(name)
-    {
-    }
+    public Warrior(string name) : base(name) { }
 
     public override void Attack()
     {
@@ -158,46 +175,120 @@ class Warrior : Character
 
 class Wizard : Character
 {
-    public Wizard(string name) : base(name)
-    {
-    }
+    public Wizard(string name) : base(name) { }
 
     public override void Attack()
     {
         Console.WriteLine($"{Name} は炎の魔法を唱えた");
     }
 }
+
+class Archer : Character
+{
+    public Archer(string name) : base(name) { }
+}
 ```
 
 ```
 Alice は剣で斬りつけた
 Bob は炎の魔法を唱えた
-Carol は剣で斬りつけた
+Carol の攻撃
 ```
 
-`foreach` の中では、`c.Attack()` と同じ書き方で呼び出しているだけですが、実体が `Warrior` か `Wizard` かによって、違う動作になります。新しい種類のキャラクターを追加するときも、`Character` を継承して `Attack` をオーバーライドするだけで、この `foreach` を書き換える必要はありません。
+`foreach` の中は、`c.Attack()` の 1 行だけになりました。それでも、実体が `Warrior` なら剣で、`Wizard` なら魔法で攻撃します。`Archer` は `Attack` をオーバーライドしていないので、`Character` の `virtual` の `Attack` がそのまま使われます。
+
+新しい種類のキャラクターを追加するときは、`Character` を継承して `Attack` をオーバーライドするだけです。呼び出す側の `foreach` を書き換える必要はありません。
 
 ```mermaid
 classDiagram
     Character <|-- Warrior
     Character <|-- Wizard
+    Character <|-- Archer
     class Character {
         +Name string
-        +Attack()
+        +virtual Attack()
     }
     class Warrior {
-        +Attack()
+        +override Attack()
     }
     class Wizard {
-        +Attack()
+        +override Attack()
     }
 ```
 
 ---
 
-## 3. base で基底クラスのメソッドを呼び出す
+## 3. 実体の型でメソッドが決まる
 
-オーバーライドしたメソッドの中で、[base](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/base) を使って `base.メソッド名()` と書くと、オーバーライドする前の、基底クラスのメソッドを呼び出せます。基底クラスの処理に、処理を付け足したいときに使います。
+[型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) では、変数の型によって、使えるメンバーが決まることを学びました。`c.Attack()` と書けるのは、`c` の変数の型 `Character` が `Attack` を持っているからです。
+
+しかし、`virtual` のメソッドを呼び出したときに **どのクラスの** `Attack` が実行されるかは、変数の型ではなく、実行したときの **実体の型** で決まります。
+
+```mermaid
+flowchart TD
+    A["c.Attack() を呼び出す<br/>（c の変数の型は Character）"] --> B{"c の実体の型は？"}
+    B -- Warrior --> W["Warrior の Attack を実行"]
+    B -- Wizard --> Z["Wizard の Attack を実行"]
+    B -- Archer --> R["Archer はオーバーライドしていないので<br/>Character の Attack を実行"]
+```
+
+このように、実行するメソッドを実行時に実体の型から選ぶことを **動的ディスパッチ**（dynamic dispatch）といいます。`virtual` の付いていないふつうのメソッドは、コンパイルしたときに、変数の型のメソッドに決まります。
+
+| | 使えるメンバーを決めるもの | 実行されるメソッドを決めるもの |
+|---|---|---|
+| ふつうのメソッド | 変数の型 | 変数の型 |
+| `virtual` のメソッド | 変数の型 | 実体の型 |
+
+### 基底クラスの中から呼び出したとき
+
+動的ディスパッチは、基底クラスの中から `virtual` のメソッドを呼び出したときにも働きます。`Character` に、自分のターンの処理をまとめた `TakeTurn` メソッドを追加します。`Warrior` と `Wizard` は 2 節と同じものを使います。
+
+```csharp
+Character[] party = { new Warrior("Alice"), new Wizard("Bob") };
+
+foreach (Character c in party)
+{
+    c.TakeTurn();
+}
+
+class Character
+{
+    public string Name { get; }
+
+    public Character(string name)
+    {
+        Name = name;
+    }
+
+    public void TakeTurn()
+    {
+        Console.WriteLine($"--- {Name} のターン ---");
+        Attack();
+    }
+
+    public virtual void Attack()
+    {
+        Console.WriteLine($"{Name} の攻撃");
+    }
+}
+```
+
+```
+--- Alice のターン ---
+Alice は剣で斬りつけた
+--- Bob のターン ---
+Bob は炎の魔法を唱えた
+```
+
+`TakeTurn` は `Character` のメソッドで、`Warrior` も `Wizard` も書き換えていません。それでも、中で呼び出している `Attack()` は、実体の型でオーバーライドされたメソッドが実行されます。基底クラスに処理の流れを書いておき、流れの中の一部分だけを派生クラスごとに変える、という使い方ができます。
+
+---
+
+## 4. base で基底クラスのメソッドを呼び出す
+
+オーバーライドするときに、基底クラスの動作をすべて書き換えるのではなく、基底クラスの動作に処理を付け足したいことがあります。オーバーライドしたメソッドの中で、[base](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/base) を使って `base.メソッド名()` と書くと、オーバーライドする前の、基底クラスのメソッドを呼び出せます。
+
+騎士 `Knight` は、ふつうの攻撃をした後に、盾で押し返します。
 
 ```csharp
 Character c = new Knight("Alice");
@@ -220,9 +311,7 @@ class Character
 
 class Knight : Character
 {
-    public Knight(string name) : base(name)
-    {
-    }
+    public Knight(string name) : base(name) { }
 
     public override void Attack()
     {
@@ -237,11 +326,13 @@ Alice の攻撃
 さらに盾で押し返した
 ```
 
+`base.Attack()` で `Character` の `Attack` を実行してから、`Knight` 独自の処理を続けています。基底クラスの `Attack` の内容が後で変わっても、`Knight` はその変更をそのまま引き継げます。
+
 ---
 
-## 4. object のメソッドをオーバーライドする
+## 5. object のメソッドをオーバーライドする
 
-すべてのクラスが継承している `object` の [ToString](https://learn.microsoft.com/dotnet/api/system.object.tostring) メソッドは、`virtual` です。オーバーライドすると、インスタンスを文字列にしたときの表示を決められます。`Console.WriteLine` や文字列補間は、インスタンスを表示するときに `ToString` を呼び出します。
+すべてのクラスが継承している `object` の [ToString](https://learn.microsoft.com/dotnet/api/system.object.tostring) メソッドは、`virtual` です。`Console.WriteLine` や文字列補間は、インスタンスを表示するときに、そのインスタンスの `ToString` を呼び出します。`ToString` をオーバーライドすると、インスタンスを文字列にしたときの表示を決められます。
 
 ```csharp
 Item a = new Item("回復薬", 50);
@@ -271,7 +362,7 @@ class Item
 買った物: 回復薬（50 G）
 ```
 
-`ToString` をオーバーライドしないと、`Item` のように、型の名前が表示されます。
+`Console.WriteLine` は、`Item` のことを何も知りません。`object` の `ToString` を呼び出しているだけです。それでも `Item` の `ToString` が実行されるのは、動的ディスパッチによって、実体の型のメソッドが選ばれるからです。`ToString` をオーバーライドしないと、`object` の `ToString` が使われ、`Item` のように型の名前が表示されます。
 
 `object` の `Equals` と `GetHashCode` も `virtual` です。[演算子のオーバーロード](/unity-csharp-learning/csharp/operator-overloading/) で `==` を定義したときにオーバーライドしたのは、この 2 つのメソッドです。
 
@@ -282,54 +373,66 @@ class Item
 ### virtual のないメソッドをオーバーライドする
 
 ```csharp
-// ❌ NG: A.M に virtual がないので、オーバーライドできない
-// class A
+// ❌ NG: Character の Attack に virtual がないので、オーバーライドできない
+// class Character
 // {
-//     public void M() { }
+//     public void Attack() { }
 // }
 //
-// class B : A
+// class Warrior : Character
 // {
-//     public override void M() { }  // CS0506
+//     public override void Attack() { }  // CS0506
 // }
 ```
+
+オーバーライドできるのは、基底クラスで `virtual`（や、後で学ぶ `abstract`）が付いたメソッドだけです。基底クラスを作るときに、派生クラスで書き換えてよいメソッドを `virtual` で選んでおきます。
 
 ### override を付け忘れる
 
 ```csharp
-A x = new B();
-x.M();
+Character c = new Warrior("Alice");
+c.Attack();
 
-class A
+class Character
 {
-    public virtual void M()
+    public string Name { get; }
+
+    public Character(string name)
     {
-        Console.WriteLine("A.M");
+        Name = name;
+    }
+
+    public virtual void Attack()
+    {
+        Console.WriteLine($"{Name} の攻撃");
     }
 }
 
-class B : A
+class Warrior : Character
 {
-    public void M()
+    public Warrior(string name) : base(name) { }
+
+    public void Attack()
     {
-        Console.WriteLine("B.M");
+        Console.WriteLine($"{Name} は剣で斬りつけた");
     }
 }
 ```
 
 ```
-A.M
+Alice の攻撃
 ```
 
-`B` の `M` に `override` がないので、オーバーライドにはならず、`A` の `M` を隠す別のメソッドとして扱われます。基底クラスの型の変数から呼び出すと、`A` の `M` が実行されます。コンパイラーは警告（CS0114）で知らせます。メソッドを隠すことについては、次のページで学びます。
+`Warrior` の `Attack` に `override` がないので、オーバーライドにはならず、`Character` の `Attack` を隠す別のメソッドとして扱われます。`Character` の型の変数から呼び出すと、`Character` の `Attack` が実行されます。コンパイラーは警告（CS0114）で知らせます。メソッドを隠すことについては、次のページで学びます。
 
 ---
 
 ## まとめ
 
-- 基底クラスのメソッドに `virtual` を付けると、派生クラスで `override` を付けて書き換えられる
-- オーバーライドしたメソッドは、基底クラスの型の変数から呼び出しても、実体の型のメソッドが実行される（ポリモーフィズム）
-- 基底クラスの型の配列を使うと、いろいろな派生クラスのインスタンスを同じ書き方で扱える
+- 種類ごとの動作の違いを `is` の分岐で書くと、種類を追加するたびに分岐を書き足す必要があり、書き忘れても気付けない
+- 基底クラスのメソッドに `virtual` を付けると、派生クラスで `override` を付けて書き換えられる。オーバーライドしなければ、基底クラスの動作が使われる
+- `virtual` のメソッドは、基底クラスの型の変数から呼び出しても、実体の型のメソッドが実行される（ポリモーフィズム、動的ディスパッチ）
+- 基底クラスの中から呼び出したときも、実体の型のメソッドが実行される
 - `base.メソッド名()` で、オーバーライドする前の基底クラスのメソッドを呼び出せる
 - `object` の `ToString`・`Equals`・`GetHashCode` もオーバーライドできる
 
@@ -363,7 +466,8 @@ A.M
    }
    ```
 
-3. 次の `Point` クラスで `ToString` をオーバーライドし、`Console.WriteLine(new Point(1, 2));` で `(1, 2)` と表示されるようにしてください。
+3. 1 節のように `is` で種類ごとに分岐する書き方と比べて、オーバーライドを使う書き方の利点を説明してください。
+4. 次の `Point` クラスで `ToString` をオーバーライドし、`Console.WriteLine(new Point(1, 2));` で `(1, 2)` と表示されるようにしてください。
 
    ```csharp
    class Point
@@ -391,7 +495,8 @@ A.M
    ...
    ```
 
-3. ```csharp
+3. 呼び出す側は `c.Attack()` のように同じ書き方をするだけで、何をするかは各クラスが決めます。種類を追加しても、呼び出す側を書き換える必要がありません。また、種類ごとのメソッド名を呼び出す側が知っている必要もなくなります。
+4. ```csharp
    Console.WriteLine(new Point(1, 2));
 
    class Point

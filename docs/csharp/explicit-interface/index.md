@@ -6,14 +6,15 @@ permalink: /csharp/explicit-interface/
 
 # インターフェイスの明示的実装
 
-1 つのクラスで、同じ名前のメンバーを持つ 2 つのインターフェイスを実装すると、ふつうの書き方では、両方のインターフェイスに同じ実装が使われます。**明示的実装**（explicit implementation）を使うと、どのインターフェイスのメンバーを実装するのかを指定して、それぞれに別の実装を用意できます。
+1 つのクラスで複数のインターフェイスを実装すると、別々のインターフェイスが、たまたま同じ名前のメンバーを持っていることがあります。ふつうの書き方では、1 つのメンバーが両方のインターフェイスの実装になり、区別できません。**明示的実装**（explicit implementation）を使うと、どのインターフェイスのメンバーを実装するのかを指定して、それぞれに別の実装を用意できます。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
+- 同じ名前のメンバーを持つインターフェイスを、ふつうの書き方で実装すると困る場面を説明できる
 - インターフェイスのメンバーを、明示的実装で定義できる
-- 明示的実装のメンバーは、インターフェイスの型の変数からだけ呼び出せることを説明できる
+- 明示的実装のメンバーは、インターフェイスの型を通してだけ呼び出せることを説明できる
 - 暗黙的実装と明示的実装の違いを説明できる
 
 ## 前提知識
@@ -24,46 +25,53 @@ permalink: /csharp/explicit-interface/
 
 ## 1. 同じ名前のメンバーを持つインターフェイス
 
-`IFoo` と `IBar` が、どちらも `void M()` を宣言しているとします。[インターフェイス](/unity-csharp-learning/csharp/interfaces/) で学んだ書き方で `public void M()` を 1 つ定義すると、その `M` が、`IFoo` の `M` と `IBar` の `M` の両方の実装になります。このような、ふつうの実装の書き方を **暗黙的実装** といいます。
+ゲームに、宝箱に化けたモンスター「ミミック」を登場させます。ミミックは、宝箱として調べることも、モンスターとして戦うこともできるので、2 つのインターフェイスを実装します。
+
+- `ITreasure`：宝箱として扱うためのインターフェイス。`Describe` は、プレイヤーが調べたときの説明を返す
+- `IMonster`：モンスターとして扱うためのインターフェイス。`Describe` は、戦闘中に表示する説明を返す
+
+2 つのインターフェイスは別々に作られたもので、どちらも `string Describe()` を宣言しています。[インターフェイス](/unity-csharp-learning/csharp/interfaces/) で学んだ書き方で、`public string Describe()` を 1 つ定義すると、その `Describe` が、`ITreasure` の `Describe` と `IMonster` の `Describe` の両方の実装になります。このような、ふつうの実装の書き方を **暗黙的実装**（implicit implementation）といいます。
 
 ```csharp
-A a = new A();
+Mimic mimic = new Mimic();
 
-IFoo x = a;
-x.M();
+ITreasure treasure = mimic;
+Console.WriteLine($"調べる: {treasure.Describe()}");
 
-IBar y = a;
-y.M();
+IMonster monster = mimic;
+Console.WriteLine($"戦闘: {monster.Describe()}");
 
-interface IFoo
+interface ITreasure
 {
-    void M();
+    string Describe();
 }
 
-interface IBar
+interface IMonster
 {
-    void M();
+    string Describe();
 }
 
-class A : IFoo, IBar
+class Mimic : ITreasure, IMonster
 {
-    public void M()
+    public string Describe()
     {
-        Console.WriteLine("A.M");
+        return "ミミック（宝箱に化けたモンスター）";
     }
 }
 ```
 
 ```
-A.M
-A.M
+調べる: ミミック（宝箱に化けたモンスター）
+戦闘: ミミック（宝箱に化けたモンスター）
 ```
 
-`IFoo` として呼び出しても、`IBar` として呼び出しても、同じ `A.M` が実行されます。`IFoo` の `M` と `IBar` の `M` で、別々の動作をさせたいときは、明示的実装を使います。
+宝箱として調べたときにも、正体がわかる説明が表示されてしまいました。`ITreasure` の `Describe` と `IMonster` の `Describe` は、名前が同じでも意味が違います。宝箱として調べたときは「ふつうの宝箱」に、戦闘中は「ミミック」に見せたいのですが、暗黙的実装では 1 つのメソッドしか書けないので、区別できません。
 
 ---
 
 ## 2. 明示的実装の書き方
+
+メンバーの名前の前に `インターフェイス名.` を付けて定義すると、そのインターフェイスのメンバーだけの実装になります。これを **明示的実装** といいます。
 
 **書式：[明示的実装](https://learn.microsoft.com/dotnet/csharp/programming-guide/interfaces/explicit-interface-implementation)**
 ```
@@ -78,86 +86,78 @@ A.M
 | アクセス修飾子 | 書かない |
 | `インターフェイス名.メソッド名` | どのインターフェイスのメンバーを実装するのかを指定する |
 
+1 節の `Mimic` を、明示的実装で書き直します。
+
 ```csharp
-A a = new A();
+Mimic mimic = new Mimic();
 
-IFoo x = a;
-x.M();
+ITreasure treasure = mimic;
+Console.WriteLine($"調べる: {treasure.Describe()}");
 
-IBar y = a;
-y.M();
+IMonster monster = mimic;
+Console.WriteLine($"戦闘: {monster.Describe()}");
 
-interface IFoo
+interface ITreasure
 {
-    void M();
+    string Describe();
 }
 
-interface IBar
+interface IMonster
 {
-    void M();
+    string Describe();
 }
 
-class A : IFoo, IBar
+class Mimic : ITreasure, IMonster
 {
-    void IFoo.M()
+    string ITreasure.Describe()
     {
-        Console.WriteLine("IFoo.M");
+        return "古びた宝箱だ。中に何か入っていそうだ";
     }
 
-    void IBar.M()
+    string IMonster.Describe()
     {
-        Console.WriteLine("IBar.M");
+        return "ミミックが正体を現した！";
     }
 }
 ```
 
 ```
-IFoo.M
-IBar.M
+調べる: 古びた宝箱だ。中に何か入っていそうだ
+戦闘: ミミックが正体を現した！
 ```
 
-同じインスタンス `a` でも、`IFoo` の型の変数から呼び出すと `IFoo.M` が、`IBar` の型の変数から呼び出すと `IBar.M` が実行されます。
+同じインスタンス `mimic` でも、`ITreasure` の型の変数から呼び出すと `ITreasure.Describe` が、`IMonster` の型の変数から呼び出すと `IMonster.Describe` が実行されます。どちらの `Describe` が呼ばれるかは、どのインターフェイスとして扱っているかで決まります。
 
 ---
 
 ## 3. 明示的実装のメンバーの呼び出し方
 
-明示的実装のメンバーは、クラスの型の変数からは呼び出せません。インターフェイスの型の変数に入れるか、インターフェイスの型にキャストしてから呼び出します。
+明示的実装のメンバーは、クラスの型の変数からは呼び出せません。`mimic.Describe()` と書いても、`ITreasure` と `IMonster` のどちらの `Describe` なのかが決まらないからです。明示的実装のメンバーは、クラスのメンバーとしては公開されず、インターフェイスのメンバーとしてだけ存在します。
+
+呼び出すには、インターフェイスの型の変数に入れるか、インターフェイスの型にキャストします。2 節の `ITreasure`・`IMonster`・`Mimic` を使います。
 
 ```csharp
-A a = new A();
+Mimic mimic = new Mimic();
 
-((IFoo)a).M();
+Console.WriteLine(((ITreasure)mimic).Describe());
+Console.WriteLine(((IMonster)mimic).Describe());
 
-IFoo foo = a;
-foo.M();
-
-interface IFoo
-{
-    void M();
-}
-
-class A : IFoo
-{
-    void IFoo.M()
-    {
-        Console.WriteLine("IFoo.M");
-    }
-}
+// ❌ NG: 明示的実装のメンバーは、クラスの型の変数から呼び出せない（CS1061）
+// Console.WriteLine(mimic.Describe());
 ```
 
 ```
-IFoo.M
-IFoo.M
+古びた宝箱だ。中に何か入っていそうだ
+ミミックが正体を現した！
 ```
 
-```csharp
-// ❌ NG: 明示的実装のメンバーは、クラスの型の変数から呼び出せない
-// A a = new A();
-// a.M();  // CS1061
-```
+`(ITreasure)mimic` はアップキャストなので、失敗することはありません。外側の `( )` は、キャストした結果に対して `.Describe()` を呼び出すために必要です。
 
-この性質を利用して、インターフェイスとして使うときにだけ必要なメンバーを、クラスの型から見えないようにする目的でも、明示的実装が使われます。
+### インターフェイスとして使うときだけ必要なメンバーを隠す
+
+名前が衝突していなくても、明示的実装が使われることがあります。クラスの型の変数からは呼び出せないという性質を利用して、「インターフェイスとして使うときにだけ必要で、ふだんクラスを使う人には見せなくてよい」メンバーを、クラスのメンバーの一覧から隠すためです。
+
+たとえば、後で学ぶ [IEnumerable\<T\> と foreach の仕組み](/unity-csharp-learning/csharp/ienumerable/) では、古い仕組みとの互換性のためだけに必要なメンバーを、明示的実装で定義します。
 
 ---
 
@@ -165,11 +165,13 @@ IFoo.M
 
 | | 暗黙的実装 | 明示的実装 |
 |---|---|---|
-| 書き方 | `public void M() { }` | `void IFoo.M() { }` |
+| 書き方 | `public string Describe() { }` | `string ITreasure.Describe() { }` |
 | アクセス修飾子 | `public` を書く | 書かない |
 | クラスの型の変数から呼び出す | できる | できない |
 | インターフェイスの型の変数から呼び出す | できる | できる |
 | 同じ名前のメンバーを、インターフェイスごとに別の実装にする | できない | できる |
+
+ふだんは暗黙的実装を使い、名前が衝突して区別が必要なときや、クラスの型からメンバーを隠したいときに、明示的実装を使います。1 つのクラスの中で、あるインターフェイスは暗黙的実装、別のインターフェイスは明示的実装、と組み合わせることもできます（理解度チェックの 2 を参照）。
 
 ---
 
@@ -179,10 +181,11 @@ IFoo.M
 
 ```csharp
 // ❌ NG: 明示的実装にはアクセス修飾子を付けられない
-// class A : IFoo
+// class Mimic : ITreasure
 // {
-//     public void IFoo.M()  // CS0106
+//     public string ITreasure.Describe()  // CS0106
 //     {
+//         return "古びた宝箱だ";
 //     }
 // }
 ```
@@ -193,9 +196,10 @@ IFoo.M
 
 ## まとめ
 
+- 同じ名前のメンバーを持つ複数のインターフェイスを暗黙的実装すると、1 つのメンバーが両方の実装になり、区別できない
 - 明示的実装は、`戻り値の型 インターフェイス名.メソッド名() { }` の形で書く。アクセス修飾子は付けない
 - 明示的実装のメンバーは、インターフェイスの型の変数（またはキャスト）を通してだけ呼び出せる
-- 複数のインターフェイスに同じ名前のメンバーがあるとき、明示的実装で、それぞれに別の実装を用意できる
+- 明示的実装は、名前が衝突したときの区別のほか、クラスの型からメンバーを隠すためにも使われる
 
 ---
 
