@@ -6,184 +6,340 @@ permalink: /csharp/generic-methods/
 
 # ジェネリックメソッド
 
-型パラメータはクラス全体ではなく、**メソッド単体**に付けることもできます。特定のメソッドだけを汎用化したいときや、型推論を活用して呼び出し側を簡潔に書きたいときに使います。
+型パラメータは、クラスだけでなく、メソッドにも付けられます。型パラメータを持つメソッドを **ジェネリックメソッド**（generic method）といいます。このページでは、ジェネリックメソッドの定義と呼び出し方、型引数を省略できる型推論、クラスの型パラメータとの違いを学びます。
 
 ## 学習目標
 
-- メソッドに型パラメータを付ける書き方を理解できる
-- 型推論により `<T>` の省略ができる場面と条件を説明できる
-- ジェネリッククラスのメソッドとの使い分けを判断できる
+このページを読み終えると、以下のことができるようになります。
+
+- ジェネリックメソッドを定義して、型引数を指定して呼び出せる
+- 型推論で型引数を省略できる場合と、省略できない場合を説明できる
+- クラスの型パラメータとメソッドの型パラメータの違いを説明し、使い分けられる
 
 ## 前提知識
 
 - [ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) を読んでいること
+- [ref / out / in パラメータ](/unity-csharp-learning/csharp/ref-out-in/) を読んでいること
+- [static メンバーと static クラス](/unity-csharp-learning/csharp/static-members/) を読んでいること
 
 ---
 
-## 1. ジェネリックメソッドの定義
+## 1. 型だけが違うメソッド
 
-**書式：ジェネリックメソッドの定義**
+2 つの変数の値を入れ替えるメソッドを、[ref / out / in パラメータ](/unity-csharp-learning/csharp/ref-out-in/) で学んだ `ref` を使って書きます。`int` と `string` の両方で使いたいので、オーバーロードを 2 つ定義します。
+
+```csharp
+int a = 1;
+int b = 2;
+Util.Swap(ref a, ref b);
+Console.WriteLine($"a={a}, b={b}");
+
+string x = "left";
+string y = "right";
+Util.Swap(ref x, ref y);
+Console.WriteLine($"x={x}, y={y}");
+
+static class Util
+{
+    public static void Swap(ref int left, ref int right)
+    {
+        int temp = left;
+        left = right;
+        right = temp;
+    }
+
+    public static void Swap(ref string left, ref string right)
+    {
+        string temp = left;
+        left = right;
+        right = temp;
+    }
+}
 ```
-戻り値の型 メソッド名<型パラメータ>(引数リスト)
+
+```
+a=2, b=1
+x=right, y=left
+```
+
+2 つの `Swap` は、型が違うだけで処理はまったく同じです。`double` や `bool` でも使いたくなれば、同じメソッドをさらに書き足すことになります。
+
+[ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) で学んだジェネリッククラスで解決しようとすると、`Swap` を呼ぶために `new SwapHelper<int>()` のようなインスタンスを作ることになります。`Swap` はデータを持たないので、インスタンスを作る意味がありません。このようなときは、メソッドに型パラメータを付けます。
+
+---
+
+## 2. ジェネリックメソッドを定義する
+
+メソッド名の直後に `<T>` を書くと、そのメソッドの中で `T` を型として使えます。
+
+**書式：[ジェネリックメソッドの定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/generics/generic-methods)**
+```
+アクセス修飾子 戻り値の型 メソッド名<型パラメータ>(パラメータリスト)
 {
 }
 ```
 
 | 要素 | 説明 |
 |---|---|
-| `<型パラメータ>` | メソッド名の直後に書く。戻り値の型や引数の型として使える |
+| `<型パラメータ>` | メソッド名の直後に書く。戻り値の型・パラメータの型・メソッドの中の変数の型として使える |
+
+呼び出すときは、メソッド名の直後に型引数を書きます。
+
+**書式：[ジェネリックメソッドの呼び出し](https://learn.microsoft.com/dotnet/csharp/programming-guide/generics/generic-methods)**
+```
+メソッド名<型引数>(引数)
+```
+
+1 節の 2 つの `Swap` を、1 つのジェネリックメソッドにまとめます。
 
 ```csharp
-static T Identity<T>(T value)
+int a = 1;
+int b = 2;
+Util.Swap<int>(ref a, ref b);
+Console.WriteLine($"a={a}, b={b}");
+
+string x = "left";
+string y = "right";
+Util.Swap<string>(ref x, ref y);
+Console.WriteLine($"x={x}, y={y}");
+
+static class Util
 {
-    return value;
+    public static void Swap<T>(ref T left, ref T right)
+    {
+        T temp = left;
+        left = right;
+        right = temp;
+    }
 }
 ```
 
-```csharp
-int n = Identity<int>(42);
-string s = Identity<string>("hello");
+```
+a=2, b=1
+x=right, y=left
 ```
 
-```
-42
-hello
-```
+`Swap<int>` と呼び出すと `T` が `int` に、`Swap<string>` と呼び出すと `T` が `string` になります。メソッドの中では、`T temp` のように、ローカル変数の型にも `T` を使えます。
+
+`Util` はジェネリッククラスではありません。ジェネリックメソッドは、ふつうのクラスにも、`static` メソッドとしてもインスタンスメソッドとしても定義できます。
 
 ---
 
-## 2. 型推論
+## 3. 型推論
 
-引数の型からコンパイラが `T` を推論できる場合、`<T>` を省略できます。
-
-```csharp
-int n = Identity(42);       // T = int と推論される
-string s = Identity("hi");  // T = string と推論される
-```
-
-型推論が効くのは **型パラメータが引数の型に現れる場合**です。戻り値だけに `T` が出てくる場合は推論できないため、明示的に指定が必要になります。
+ジェネリックメソッドを呼び出すとき、型引数を省略できることがあります。コンパイラーが、渡した引数の型から型引数を決めるからです。これを **型推論**（type inference）といいます。
 
 ```csharp
-// 戻り値にのみ T が使われる例: 推論不可
-T Default<T>()
+int a = 1;
+int b = 2;
+Util.Swap(ref a, ref b);  // a と b が int なので、T = int
+Console.WriteLine($"a={a}, b={b}");
+
+string[] words = Util.Repeat("ha", 3);  // "ha" が string なので、T = string
+Console.WriteLine(string.Join(", ", words));
+
+int[] zeros = Util.Repeat(0, 4);  // 0 が int なので、T = int
+Console.WriteLine(string.Join(", ", zeros));
+
+static class Util
 {
-    return default;
-}
+    public static void Swap<T>(ref T left, ref T right)
+    {
+        T temp = left;
+        left = right;
+        right = temp;
+    }
 
-// 呼び出し側は型を明示する必要がある
-int zero = Default<int>();
+    // value を count 個並べた配列を返す
+    public static T[] Repeat<T>(T value, int count)
+    {
+        T[] items = new T[count];
+        for (int i = 0; i < count; i++)
+        {
+            items[i] = value;
+        }
+        return items;
+    }
+}
 ```
 
----
+```
+a=2, b=1
+ha, ha, ha
+0, 0, 0, 0
+```
 
-## 3. 複数のパラメータと戻り値への応用
+`Repeat` の戻り値の型 `T[]` も、推論された `T` に合わせて `string[]` や `int[]` になります。型引数を書かなくても、コンパイラーは型を正しく扱います。型推論は、型引数を書く手間を省くだけで、型のチェックが緩くなるわけではありません。
 
-型パラメータが引数に複数現れる場合も書き方は同じです。
+### 型推論できないとき
+
+型推論に使われるのは、**引数** の型だけです。型パラメータがパラメータの型に現れないメソッドでは、型引数を推論できないので、型引数を書く必要があります。
 
 ```csharp
-static Pair<T1, T2> MakePair<T1, T2>(T1 first, T2 second)
+double[] values = Util.CreateArray<double>(3);
+Console.WriteLine(string.Join(", ", values));
+
+// ❌ NG: T を決める手がかりになる引数がない（CS0411）
+// double[] values2 = Util.CreateArray(3);
+
+static class Util
 {
-    return new Pair<T1, T2>(first, second);
+    // 長さ length の T の配列を返す
+    public static T[] CreateArray<T>(int length)
+    {
+        return new T[length];
+    }
 }
 ```
 
-```csharp
-Pair<int, string> p = MakePair(1, "alpha");  // T1=int, T2=string と推論される
+```
+0, 0, 0
 ```
 
-> 💡 **ポイント**: 型推論は左辺の型ではなく、**渡した引数の型**を見て行われます。
+`CreateArray` のパラメータは `int length` だけで、`T` が出てきません。`double[] values2 = ...` のように左辺に型が書いてあっても、左辺の型は推論に使われないので、CS0411 のエラーになります。
 
 ---
 
-## 4. ジェネリッククラスのメソッドとの使い分け
+## 4. クラスの型パラメータとメソッドの型パラメータ
 
-ジェネリッククラスのメソッドが使うのはクラスに付いた `T` です。一方、ジェネリックメソッドはそのメソッド専用の `T` を持ちます。
+ジェネリッククラスの中に、ジェネリックメソッドを定義することもできます。[ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) の `Container<T>` と `Pair<TFirst, TSecond>` を使って、`Container<T>` の値と別の値を組にする `PairWith` メソッドを追加します。
 
 ```csharp
+Container<string> name = new Container<string>("Alice");
+
+Pair<string, int> withScore = name.PairWith(80);
+Console.WriteLine($"{withScore.First}: {withScore.Second}");
+
+Pair<string, bool> withFlag = name.PairWith(true);
+Console.WriteLine($"{withFlag.First}: {withFlag.Second}");
+
 class Container<T>
 {
-    public T Value { get; set; }
+    private T _value;
 
-    // クラスの T を使う（Container<int> なら T=int）
-    public bool Equals(T other)
+    public Container(T value) { _value = value; }
+
+    public void Set(T value) { _value = value; }
+    public T Get() { return _value; }
+
+    // T はクラスの型パラメータ、TOther はこのメソッドの型パラメータ
+    public Pair<T, TOther> PairWith<TOther>(TOther other)
     {
-        return Value?.Equals(other) ?? false;
+        return new Pair<T, TOther>(_value, other);
     }
+}
 
-    // メソッド専用の型パラメータ U — Container<T> を Container<U> に変換する
-    public Container<U> Cast<U>(U newValue)
+class Pair<TFirst, TSecond>
+{
+    public TFirst First { get; }
+    public TSecond Second { get; }
+
+    public Pair(TFirst first, TSecond second)
     {
-        return new Container<U> { Value = newValue };
+        First = first;
+        Second = second;
     }
 }
 ```
 
-```csharp
-Container<int> intBox = new Container<int> { Value = 42 };
-
-// Cast<U> はメソッド専用の U を持つ
-Container<string> strBox = intBox.Cast("hello");
+```
+Alice: 80
+Alice: True
 ```
 
-使い分けの基準：
-- **クラス全体を通じて型を固定したい** → ジェネリッククラス
-- **特定のメソッドだけ別の型を扱いたい** → ジェネリックメソッド
+`PairWith` の中では、クラスの型パラメータ `T` と、メソッドの型パラメータ `TOther` の両方を使っています。2 つは、型が決まるタイミングが違います。
+
+| 型パラメータ | 型が決まるタイミング | この例での型 |
+|---|---|---|
+| クラスの `T` | インスタンスを作るとき（`new Container<string>(...)`） | `name` では、いつも `string` |
+| メソッドの `TOther` | メソッドを呼び出すたび | 1 回目は `int`、2 回目は `bool` |
+
+使い分けの目安は次のとおりです。
+
+- インスタンスが持つデータの型 → クラスの型パラメータ
+- 呼び出しごとに変わる型や、データを持たない処理で使う型 → メソッドの型パラメータ
 
 ---
 
 ## よくあるミス
 
-```csharp
-// ❌ NG: 型パラメータが引数に現れないのに型推論を期待している
-T Zero<T>() => default;
-int z = Zero();  // コンパイルエラー: T を推論できない
+### メソッドの型パラメータにクラスと同じ名前を付ける
 
-// ✅ OK: 型を明示する
-int z = Zero<int>();
+ジェネリッククラスの中のジェネリックメソッドに、クラスと同じ名前の型パラメータを付けると、コンパイラーが警告を出します。
+
+```csharp
+class Container<T>
+{
+    // ⚠️ NG: メソッドの T が、クラスの T を隠してしまう（警告 CS0693）
+    // public void Print<T>(T value) { Console.WriteLine(value); }
+}
 ```
+
+メソッドの `<T>` は、クラスの `T` とは別の新しい型パラメータです。メソッドの中の `T` はメソッドの型パラメータを指すので、`Container<int>` のインスタンスでも `Print("abc")` のように `string` を渡せてしまいます。クラスの `T` を使いたいなら、メソッドに `<T>` を書かずに `public void Print(T value)` とします。別の型を扱いたいなら、`TOther` のように別の名前を付けます。
 
 ---
 
 ## まとめ
 
-- ジェネリックメソッドは `戻り値 メソッド名<T>(T arg)` の形で定義する
-- 型パラメータが引数に現れる場合、呼び出し側で `<T>` を省略できる（型推論）
-- 戻り値にしか `T` が出ない場合は型を明示する必要がある
-- クラス全体ではなくメソッド単体を汎用化したいときに使う
+- ジェネリックメソッドは `戻り値の型 メソッド名<T>(パラメータリスト)` の形で定義する
+- 呼び出すときは `メソッド名<型引数>(引数)` と書く
+- 引数の型から型引数を決められるときは、型引数を省略できる（型推論）
+- 型パラメータがパラメータの型に現れないときは推論できないので、型引数を書く。左辺の型は推論に使われない
+- クラスの型パラメータはインスタンスを作るときに、メソッドの型パラメータは呼び出すたびに決まる
 
 ---
 
 ## 理解度チェック
 
-1. 次のメソッドの呼び出し `Wrap(100)` で型推論は効きますか？ 理由とともに答えてください。
+1. 次の 2 つのメソッドのうち、呼び出すときに型引数を省略できるのはどちらですか？理由とともに答えてください。
 
    ```csharp
-   static Container<T> Wrap<T>(T value)
+   public static T[] Repeat<T>(T value, int count) { ... }
+   public static T[] CreateArray<T>(int length) { ... }
+   ```
+
+2. 次のコードを実行すると何が出力されますか？
+
+   ```csharp
+   string[] names = Util.Repeat("Bob", 2);
+   string first = "Alice";
+   Util.Swap(ref first, ref names[1]);
+   Console.WriteLine($"{first} {string.Join(", ", names)}");
+
+   static class Util
    {
-       return new Container<T> { Value = value };
+       public static void Swap<T>(ref T left, ref T right)
+       {
+           T temp = left;
+           left = right;
+           right = temp;
+       }
+
+       public static T[] Repeat<T>(T value, int count)
+       {
+           T[] items = new T[count];
+           for (int i = 0; i < count; i++)
+           {
+               items[i] = value;
+           }
+           return items;
+       }
    }
    ```
 
-2. 次のメソッドを型推論なしで呼び出す場合の書き方は？
-
-   ```csharp
-   static T Clone<T>(T source) { return source; }
-   string s = Clone("hello");
-   ```
-
-3. （応用）2 つの値の大きい方を返すジェネリックメソッド `Max<T>` を `IComparable<T>` を使って書いてください（型制約は次のページで正式に学びます）。
+3. （応用）配列の最後の要素を返すジェネリックメソッド `Last` を、`static class Util` に定義してください。`Util.Last(new[] { 1, 2, 3 })` が `3` を、`Util.Last(new[] { "a", "b" })` が `"b"` を返すようにします。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. 型推論は効きます。引数 `value` の型 `100`（`int`）から `T = int` と推論できます。
+1. `Repeat` です。パラメータ `value` の型が `T` なので、引数の型から `T` を推論できます。`CreateArray` はパラメータに `T` が現れないので推論できず、`CreateArray<int>(3)` のように型引数を書く必要があります。
+2. `Bob Bob, Alice` が出力されます。`Repeat` で `{ "Bob", "Bob" }` を作り、`first`（`"Alice"`）と `names[1]`（`"Bob"`）を入れ替えています。配列の要素も `ref` で渡せます。
+3. パラメータの型を `T[]` にすれば、引数の配列の型から `T` を推論できます。
 
-2. `string s = Clone<string>("hello");`
-
-3. ```csharp
-   static T Max<T>(T a, T b) where T : IComparable<T>
+   ```csharp
+   public static T Last<T>(T[] items)
    {
-       return a.CompareTo(b) >= 0 ? a : b;
+       return items[items.Length - 1];
    }
    ```
 
@@ -193,4 +349,4 @@ int z = Zero<int>();
 
 ## 次のステップ
 
-[型制約](/unity-csharp-learning/csharp/generic-constraints/) では、型パラメータに条件を付けることで、`T` に対して使える操作を増やす方法を学びます。
+[型制約](/unity-csharp-learning/csharp/generic-constraints/) では、型パラメータに条件を付けて、`T` に対して使える操作を増やす方法を学びます。

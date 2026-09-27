@@ -144,8 +144,8 @@ i の値 = 2
 [ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) で、値を `object` で持つ `Container` クラスと、型パラメータで持つ `Container<T>` クラスを比べました。この 2 つに `int` の値を 1000 回ずつ入れて、ヒープに確保されたメモリの量を比べます。[GC.GetAllocatedBytesForCurrentThread メソッド](https://learn.microsoft.com/dotnet/api/system.gc.getallocatedbytesforcurrentthread) は、現在のスレッドがそれまでにヒープに確保したメモリの合計をバイト単位で返します。
 
 ```csharp
-Container objectContainer = new Container();
-Container<int> genericContainer = new Container<int>();
+Container objectContainer = new Container(0);
+Container<int> genericContainer = new Container<int>(0);
 
 long before = GC.GetAllocatedBytesForCurrentThread();
 for (int i = 0; i < 1000; i++)
@@ -166,18 +166,22 @@ Console.WriteLine($"Container<int>: {genericBytes} バイト");
 
 class Container
 {
-    private object? _value;
+    private object _value;
+
+    public Container(object value) { _value = value; }
 
     public void Set(object value) { _value = value; }
-    public object? Get() { return _value; }
+    public object Get() { return _value; }
 }
 
 class Container<T>
 {
-    private T? _value;
+    private T _value;
+
+    public Container(T value) { _value = value; }
 
     public void Set(T value) { _value = value; }
-    public T? Get() { return _value; }
+    public T Get() { return _value; }
 }
 ```
 
@@ -190,7 +194,7 @@ Container<int>: 0 バイト
 
 `Container` の `Set` は `object` を受け取るので、`int` の値を渡すたびにボクシングが行われます。1 回あたり 24 バイトのボックスが、1000 回作られています。`Container<int>` の `Set` は `int` をそのまま受け取るので、ボクシングは行われず、ヒープにメモリを確保していません。
 
-型の安全性だけでなく、ボクシングを避けられることも、ジェネリクスを使う理由の 1 つです。[型制約](/unity-csharp-learning/csharp/generic-constraints/) で「`struct` 制約を付けるとボクシングなしで使える」と書いたのは、このことです。
+型の安全性だけでなく、ボクシングを避けられることも、ジェネリクスを使う理由の 1 つです。型パラメータ `T` に `int` を指定すると、`T` は `int` そのものとして扱われるので、[型制約](/unity-csharp-learning/csharp/generic-constraints/) で学んだ `struct` 制約がなくてもボクシングは行われません。
 
 ---
 

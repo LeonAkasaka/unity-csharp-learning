@@ -86,10 +86,10 @@ C# プログラミングをゼロから学びます。
 
 | # | トピック | 概要 |
 |---|---|---|
-| 34 | [ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) | 型パラメータ `<T>`・ジェネリッククラスの定義と利用・`object` との比較（型安全性） |
-| 35 | [ジェネリックメソッド](/unity-csharp-learning/csharp/generic-methods/) | `T Method<T>(T x)` の書き方・型推論・静的ユーティリティへの応用 |
-| 36 | [型制約](/unity-csharp-learning/csharp/generic-constraints/) | `where T :` 各種制約（`class`・`struct`・`new()`・インターフェイス・基底クラス） |
-| 37 | [共変・反変](/unity-csharp-learning/csharp/generic-variance/) | `out T`（共変）・`in T`（反変）・不変の違いとジェネリックインターフェイスへの適用 |
+| 34 | [ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) | `object` による汎用化の問題・型パラメータと型引数・型引数ごとに別の型になる・複数の型パラメータ・ジェネリックインターフェイスと `IComparable<T>` |
+| 35 | [ジェネリックメソッド](/unity-csharp-learning/csharp/generic-methods/) | メソッドに型パラメータを付ける・型推論と推論できない場合・クラスの型パラメータとの違いと使い分け |
+| 36 | [型制約](/unity-csharp-learning/csharp/generic-constraints/) | `where T :` による制約・インターフェイスと基底クラスの制約・呼び出す側への制限・`class` / `struct` / `new()`・複数の制約と順序 |
+| 37 | [共変・反変](/unity-csharp-learning/csharp/generic-variance/) | ジェネリック型が不変である理由・`out T`（共変）・`in T`（反変）・変性を付けられるもの・配列の共変 |
 
 ### C# コレクションとイテレーター
 
