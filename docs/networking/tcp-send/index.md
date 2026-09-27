@@ -323,4 +323,4 @@ Connection: close
 
 ## 次のステップ
 
-次の回では、ASP.NET Core を使って HTTP サーバーを作ります。このページまでで手作業で行っていた、リクエストの読み取りや応答の組み立てを、ASP.NET Core がどのように引き受けてくれるのかを見ていきます。
+[ASP.NET Core でサーバーを作る](/unity-csharp-learning/networking/aspnetcore-server/) では、ASP.NET Core を使って HTTP サーバーを作ります。このページまでで手作業で行っていた、リクエストの読み取りや応答の組み立てを、ASP.NET Core がどのように引き受けてくれるのかを見ていきます。
