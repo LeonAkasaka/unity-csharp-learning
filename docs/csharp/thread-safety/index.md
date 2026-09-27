@@ -378,4 +378,4 @@ C# 13（.NET 9）以降では、ロック専用の [System.Threading.Lock](https
 
 ## 次のステップ
 
-[スレッドプール](/unity-csharp-learning/csharp/thread-pool/) では、スレッドを作り直さずに使い回す仕組みと、その限界を学びます。
+[スレッドの数と性能](/unity-csharp-learning/csharp/thread-performance/) では、スレッドを増やしても処理が速くなるとは限らない理由を、CPU のコアとスレッドの切り替えから学びます。
