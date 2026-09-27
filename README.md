@@ -13,12 +13,13 @@ Unity と C# の基礎を学ぶための日本語教材サイトです。
 
 ```
 docs/
-  index.md              # トップページ
-  csharp/               # C# 基礎
-  unity/                # Unity 基礎（Unity UI サブセクションを含む）
-  hands-on/             # ハンズオン
-  grid-games/           # グリッドゲーム
-  conversation-scenes/  # 会話シーン
+  index.md                 # トップページ
+  csharp/                  # C# 基礎
+  unity/                   # Unity 基礎（Unity UI サブセクションを含む）
+  tutorials/               # Unity チュートリアル
+    character-control/     # 3D キャラクター操作
+    grid-games/            # グリッドゲーム
+    conversation-scenes/   # 会話シーン
 ```
 
 ## 動作環境

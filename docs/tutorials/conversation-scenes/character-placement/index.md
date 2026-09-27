@@ -1,7 +1,7 @@
 ---
 layout: page
 title: キャラクター配置
-permalink: /conversation-scenes/character-placement/
+permalink: /tutorials/conversation-scenes/character-placement/
 ---
 
 # キャラクター配置
@@ -20,7 +20,7 @@ permalink: /conversation-scenes/character-placement/
 
 ## 前提知識
 
-- [メッセージウィンドウ — 文字送り](/unity-csharp-learning/conversation-scenes/typewriter-animation/) を読んでいること（`Time.deltaTime` を使った時間制御を理解していること）
+- [メッセージウィンドウ — 文字送り](/unity-csharp-learning/tutorials/conversation-scenes/typewriter-animation/) を読んでいること（`Time.deltaTime` を使った時間制御を理解していること）
 
 ---
 

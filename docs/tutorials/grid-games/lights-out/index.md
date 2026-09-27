@@ -1,7 +1,7 @@
 ---
 layout: page
 title: ライツアウト
-permalink: /grid-games/lights-out/
+permalink: /tutorials/grid-games/lights-out/
 ---
 
 # ライツアウト
@@ -12,7 +12,7 @@ permalink: /grid-games/lights-out/
 - クリア判定の仕組みを実装できるようになる
 
 ## 前提知識
-- [二次元配列](/unity-csharp-learning/grid-games/array-2d/) を理解していること
+- [二次元配列](/unity-csharp-learning/tutorials/grid-games/array-2d/) を理解していること
 - Unity の Canvas・Image・GridLayoutGroup の基本操作を理解していること
 - `IPointerClickHandler` インターフェースの基本を理解していること
 

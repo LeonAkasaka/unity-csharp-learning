@@ -1,7 +1,7 @@
 ---
 layout: page
 title: ライフゲーム
-permalink: /grid-games/life-game/
+permalink: /tutorials/grid-games/life-game/
 ---
 
 # ライフゲーム
@@ -12,7 +12,7 @@ permalink: /grid-games/life-game/
 - 連続で更新されるデータを正しく取り扱えるようになる
 
 ## 前提知識
-- [マインスイーパー](/unity-csharp-learning/grid-games/minesweeper/) を完了していること
+- [マインスイーパー](/unity-csharp-learning/tutorials/grid-games/minesweeper/) を完了していること
 - Unity の Prefab・Canvas・GridLayoutGroup の基本操作を理解していること
 
 ## 概要

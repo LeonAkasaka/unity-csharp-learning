@@ -12,7 +12,7 @@
 | `docs/unity/_template.md` | Unity の解説（API と Editor 操作を中心に、手順と動作確認で説明する） |
 | `docs/_template.md` | 上記以外のセクション。フォルダー内にテンプレートがないときのフォールバック |
 
-例：`docs/unity/rigidbody/index.md` を作るときは `docs/unity/_template.md` を、`docs/grid-games/xxx/index.md` を作るときは `docs/_template.md` を使います。
+例：`docs/unity/rigidbody/index.md` を作るときは `docs/unity/_template.md` を、`docs/tutorials/grid-games/xxx/index.md` を作るときは `docs/_template.md` を使います。
 
 - テンプレート内の `<!-- -->` コメントは執筆上の指示です。ページには残さないでください。
 - 見出しの直後に「この節は任意」とコメントがある節は、トピックに合う場合だけ使います。使わないときは節ごと削除します。

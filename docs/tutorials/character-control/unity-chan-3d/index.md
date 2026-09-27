@@ -1,7 +1,7 @@
 ---
 layout: page
 title: ユニティちゃん 3D チュートリアル
-permalink: /hands-on/unity-chan-3d/
+permalink: /tutorials/character-control/unity-chan-3d/
 ---
 
 # ユニティちゃん 3D チュートリアル

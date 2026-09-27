@@ -11,20 +11,14 @@ title: ホーム
 
 ## コンテンツ一覧
 
-### [① C# 言語入門](/unity-csharp-learning/csharp/)
+### [C# 言語入門](/unity-csharp-learning/csharp/)
 変数・型・条件分岐・ループ・メソッド・クラスなど、C# プログラミングの基本を学びます。
 
-### [② Unity 基礎](/unity-csharp-learning/unity/)
+### [Unity 基礎](/unity-csharp-learning/unity/)
 Unity エディターの操作方法、GameObjects、コンポーネント、スクリプトの基本を学びます。
 
-### [③ ハンズオン](/unity-csharp-learning/hands-on/)
-外部アセット（ユニティちゃん）を使って、実際にキャラクターを動かすチュートリアルです。
-
-### [④ グリッドゲーム](/unity-csharp-learning/grid-games/)
-配列を使ってグリッドベースのゲームを実装するチュートリアルシリーズです。三目並べ・ライツアウト・マインスイーパー・ライフゲームを通じて、ゲームロジックの実装力を高めます。
-
-### [⑤ 会話シーン](/unity-csharp-learning/conversation-scenes/)
-TextMesh Pro を使ったメッセージウィンドウの構築から、クリックでページを進めるページ送り、文字が流れるように表示される文字送りアニメーションまでを実装するチュートリアルシリーズです。
+### [Unity チュートリアル](/unity-csharp-learning/tutorials/)
+テーマごとにゲームの機能を実装するチュートリアルです。
 
 ---
 

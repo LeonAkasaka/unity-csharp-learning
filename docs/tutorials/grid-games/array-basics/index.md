@@ -1,7 +1,7 @@
 ---
 layout: page
 title: 配列の基礎
-permalink: /grid-games/array-basics/
+permalink: /tutorials/grid-games/array-basics/
 ---
 
 # 配列の基礎

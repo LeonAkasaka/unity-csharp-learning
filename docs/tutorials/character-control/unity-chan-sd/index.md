@@ -1,7 +1,7 @@
 ---
 layout: page
 title: SD ユニティちゃんチュートリアル
-permalink: /hands-on/unity-chan-sd/
+permalink: /tutorials/character-control/unity-chan-sd/
 ---
 
 # SD ユニティちゃんチュートリアル

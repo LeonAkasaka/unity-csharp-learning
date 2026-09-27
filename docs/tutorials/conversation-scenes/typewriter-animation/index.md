@@ -1,12 +1,12 @@
 ---
 layout: page
 title: メッセージウィンドウ — 文字送り
-permalink: /conversation-scenes/typewriter-animation/
+permalink: /tutorials/conversation-scenes/typewriter-animation/
 ---
 
 # メッセージウィンドウ — 文字送り
 
-[メッセージウィンドウ — ページ送り](/unity-csharp-learning/conversation-scenes/message-window-pagination/) の続きです。テキストが 1 文字ずつ流れるように表示される**文字送りアニメーション**を実装します。単一責任の原則に基づいてコンポーネントを分離し、ページ送りと文字送りを組み合わせる設計を学びます。
+[メッセージウィンドウ — ページ送り](/unity-csharp-learning/tutorials/conversation-scenes/message-window-pagination/) の続きです。テキストが 1 文字ずつ流れるように表示される**文字送りアニメーション**を実装します。単一責任の原則に基づいてコンポーネントを分離し、ページ送りと文字送りを組み合わせる設計を学びます。
 
 ## 学習目標
 
@@ -19,7 +19,7 @@ permalink: /conversation-scenes/typewriter-animation/
 
 ## 前提知識
 
-- [メッセージウィンドウ — ページ送り](/unity-csharp-learning/conversation-scenes/message-window-pagination/) を読んでいること
+- [メッセージウィンドウ — ページ送り](/unity-csharp-learning/tutorials/conversation-scenes/message-window-pagination/) を読んでいること
 - [Time クラスと時間制御](/unity-csharp-learning/unity/time-basics/) を読んでいること
 
 ---
@@ -386,4 +386,4 @@ public void Skip()
 
 ## 次のステップ
 
-文字送りとページ送りを組み合わせることで、本格的な会話シーンが実現できます。次は [キャラクター配置](/unity-csharp-learning/conversation-scenes/character-placement/) で、会話シーンにキャラクターの立ち絵を追加しフェードイン・フェードアウトを実装します。
+文字送りとページ送りを組み合わせることで、本格的な会話シーンが実現できます。次は [キャラクター配置](/unity-csharp-learning/tutorials/conversation-scenes/character-placement/) で、会話シーンにキャラクターの立ち絵を追加しフェードイン・フェードアウトを実装します。

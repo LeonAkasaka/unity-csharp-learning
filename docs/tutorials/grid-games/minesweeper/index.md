@@ -1,7 +1,7 @@
 ---
 layout: page
 title: マインスイーパー
-permalink: /grid-games/minesweeper/
+permalink: /tutorials/grid-games/minesweeper/
 ---
 
 # マインスイーパー
@@ -12,8 +12,8 @@ permalink: /grid-games/minesweeper/
 - プロパティを使ってセルの状態と見た目を連動させられるようになる
 
 ## 前提知識
-- [二次元配列](/unity-csharp-learning/grid-games/array-2d/) を理解していること
-- [三目並べ](/unity-csharp-learning/grid-games/tic-tac-toe/) を完了していること
+- [二次元配列](/unity-csharp-learning/tutorials/grid-games/array-2d/) を理解していること
+- [三目並べ](/unity-csharp-learning/tutorials/grid-games/tic-tac-toe/) を完了していること
 - Unity の Prefab・Canvas・GridLayoutGroup の基本操作を理解していること
 - C# のプロパティ（getter/setter）を理解していること
 

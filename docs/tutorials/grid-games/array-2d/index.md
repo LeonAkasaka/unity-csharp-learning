@@ -1,7 +1,7 @@
 ---
 layout: page
 title: 二次元配列
-permalink: /grid-games/array-2d/
+permalink: /tutorials/grid-games/array-2d/
 ---
 
 # 二次元配列
@@ -129,7 +129,7 @@ public class GridRotator : MonoBehaviour
 
 ![](./image.png)
 
-この課題は「小課題 項目選択1」の続きです。わからない場合は「[配列の基礎](/unity-csharp-learning/grid-games/array-basics/)」を先に攻略してください。
+この課題は「小課題 項目選択1」の続きです。わからない場合は「[配列の基礎](/unity-csharp-learning/tutorials/grid-games/array-basics/)」を先に攻略してください。
 
 ### Unity 側の準備
 

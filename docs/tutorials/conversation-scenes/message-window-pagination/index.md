@@ -1,7 +1,7 @@
 ---
 layout: page
 title: メッセージウィンドウ — ページ送り
-permalink: /conversation-scenes/message-window-pagination/
+permalink: /tutorials/conversation-scenes/message-window-pagination/
 ---
 
 # メッセージウィンドウ — ページ送り
@@ -252,4 +252,4 @@ public class MessageSequencer : MonoBehaviour
 
 ## 次のステップ
 
-[メッセージウィンドウ — 文字送り](/unity-csharp-learning/conversation-scenes/typewriter-animation/) では、テキストが 1 文字ずつ流れるように表示される文字送りアニメーションを実装します。
+[メッセージウィンドウ — 文字送り](/unity-csharp-learning/tutorials/conversation-scenes/typewriter-animation/) では、テキストが 1 文字ずつ流れるように表示される文字送りアニメーションを実装します。

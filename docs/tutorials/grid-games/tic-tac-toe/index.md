@@ -1,7 +1,7 @@
 ---
 layout: page
 title: 三目並べ
-permalink: /grid-games/tic-tac-toe/
+permalink: /tutorials/grid-games/tic-tac-toe/
 ---
 
 # 三目並べ
@@ -12,7 +12,7 @@ permalink: /grid-games/tic-tac-toe/
 - 格子状のマス目を探索して勝敗判定を実装できるようになる
 
 ## 前提知識
-- [二次元配列](/unity-csharp-learning/grid-games/array-2d/) を理解していること
+- [二次元配列](/unity-csharp-learning/tutorials/grid-games/array-2d/) を理解していること
 - Unity の Canvas・Image・GridLayoutGroup の基本操作を理解していること
 
 ## 概要

@@ -1,12 +1,12 @@
 ---
 layout: page
 title: キャラクターとメッセージウィンドウの連携
-permalink: /conversation-scenes/scene-flow-control/
+permalink: /tutorials/conversation-scenes/scene-flow-control/
 ---
 
 # キャラクターとメッセージウィンドウの連携
 
-[キャラクター配置](/unity-csharp-learning/conversation-scenes/character-placement/) の続きです。メッセージウィンドウとキャラクター表示を別々に作っただけでは、会話シーン全体の流れはまだ管理できません。このページでは、キャラクターのフェードインが終わってからメッセージを表示する流れを `Update()` のフレーム駆動で実装します。
+[キャラクター配置](/unity-csharp-learning/tutorials/conversation-scenes/character-placement/) の続きです。メッセージウィンドウとキャラクター表示を別々に作っただけでは、会話シーン全体の流れはまだ管理できません。このページでは、キャラクターのフェードインが終わってからメッセージを表示する流れを `Update()` のフレーム駆動で実装します。
 
 コルーチン、`Task`、外部ライブラリは使いません。まずは「待つ」とは何を確認し続けることなのかを、状態管理として考えます。
 
@@ -21,8 +21,8 @@ permalink: /conversation-scenes/scene-flow-control/
 
 ## 前提知識
 
-- [メッセージウィンドウ — 文字送り](/unity-csharp-learning/conversation-scenes/typewriter-animation/) を読んでいること
-- [キャラクター配置](/unity-csharp-learning/conversation-scenes/character-placement/) を読んでいること
+- [メッセージウィンドウ — 文字送り](/unity-csharp-learning/tutorials/conversation-scenes/typewriter-animation/) を読んでいること
+- [キャラクター配置](/unity-csharp-learning/tutorials/conversation-scenes/character-placement/) を読んでいること
 
 ---
 
