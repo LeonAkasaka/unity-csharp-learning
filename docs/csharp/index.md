@@ -72,10 +72,10 @@ C# プログラミングをゼロから学びます。
 
 | # | トピック | 概要 |
 |---|---|---|
-| 26 | [継承](/unity-csharp-learning/csharp/inheritance/) | 基底クラス・派生クラス・`base` キーワード・コンストラクタ連鎖 |
+| 26 | [継承](/unity-csharp-learning/csharp/inheritance/) | 基底クラス・派生クラス・`: base(...)` による基底クラスのコンストラクターの呼び出し・`object` |
 | 27 | [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) | アップキャスト・ダウンキャスト・`is`・`as`・パターンマッチング |
 | 28 | [protected 修飾子](/unity-csharp-learning/csharp/protected-modifier/) | `protected` のアクセス範囲・継承チェーンでの到達範囲・`internal` |
-| 29 | [オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) | `virtual`・`override`・動的ディスパッチ |
+| 29 | [オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) | `virtual`・`override`・動的ディスパッチ・`base.メソッド名()`・`ToString` のオーバーライド |
 | 30 | [メソッドの隠ぺいと sealed](/unity-csharp-learning/csharp/method-hiding/) | `new` 修飾子・`override` との違い・`sealed class`・`sealed override` |
 | 31 | [抽象クラスと抽象メソッド](/unity-csharp-learning/csharp/abstract-classes/) | `abstract class`・`abstract` メソッド・派生クラスでの強制実装 |
 | 32 | [インターフェイス](/unity-csharp-learning/csharp/interfaces/) | `interface` 宣言・実装・多重実装・抽象クラスとの違い |

@@ -6,15 +6,16 @@ permalink: /csharp/interfaces/
 
 # インターフェイス
 
-**インターフェイス**は、クラスが実装すべきメンバーのシグネチャだけを宣言する型です。実装は持たず、「何ができるか」の契約（contract）を表します。
+**インターフェイス**（interface）は、クラスが持つべきメソッドやプロパティの **宣言だけ** をまとめた型です。インターフェイスを実装したクラスは、宣言されたメンバーを必ず持つので、「このクラスには、こういう操作ができる」という約束（契約）を表せます。クラスは基底クラスを 1 つしか継承できませんが、インターフェイスはいくつでも実装できます。
 
 ## 学習目標
 
-- `interface` の宣言と実装の書き方を理解できる
-- クラスが複数のインターフェイスを実装できることを説明できる
-- インターフェイス型の変数を通じた呼び出しの動作を確認できる
-- 抽象クラスとの違いを説明できる
-- インターフェイスに実装を書かない理由を説明できる
+このページを読み終えると、以下のことができるようになります。
+
+- インターフェイスを宣言し、クラスで実装できる
+- インターフェイスの型の変数から、実装したクラスのメソッドを呼び出せる
+- 1 つのクラスで、複数のインターフェイスを実装できる
+- 抽象クラスとインターフェイスの違いを説明できる
 
 ## 前提知識
 
@@ -22,190 +23,290 @@ permalink: /csharp/interfaces/
 
 ---
 
-## 1. `interface` の宣言
+## 1. インターフェイスを宣言する
 
-**書式：インターフェイスの宣言**
+**書式：[インターフェイスの宣言](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/interface)**
 ```
 interface インターフェイス名
 {
-    戻り値の型 メソッド名(引数リスト);
+    戻り値の型 メソッド名(パラメータ);
+    型 プロパティ名 { get; }
 }
 ```
 
 | 要素 | 説明 |
 |---|---|
-| `interface` | インターフェイスを定義するキーワード |
-| `インターフェイス名` | 慣習として `I` から始める（例: `IFoo`） |
-| メンバー宣言 | シグネチャのみ。本体は書かない |
-
-インターフェイスは「宣言するだけ」で処理の内容は書きません。処理の内容は実装するクラスが定義します。これがインターフェイスを「契約」と呼ぶ理由です。
+| `interface` | インターフェイスを宣言するキーワード |
+| `インターフェイス名` | `I` で始めるのが慣例（例：`IAttackable`、`IDisposable`） |
+| メンバーの宣言 | 本体は書かず、`;` で終える。アクセス修飾子も書かない |
 
 ```csharp
-interface IFoo
+interface IAttackable
 {
-    void M();
+    string Name { get; }
+    void Attack();
 }
 ```
 
+`IAttackable` は、「`Name` プロパティと `Attack` メソッドを持つ」ことだけを決めています。何をするかは、実装するクラスが決めます。
+
 ---
 
-## 2. インターフェイスの実装
+## 2. インターフェイスを実装する
+
+クラス名の後に `: インターフェイス名` と書くと、そのクラスはインターフェイスを **実装** します。実装したクラスは、インターフェイスのすべてのメンバーを `public` で定義しなければなりません。
 
 **書式：インターフェイスの実装**
 ```
 class クラス名 : インターフェイス名
 {
-    public 戻り値の型 メソッド名(引数リスト)
+    // インターフェイスのメンバーを public で定義する
+}
+```
+
+```csharp
+IAttackable[] attackers = { new Warrior(), new Turret() };
+
+foreach (IAttackable a in attackers)
+{
+    Console.Write($"{a.Name}: ");
+    a.Attack();
+}
+
+interface IAttackable
+{
+    string Name { get; }
+    void Attack();
+}
+
+class Warrior : IAttackable
+{
+    public string Name
     {
+        get { return "戦士"; }
+    }
+
+    public void Attack()
+    {
+        Console.WriteLine("剣で斬りつけた");
+    }
+}
+
+class Turret : IAttackable
+{
+    public string Name
+    {
+        get { return "砲台"; }
+    }
+
+    public void Attack()
+    {
+        Console.WriteLine("弾を撃った");
     }
 }
 ```
 
-インターフェイスを実装するクラスは、すべてのメンバーを `public` で定義する必要があります。
-
-```csharp
-interface IFoo
-{
-    void M();
-}
-
-class A : IFoo
-{
-    public void M() { Console.WriteLine("A.M"); }
-}
+```
+戦士: 剣で斬りつけた
+砲台: 弾を撃った
 ```
 
-インターフェイスのメンバーを実装せずにクラスを定義するとコンパイルエラーになります。
+`Warrior` と `Turret` は、継承の関係がない別々のクラスです。それでも、どちらも `IAttackable` を実装しているので、`IAttackable` の型の配列にまとめ、同じ書き方で `Attack` を呼び出せます。[オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) と同じく、実体の型のメソッドが実行されます。
 
-```csharp
-// ❌ コンパイルエラー: IFoo.M() が実装されていない
-class A : IFoo
-{
-}
-```
+インターフェイスのメンバーを 1 つでも定義し忘れると、コンパイルエラー（CS0535）になります。
 
 ---
 
-## 3. インターフェイス型の変数
+## 3. 複数のインターフェイスを実装する
 
-インターフェイス型の変数には、そのインターフェイスを実装したクラスのインスタンスを代入できます。変数を通じて呼ぶと、実体のクラスのメソッドが実行されます。
+クラスは、`,` で区切って、複数のインターフェイスを実装できます。基底クラスも継承するときは、基底クラスを最初に書きます。
+
+**書式：基底クラスの継承と、複数のインターフェイスの実装**
+```
+class クラス名 : 基底クラス名, インターフェイス名1, インターフェイス名2
+{
+}
+```
 
 ```csharp
-interface IFoo
+Player p = new Player("Alice");
+p.Attack();
+p.Heal();
+
+IAttackable attacker = p;
+IHealable healer = p;
+Console.WriteLine($"{attacker.Name} / {healer.Name}");
+
+interface IAttackable
 {
-    void M();
+    string Name { get; }
+    void Attack();
 }
 
-class A : IFoo
+interface IHealable
 {
-    public void M() { Console.WriteLine("A.M"); }
+    string Name { get; }
+    void Heal();
 }
 
-class B : IFoo
+class Character
 {
-    public void M() { Console.WriteLine("B.M"); }
+    public string Name { get; }
+
+    public Character(string name)
+    {
+        Name = name;
+    }
 }
 
-IFoo x = new A();
-x.M();
+class Player : Character, IAttackable, IHealable
+{
+    public Player(string name) : base(name)
+    {
+    }
 
-x = new B();
-x.M();
+    public void Attack()
+    {
+        Console.WriteLine($"{Name} の攻撃");
+    }
+
+    public void Heal()
+    {
+        Console.WriteLine($"{Name} の回復");
+    }
+}
 ```
 
 ```
-A.M
-B.M
+Alice の攻撃
+Alice の回復
+Alice / Alice
 ```
+
+- `Player` は、`Character` を継承し、`IAttackable` と `IHealable` を実装しています
+- インターフェイスの `Name` プロパティは、基底クラス `Character` から引き継いだ `Name` で実装されています
+- `Player` のインスタンスは、`IAttackable` の型の変数にも、`IHealable` の型の変数にも入れられます
 
 ---
 
-## 4. 複数のインターフェイスを実装する
+## 4. 抽象クラスとインターフェイスの違い
 
-C# のクラスは継承できる基底クラスが 1 つだけですが、インターフェイスは複数実装できます。
-
-**書式：複数のインターフェイスの実装**
-```
-class クラス名 : インターフェイス名1, インターフェイス名2
-{
-}
-```
-
-```csharp
-interface IFoo
-{
-    void M();
-}
-
-interface IBar
-{
-    void N();
-}
-
-class A : IFoo, IBar
-{
-    public void M() { Console.WriteLine("A.M"); }
-    public void N() { Console.WriteLine("A.N"); }
-}
-```
-
-基底クラスとインターフェイスを組み合わせることもできます。その場合は基底クラスを先に書きます。
-
-```csharp
-class Base { }
-
-class A : Base, IFoo, IBar
-{
-    public void M() { Console.WriteLine("A.M"); }
-    public void N() { Console.WriteLine("A.N"); }
-}
-```
-
----
-
-## 5. 抽象クラスとの比較
-
-| 項目 | 抽象クラス | インターフェイス |
+| | 抽象クラス | インターフェイス |
 |---|---|---|
-| フィールド | 持てる | 持てない |
-| コンストラクタ | 持てる | 持てない |
-| 実装の共有 | 非抽象メソッドで共有できる | 基本的に持たない（C# 8 以降の default 実装を除く） |
-| 継承・実装数 | クラスごとに 1 つのみ | 複数可 |
-| `new` でのインスタンス化 | 不可 | 不可 |
+| 継承・実装できる数 | 1 つだけ | いくつでも |
+| フィールド | 持てる | 持てない（CS0525） |
+| コンストラクター | 持てる | 持てない |
+| メソッドの本体 | 書ける | ふつうは書かない（ワンポイントアドバイスを参照） |
+| インスタンスの作成 | できない | できない |
 
-抽象クラスは「状態と実装を共有する基底」、インターフェイスは「クラス間の共通の操作を宣言する契約」と位置づけられます。
+抽象クラスは、「共通のデータや処理を持つ、同じ種類のクラスの基底」に向いています。インターフェイスは、「種類の違うクラスに、共通の操作を持たせる」のに向いています。上の例の戦士と砲台のように、継承の関係がないクラスにも同じ操作を持たせられるのが、インターフェイスの強みです。
+
+.NET にも、多くのインターフェイスが用意されています。たとえば、[IDisposable と using](/unity-csharp-learning/csharp/dispose-using/) で学ぶ `IDisposable` は、「後片付けの `Dispose` メソッドを持つ」ことを表すインターフェイスです。
+
+---
+
+## よくあるミス
+
+### インターフェイスのメンバーを実装し忘れる
+
+```csharp
+// ❌ NG: IAttackable の Attack を実装していない
+// class Warrior : IAttackable  // CS0535
+// {
+//     public string Name
+//     {
+//         get { return "戦士"; }
+//     }
+// }
+```
+
+### 実装したメンバーに public を付け忘れる
+
+```csharp
+// ❌ NG: インターフェイスを実装するメンバーは public にする
+// class Warrior : IAttackable
+// {
+//     public string Name
+//     {
+//         get { return "戦士"; }
+//     }
+//
+//     void Attack()  // CS0737
+//     {
+//     }
+// }
+```
+
+アクセス修飾子を省略すると `private` になるので、インターフェイスのメンバーの実装として使えません。
 
 ---
 
 ## ワンポイントアドバイス
 
-インターフェイス名を `I` から始める（例: `IDisposable`、`IEnumerable`）のは C# の慣習です。見た目だけでインターフェイスと分かるため、コードの読みやすさに貢献します。
+### インターフェイスの既定の実装（C# 8 以降）
+
+C# 8 以降では、インターフェイスのメソッドに本体を書いて、**既定の実装** を持たせることもできます。インターフェイスにメソッドを追加したいが、すでにあるクラスをすべて書き換えるのは難しい、という場面のための機能です。ふだんは、インターフェイスには宣言だけを書き、本体は実装するクラスに書きます。
 
 ---
 
 ## まとめ
 
-- インターフェイスはメンバーのシグネチャを宣言するだけで処理を持たない
-- クラスは `class A : IFoo` の形でインターフェイスを実装する
-- 実装したクラスはすべてのメンバーを `public` で定義する必要がある
-- インターフェイス型の変数には実装クラスのインスタンスを代入でき、動的ディスパッチで実体のメソッドが呼ばれる
-- 1 クラスは複数のインターフェイスを実装できる
-- 抽象クラスは状態・実装を持てるが 1 つだけ継承可能。インターフェイスは複数実装可能だが状態・実装を持たない
+- インターフェイスは、クラスが持つべきメンバーの宣言だけをまとめた型。名前は `I` で始めるのが慣例
+- `class クラス名 : インターフェイス名` で実装し、すべてのメンバーを `public` で定義する
+- インターフェイスの型の変数から呼び出すと、実体のクラスのメソッドが実行される
+- クラスは、基底クラスは 1 つだけ継承でき、インターフェイスはいくつでも実装できる
+- 継承の関係がないクラスにも、インターフェイスで共通の操作を持たせられる
 
 ---
 
 ## 理解度チェック
 
-1. インターフェイスはなぜ「契約」と呼ばれますか？
-2. クラスがインターフェイスのメンバーを 1 つでも実装しないとどうなりますか？
-3. 抽象クラスとインターフェイスの違いを 2 つ挙げてください。
+1. インターフェイスが「契約」と呼ばれるのはなぜですか？
+2. 次のコードを実行すると何が出力されますか？
+
+   ```csharp
+   IShape[] shapes = { new Square(3), new Square(5) };
+   int total = 0;
+   foreach (IShape s in shapes)
+   {
+       total += s.Area();
+   }
+   Console.WriteLine(total);
+
+   interface IShape
+   {
+       int Area();
+   }
+
+   class Square : IShape
+   {
+       private int _side;
+
+       public Square(int side)
+       {
+           _side = side;
+       }
+
+       public int Area()
+       {
+           return _side * _side;
+       }
+   }
+   ```
+
+3. 抽象クラスとインターフェイスの違いを、2 つ挙げてください。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. 実装クラスが「そのメンバーを必ず持つ」という約束（契約）を守ることをコンパイラが強制するからです。
-2. コンパイルエラーになります。
-3. （例）①フィールドを持てるのは抽象クラスだけ。②継承はクラスごとに 1 つだが、インターフェイスは複数実装できる。
+1. インターフェイスを実装したクラスは、宣言されたメンバーを必ず持たなければならず、その約束が守られているかをコンパイラーが確かめるからです。
+2. `34` が出力されます。`3 × 3 = 9` と `5 × 5 = 25` の合計です。
+
+   ```
+   34
+   ```
+
+3. （例）抽象クラスは 1 つしか継承できないが、インターフェイスはいくつでも実装できる。抽象クラスはフィールドを持てるが、インターフェイスは持てない。
 
 </details>
 
@@ -213,4 +314,4 @@ class A : Base, IFoo, IBar
 
 ## 次のステップ
 
-[インターフェイスの明示的実装](/unity-csharp-learning/csharp/explicit-interface/) では、異なるインターフェイスに同名メンバーがある場合の実装方法を学びます。
+[インターフェイスの明示的実装](/unity-csharp-learning/csharp/explicit-interface/) では、複数のインターフェイスに同じ名前のメンバーがあるときに、それぞれ別の実装を用意する方法を学びます。
