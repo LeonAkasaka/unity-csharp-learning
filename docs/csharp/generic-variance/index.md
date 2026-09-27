@@ -196,4 +196,4 @@ interface IReadWrite<out T>
 
 ## 次のステップ
 
-[値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) では、代入やメソッドの呼び出しでコピーされるものが型によって違うことと、その背景にあるメモリの仕組みを学びます。
+[List\<T\>](/unity-csharp-learning/csharp/list/) では、要素の数を後から変えられるコレクションを学びます。ジェネリクスを使う代表的な例です。

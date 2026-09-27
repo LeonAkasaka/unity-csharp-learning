@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 170" width="520" font-family="sans-serif">
+  <text x="20" y="28" font-size="15" fill="#333">List&lt;int&gt; の内部の配列（Count = 5、Capacity = 8）</text>
+  <g font-size="15" text-anchor="middle">
+    <rect x="20" y="50" width="56" height="44" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="48" y="78" fill="#333">1</text>
+    <rect x="80" y="50" width="56" height="44" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="108" y="78" fill="#333">2</text>
+    <rect x="140" y="50" width="56" height="44" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="168" y="78" fill="#333">3</text>
+    <rect x="200" y="50" width="56" height="44" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="228" y="78" fill="#333">4</text>
+    <rect x="260" y="50" width="56" height="44" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="288" y="78" fill="#333">5</text>
+    <rect x="320" y="50" width="56" height="44" fill="#f5f5f5" stroke="#bbb" stroke-width="2"/>
+    <rect x="380" y="50" width="56" height="44" fill="#f5f5f5" stroke="#bbb" stroke-width="2"/>
+    <rect x="440" y="50" width="56" height="44" fill="#f5f5f5" stroke="#bbb" stroke-width="2"/>
+  </g>
+  <g font-size="12" fill="#999" text-anchor="middle">
+    <text x="48" y="110">[0]</text>
+    <text x="108" y="110">[1]</text>
+    <text x="168" y="110">[2]</text>
+    <text x="228" y="110">[3]</text>
+    <text x="288" y="110">[4]</text>
+    <text x="348" y="110">[5]</text>
+    <text x="408" y="110">[6]</text>
+    <text x="468" y="110">[7]</text>
+  </g>
+  <path d="M20 124 V132 H316 V124" fill="none" stroke="#1565c0" stroke-width="2"/>
+  <text x="168" y="152" font-size="14" fill="#1565c0" text-anchor="middle">使っている要素（Count = 5）</text>
+  <path d="M320 124 V132 H496 V124" fill="none" stroke="#e65100" stroke-width="2"/>
+  <text x="408" y="152" font-size="14" fill="#e65100" text-anchor="middle">空き（追加に備えた領域）</text>
+</svg>
