@@ -153,7 +153,7 @@ Clear → Count = 0
 
 `List<T>` の内部の配列は、ふつう、今ある要素の数より長く作られています。内部の配列の長さは [Capacity プロパティ](https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1.capacity) で調べられます。`Count` は使っている要素の数、`Capacity` は追加に備えた空きを含めた内部の配列の長さです。
 
-![List<int> の内部の配列。長さ 8 の配列のうち、先頭の 5 つを要素として使い、残りの 3 つは空きになっている](list-capacity.svg)
+![List\<int\> の内部の配列。長さ 8 の配列のうち、先頭の 5 つを要素として使い、残りの 3 つは空きになっている](list-capacity.svg)
 
 `Add` は、空きがあれば、その場所に要素を入れるだけです。空きがなくなると、今より長い配列を新しく作り、要素をすべてコピーしてから追加します。1 節で自分で書いた処理を、`List<T>` が代わりに行っているのです。
 
