@@ -297,4 +297,4 @@ int? FindIndex(int[] array, int target)
 
 ## 次のステップ
 
-[列挙型](/unity-csharp-learning/csharp/enums/) では、関連する定数に名前を付けてまとめる `enum` を学びます。
+[タプル](/unity-csharp-learning/csharp/tuples/) では、複数の値を 1 つにまとめるタプルと、その正体である `ValueTuple` 構造体を学びます。
