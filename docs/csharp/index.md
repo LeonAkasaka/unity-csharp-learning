@@ -174,6 +174,19 @@ C# プログラミングをゼロから学びます。
 | 78 | [IAsyncEnumerable と await foreach](/unity-csharp-learning/csharp/async-streams/) | `Task<List<T>>` との違い・`MoveNextAsync` と `ValueTask<bool>`・非同期イテレーター・`await foreach` の正体と後片付け |
 | 79 | [IAsyncDisposable と await using](/unity-csharp-learning/csharp/async-dispose/) | `DisposeAsync`・`await using` 文と宣言・`await using` の正体・`using` との使い分け |
 
+### C# メモリの効率化
+
+| # | トピック | 概要 |
+|---|---|---|
+| 80 | [文字列の不変性と StringBuilder](/unity-csharp-learning/csharp/string-immutability/) | 文字列は変更できない・連結で新しい文字列が作られる・ループ内の `+=` と割り当ての増え方・`StringBuilder`・`+` / 文字列補間 / `string.Join` との使い分け |
+| 81 | [ref ローカルと ref 戻り値](/unity-csharp-learning/csharp/ref-locals/) | 要素を取り出すとコピーになる・ref ローカルと指す先の付け替え・ref 戻り値・ローカル変数への参照を返せない理由・`ref readonly` |
+| 82 | [Span\<T\> と ReadOnlySpan\<T\>](/unity-csharp-learning/csharp/span/) | 範囲演算子 `..` によるコピー・`AsSpan`・`Slice` と範囲演算子・`Span` を受け取るメソッド・`ReadOnlySpan<char>` と文字列・インデクサが返す ref |
+| 83 | [ref struct と Span の制約](/unity-csharp-learning/csharp/ref-struct/) | `Span<T>` がスタックにしか置けない理由・`ref struct`・フィールド / ボクシング / 配列 / 型引数 / キャプチャ / `await` の制約・async メソッドでの使い方 |
+| 84 | [stackalloc](/unity-csharp-learning/csharp/stackalloc/) | スタックに領域を確保して `Span<T>` で受け取る・メソッドから戻ると取り除かれる・領域を返せない理由・大きさと `new` との使い分け・ループ内の `stackalloc` |
+| 85 | [Memory\<T\>](/unity-csharp-learning/csharp/memory/) | フィールドに保存する・`await` をまたぐ・`Span` プロパティ・`ReadOnlyMemory<T>`・`Stream.ReadAsync`・`Span<T>` との使い分け |
+| 85.1 | [ArrayPool\<T\>（補足）](/unity-csharp-learning/csharp/array-pool/) | `Rent` / `Return`・求めた長さより長い配列・`try` / `finally` で返す・残っているデータと `clearArray`・`stackalloc` との組み合わせ |
+| 86 | [文字列処理の割り当てを減らす](/unity-csharp-learning/csharp/string-performance/) | `Split` による解析で作られるもの・`ReadOnlySpan<char>` と `IndexOf` / `int.Parse`・中身の比較と `==` の違い・`TryFormat` / `TryWrite` / `string.Create`・方法のまとめ |
+
 ## 前提知識
 
 このセクションはプログラミング未経験の方を対象としています。特別な前提知識は不要です。

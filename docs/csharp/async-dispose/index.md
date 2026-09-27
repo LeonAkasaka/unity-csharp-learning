@@ -323,4 +323,4 @@ File.Delete(path);
 
 ## 次のステップ
 
-これで、C# の非同期処理のセクションは終わりです。[C# 言語入門](/unity-csharp-learning/csharp/) の目次に戻って、ほかのトピックも確認してみましょう。
+これで、C# の非同期処理のセクションは終わりです。次の [文字列の不変性と StringBuilder](/unity-csharp-learning/csharp/string-immutability/) からは、ヒープへの割り当てを減らしてメモリを効率よく使う方法を学びます。

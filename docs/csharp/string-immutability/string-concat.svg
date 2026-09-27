@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" width="560" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+  </defs>
+
+  <!-- 連結の前 -->
+  <text x="20" y="24" font-size="14" font-weight="bold" fill="#333">a += "B" の前</text>
+  <text x="20" y="44" font-size="12" fill="#555">a と b は同じ文字列を指す</text>
+
+  <text x="40" y="92" font-size="14" fill="#333" text-anchor="end">a</text>
+  <rect x="50" y="70" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb"/>
+  <circle cx="75" cy="87" r="4" fill="#e65100"/>
+
+  <text x="40" y="152" font-size="14" fill="#333" text-anchor="end">b</text>
+  <rect x="50" y="130" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb"/>
+  <circle cx="75" cy="147" r="4" fill="#e65100"/>
+
+  <line x1="79" y1="87" x2="148" y2="110" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="79" y1="147" x2="148" y2="126" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="152" y="98" width="60" height="38" rx="4" fill="#fff" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="182" y="123" font-size="15" fill="#1565c0" text-anchor="middle">"A"</text>
+
+  <line x1="250" y1="15" x2="250" y2="185" stroke="#bbb" stroke-dasharray="4 4"/>
+
+  <!-- 連結の後 -->
+  <text x="280" y="24" font-size="14" font-weight="bold" fill="#333">a += "B" の後</text>
+  <text x="280" y="44" font-size="12" fill="#555">新しい文字列が作られ、a だけが指し直す</text>
+
+  <text x="300" y="92" font-size="14" fill="#333" text-anchor="end">a</text>
+  <rect x="310" y="70" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb"/>
+  <circle cx="335" cy="87" r="4" fill="#e65100"/>
+
+  <text x="300" y="152" font-size="14" fill="#333" text-anchor="end">b</text>
+  <rect x="310" y="130" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb"/>
+  <circle cx="335" cy="147" r="4" fill="#e65100"/>
+
+  <line x1="339" y1="87" x2="426" y2="87" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="339" y1="147" x2="426" y2="147" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="430" y="68" width="70" height="38" rx="4" fill="#fff" stroke="#e65100" stroke-width="1.5"/>
+  <text x="465" y="93" font-size="15" fill="#e65100" text-anchor="middle">"AB"</text>
+  <text x="508" y="92" font-size="11" fill="#999">新しい</text>
+
+  <rect x="430" y="128" width="70" height="38" rx="4" fill="#fff" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="465" y="153" font-size="15" fill="#1565c0" text-anchor="middle">"A"</text>
+  <text x="508" y="152" font-size="11" fill="#999">元のまま</text>
+</svg>

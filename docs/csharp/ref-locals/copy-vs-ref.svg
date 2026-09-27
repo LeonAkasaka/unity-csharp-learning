@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 190" width="520" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+  </defs>
+
+  <!-- 配列 -->
+  <text x="20" y="24" font-size="14" font-weight="bold" fill="#333">配列 points</text>
+  <rect x="20" y="36" width="100" height="44" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="70" y="63" font-size="15" fill="#1565c0" text-anchor="middle">(10, 0)</text>
+  <text x="70" y="96" font-size="10" fill="#999" text-anchor="middle">[0]</text>
+  <rect x="120" y="36" width="100" height="44" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="170" y="63" font-size="15" fill="#555" text-anchor="middle">(0, 0)</text>
+  <text x="170" y="96" font-size="10" fill="#999" text-anchor="middle">[1]</text>
+  <rect x="220" y="36" width="100" height="44" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="270" y="63" font-size="15" fill="#555" text-anchor="middle">(0, 0)</text>
+  <text x="270" y="96" font-size="10" fill="#999" text-anchor="middle">[2]</text>
+
+  <!-- ref ローカル -->
+  <text x="20" y="150" font-size="14" fill="#333">ref Point p</text>
+  <rect x="100" y="130" width="50" height="34" rx="3" fill="#f5f5f5" stroke="#bbb"/>
+  <circle cx="125" cy="147" r="4" fill="#e65100"/>
+  <line x1="125" y1="143" x2="80" y2="84" stroke="#e65100" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="20" y="182" font-size="11" fill="#999">配列の要素そのものを指す</text>
+
+  <!-- コピー -->
+  <text x="360" y="24" font-size="14" font-weight="bold" fill="#333">Point copy</text>
+  <rect x="360" y="36" width="100" height="44" rx="3" fill="#fff" stroke="#bbb" stroke-width="1.5"/>
+  <text x="410" y="63" font-size="15" fill="#555" text-anchor="middle">(10, 0)</text>
+  <text x="360" y="100" font-size="11" fill="#999">points[0] とは別の値</text>
+  <text x="360" y="116" font-size="11" fill="#999">（取り出したときのコピー）</text>
+</svg>
