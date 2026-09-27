@@ -18,7 +18,7 @@ permalink: /csharp/inheritance/
 ## 前提知識
 
 - [クラスとフィールド](/unity-csharp-learning/csharp/classes/) を読んでいること
-- [コンストラクタ](/unity-csharp-learning/csharp/constructors/) を読んでいること
+- [コンストラクター](/unity-csharp-learning/csharp/constructors/) を読んでいること
 
 ---
 

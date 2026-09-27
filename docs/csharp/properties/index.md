@@ -6,16 +6,16 @@ permalink: /csharp/properties/
 
 # プロパティ
 
-`GetHp()` のようなゲッターメソッドの代わりに、フィールドのように読み書きできる構文が**プロパティ**です。見た目はフィールドへのアクセスと同じでも、内部では `get` / `set` アクセサーが動きます。
+**プロパティ**（property）は、フィールドと同じように `p.Hp` と書いて読み書きでき、実際には `get` / `set` という処理が実行される仕組みです。`private` のフィールドを、`GetHp()` のようなメソッドを使わずに、安全に公開できます。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
-- プロパティを使って `private` フィールドを安全に外部へ公開できる
-- `get` / `set` アクセサーの書き方を理解できる
+- `get` / `set` アクセサーのあるプロパティを定義できる
+- `set` アクセサーで値を調べてから、フィールドに保存できる
 - 自動実装プロパティ（`{ get; set; }`）を使える
-- 読み取り専用プロパティの2種類のパターンを説明できる
+- 読み取り専用のプロパティの 2 つの書き方の違いを説明できる
 
 ## 前提知識
 
@@ -23,55 +23,54 @@ permalink: /csharp/properties/
 
 ---
 
-## 1. 読み取り（getter）・書き込み（setter）メソッドの課題
+## 1. Get / Set メソッドの不便なところ
 
-前のページでは `private int _hp;` を守る（外部から勝手に書き換えられないようにする）ために、次のようなメソッドを書きました。このようなパターンは多くのプログラミング言語に共通する手法で、データを読み取る `GetHp()` メソッドのことを getter、データを設定する `SetHp()` メソッドのことを setter と呼びます。
+[アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) では、`private` のフィールド `_hp` を守るために、値を読み取る `GetHp` メソッドを用意しました。値を書き込むための `SetHp` メソッドも用意すると、次のようになります。
 
 ```csharp
-private int _hp; // バッキングフィールド
-public int GetHp()
+Player p = new Player();
+p.SetHp(100);
+p.SetHp(p.GetHp() - 30);
+Console.WriteLine(p.GetHp());
+
+class Player
 {
-    return _hp;
+    private int _hp;
+
+    public int GetHp()
+    {
+        return _hp;
+    }
+
+    public void SetHp(int value)
+    {
+        if (value < 0)
+        {
+            value = 0;
+        }
+        _hp = value;
+    }
 }
-
-public void SetHp(int value)
-{
-    if (value < 0) { value = 0; }
-    _hp = value;
-}
 ```
 
-上記のように GetHp() と SetHp() で読み書きする _hp フィールドのことをバッキングフィールドと呼びます。バッキングフィールドは private で外部には非公開にして、公開メソッドを通して読み書きされます。
-
-これらは以下のパターンとして定義できます。
-
-```csharp
-private 型 _名前; // バッキングフィールド
-public 型 Get名前() { return _名前; } // getter
-public void Set名前(型 value) { _名前 = value; } // setter
+```
+70
 ```
 
-このパターンは問題なく機能しますが、呼び出しが少し冗長になります。また、同じフィールドを読み書きする関連した機能ですが文法上は分離されている個別のメソッドなので対称性を保証しません。例えば GetHp() に対して SetHP() や SetHitPoint() のようにパターンに従わない実装もできてしまいます。
+値を読み取るメソッドを **ゲッター**（getter）、値を書き込むメソッドを **セッター**（setter）といいます。このとき、実際に値を保存している `private` のフィールド `_hp` を、**バッキングフィールド** といいます。
 
-また、フィールドと比較して値の設定に = 演算子を使えないので面倒になる点があります。
+この書き方は正しく動きますが、次のような不便があります。
 
-```csharp
-Console.WriteLine(p.GetHp());        // 読み取り
-p.SetHp(p.GetHp() - 30);             // 書き込み（計算が絡むと読みにくい）
-```
+- `p.SetHp(p.GetHp() - 30)` のように、計算を含むと読みにくい
+- ゲッターとセッターは別々のメソッドなので、`GetHp` に対して `SetHitPoint` のように、ばらばらな名前を付けることもできてしまう
 
-こうした問題を解決するのが**プロパティ**です。プロパティを使うと、フィールドのように `p.Hp` と書けるようになります。
-
-```csharp
-Console.WriteLine(p.Hp);   // 読み取り
-p.Hp -= 30;                // 書き込み（自然な書き方）
-```
+プロパティを使うと、同じことを `p.Hp -= 30;` と、フィールドのように書けます。
 
 ---
 
-## 2. プロパティの基本構文（バッキングフィールドあり）
+## 2. プロパティを定義する
 
-**書式：プロパティの定義**
+**書式：[プロパティの定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/properties#properties-with-backing-fields)**
 ```
 アクセス修飾子 型 プロパティ名
 {
@@ -82,14 +81,23 @@ p.Hp -= 30;                // 書き込み（自然な書き方）
 
 | 要素 | 説明 |
 |---|---|
-| `get` アクセサー | プロパティの値を**読み取る**ときに実行されるブロック |
-| `set` アクセサー | プロパティに値を**書き込む**ときに実行されるブロック |
-| `value` | `set` アクセサー内で使える特殊な変数。書き込もうとした値が入っている。型はプロパティの型と同じ（`int Hp` なら `value` も `int`） |
-| バッキングフィールド | プロパティが実際に値を保存する `private` フィールド |
+| `get` アクセサー | プロパティの値を **読み取る** ときに実行される。`return` で値を返す |
+| `set` アクセサー | プロパティに値を **書き込む** ときに実行される |
+| [value](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/value) | `set` アクセサーの中で使える特別な変数。書き込もうとしている値が入っている。型はプロパティの型と同じ |
 
-`value` は C# が予約している名前で、`set` ブロック内でのみ使えます。
+1 節の `GetHp` と `SetHp` を、プロパティ `Hp` に書き換えます。プロパティの名前は、`public` のメンバーなので PascalCase にします。
 
 ```csharp
+Player p = new Player();
+p.Hp = 100;
+Console.WriteLine(p.Hp);
+
+p.Hp -= 30;
+Console.WriteLine(p.Hp);
+
+p.Hp = -50;
+Console.WriteLine(p.Hp);
+
 class Player
 {
     private int _hp;
@@ -99,103 +107,106 @@ class Player
         get { return _hp; }
         set
         {
-            if (value < 0) { value = 0; }  // バリデーション
+            if (value < 0)
+            {
+                value = 0;
+            }
             _hp = value;
         }
     }
 }
 ```
 
-```csharp
-Player p = new Player();
-p.Hp = 100;
-Console.WriteLine(p.Hp);   // 100
-p.Hp = -50;                // セッターがバリデーションを適用
-Console.WriteLine(p.Hp);   // 0
-```
-
 ```
 100
+70
 0
 ```
 
-`GetHp()` / `SetHp()` との最大の違いは、**バリデーションを1か所に集約しながら**フィールドのように自然に読み書きできる点です。
+- `p.Hp = 100;` では、`set` アクセサーが実行され、`value` に `100` が入ります
+- `Console.WriteLine(p.Hp)` では、`get` アクセサーが実行され、`_hp` の値が返されます
+- `p.Hp -= 30;` では、`get` で今の値を読み取り、30 を引いた値を `set` で書き込みます
+- `p.Hp = -50;` では、`set` アクセサーの中で負の値が `0` に直されてから保存されます
+
+使う側はフィールドと同じように書けて、値を調べる処理は `set` アクセサーの 1 か所にまとめられます。
 
 ---
 
 ## 3. 自動実装プロパティ
 
-バリデーションが不要な場合は `get` / `set` の本体を省略できます。コンパイラが自動でバッキングフィールドを生成します。
+値を調べる必要がなく、読み書きするだけなら、`get` と `set` の本体を省略できます。これを [自動実装プロパティ](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/auto-implemented-properties) といいます。バッキングフィールドは、コンパイラーが自動的に用意します。
 
-**書式：自動実装プロパティ**
+**書式：[自動実装プロパティ](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/properties#automatically-implemented-properties)**
 ```
 アクセス修飾子 型 プロパティ名 { get; set; }
-```
-
-| 要素 | 説明 |
-|---|---|
-| `{ get; set; }` | `get` と `set` の本体を省略した短縮形。バッキングフィールドはコンパイラが生成する |
-
-```csharp
-class Player
-{
-    public string Name { get; set; }
-    public int Level { get; set; }
-}
+アクセス修飾子 型 プロパティ名 { get; set; } = 初期値;
 ```
 
 ```csharp
 Player p = new Player();
+Console.WriteLine($"[{p.Name}] (Lv.{p.Level})");
+
 p.Name = "Alice";
 p.Level = 5;
-Console.WriteLine($"{p.Name} (Lv.{p.Level})");   // Alice (Lv.5)
+Console.WriteLine($"{p.Name} (Lv.{p.Level})");
+
+class Player
+{
+    public string Name { get; set; } = "";
+    public int Level { get; set; } = 1;
+}
 ```
 
 ```
+[] (Lv.1)
 Alice (Lv.5)
 ```
 
-バッキングフィールドはコンパイラが生成するため、自分で `private string _name;` などを書く必要はありません。
+フィールドと同じように、`= 初期値` で初期値を書けます。自分で `private string _name;` のようなバッキングフィールドを書く必要はありません。
 
 ---
 
-## 4. 読み取り専用プロパティ
+## 4. 読み取り専用のプロパティ
 
-クラスの外から値を変更させたくない場合は、`set` アクセサーを省略するか制限します。
+クラスの外から値を変えられないようにするには、`set` アクセサーを書かないか、`set` を `private` にします。
 
-### パターン①：`{ get; }` — 完全な読み取り専用
+### { get; } — コンストラクターでだけ値を入れられる
 
-`set` を書かないと、クラスの外からも内からも代入できません。コンストラクター内での初期化のみ可能です。
-
-> ※ コンストラクターはオブジェクトが「生まれる瞬間」だけ実行される特別なメソッドです。C# はその瞬間だけ `{ get; }` プロパティへの代入を許可しています。
+`set` を書かない自動実装プロパティは、コンストラクターの中（と初期値）でだけ値を入れられます。インスタンスを作った後は、クラスの外からも中からも変えられません。
 
 ```csharp
+Player p = new Player("Alice");
+Console.WriteLine(p.Name);
+
 class Player
 {
     public string Name { get; }
 
     public Player(string name)
     {
-        Name = name;   // ✅ コンストラクター内のみ代入できる
+        Name = name;
     }
 }
-```
-
-```csharp
-Player p = new Player("Alice");
-Console.WriteLine(p.Name);   // Alice
-// p.Name = "Bob";            // ❌ コンパイルエラー
 ```
 
 ```
 Alice
 ```
 
-### パターン②：`{ get; private set; }` — クラス内からは変更可能
+```csharp
+// ❌ NG: set のないプロパティには、代入できない
+// p.Name = "Bob";  // CS0200
+```
 
-クラスの外からは読み取り専用ですが、クラスのメソッド内からは変更できます。
+### { get; private set; } — クラスの中からだけ値を変えられる
+
+`set` の前に `private` を付けると、クラスの外からは読み取り専用で、クラスの中のメソッドからは値を変えられるプロパティになります。
 
 ```csharp
+Player p = new Player(100);
+p.TakeDamage(30);
+Console.WriteLine(p.Hp);
+
 class Player
 {
     public int Hp { get; private set; }
@@ -207,157 +218,189 @@ class Player
 
     public void TakeDamage(int damage)
     {
-        Hp -= damage;                    // ✅ クラス内から変更できる
-        if (Hp < 0) { Hp = 0; }
+        Hp -= damage;
+        if (Hp < 0)
+        {
+            Hp = 0;
+        }
     }
 }
-```
-
-```csharp
-Player p = new Player(100);
-p.TakeDamage(30);
-Console.WriteLine(p.Hp);   // 70
-// p.Hp = 999;              // ❌ コンパイルエラー（クラスの外からは書けない）
 ```
 
 ```
 70
 ```
 
-> 💡 バリデーションが必要な場合は、バッキングフィールドを使うパターン（セクション2）と組み合わせてください。
+```csharp
+// ❌ NG: set が private なので、クラスの外からは代入できない
+// p.Hp = 999;  // CS0272
+```
 
-> 💡 **`init` アクセサー（C# 9 から）**: `set` の代わりに `init` と書くと、コンストラクターまたはオブジェクト初期化子（`new Player { Hp = 100 }` の形）でのみ代入できるプロパティを作れます。`{ get; init; }` のように使います。詳しくは後の章で扱います。
+| 書き方 | クラスの外から | クラスの中のメソッドから | コンストラクターから |
+|---|---|---|---|
+| `{ get; set; }` | 読み書きできる | 読み書きできる | 読み書きできる |
+| `{ get; private set; }` | 読み取りだけ | 読み書きできる | 読み書きできる |
+| `{ get; }` | 読み取りだけ | 読み取りだけ | 読み書きできる |
 
 ---
 
-## 5. プロパティを使ったクラス設計の例
+## 5. プロパティを使ったクラスの例
 
-ここまでの内容をまとめた `Player` クラスの完成形です。
+ここまでの書き方を組み合わせた `Player` クラスです。
 
 ```csharp
+Player p = new Player("Alice", 100);
+p.TakeDamage(30);
+p.TakeDamage(200);
+p.LevelUp();
+
 class Player
 {
-    // 完全な読み取り専用（外からも内からも変更不可）
+    // 読み取り専用（コンストラクターでだけ値を入れる）
     public string Name { get; }
 
-    // バリデーションあり（0〜MaxHp の範囲に収める）
+    // クラスの中からだけ変えられる
+    public int MaxHp { get; private set; }
+
+    // 読み書きできる
+    public int Level { get; set; } = 1;
+
+    // 値を 0 から MaxHp の範囲に収める
     private int _hp;
     public int Hp
     {
         get { return _hp; }
         set
         {
-            // ※ 条件ごとに早期リターンするスタイル（セクション2の if + 代入と同じ意味）
-            if (value < 0) { _hp = 0; return; }
-            if (value > MaxHp) { _hp = MaxHp; return; }
+            if (value < 0)
+            {
+                value = 0;
+            }
+            if (value > MaxHp)
+            {
+                value = MaxHp;
+            }
             _hp = value;
         }
     }
-
-    // クラス内からのみ変更可能
-    public int MaxHp { get; private set; }
-
-    // バリデーション不要な自動実装プロパティ
-    public int Level { get; set; }
 
     public Player(string name, int maxHp)
     {
         Name = name;
         MaxHp = maxHp;
         Hp = maxHp;
-        Level = 1;
     }
 
     public void TakeDamage(int damage)
     {
-        Hp -= damage;   // プロパティ経由なのでバリデーションが自動で走る
-        Console.WriteLine($"{Name} が {damage} ダメージ。残りHP={Hp}/{MaxHp}");
+        Hp -= damage;
+        Console.WriteLine($"{Name} が {damage} ダメージ。残り HP={Hp}/{MaxHp}");
     }
 
     public void LevelUp()
     {
         Level++;
         MaxHp += 20;
-        Hp = MaxHp;    // HP を最大値まで回復
-        Console.WriteLine($"{Name} がレベル {Level} になった！ MaxHP={MaxHp}");
+        Hp = MaxHp;
+        Console.WriteLine($"{Name} がレベル {Level} になった！ HP={Hp}/{MaxHp}");
     }
 }
 ```
 
-```csharp
-Player p = new Player("Alice", 100);
-p.TakeDamage(30);
-p.TakeDamage(200);   // 0 未満にはならない
-p.LevelUp();
+```
+Alice が 30 ダメージ。残り HP=70/100
+Alice が 200 ダメージ。残り HP=0/100
+Alice がレベル 2 になった！ HP=120/120
 ```
 
-```
-Alice が 30 ダメージ。残りHP=70/100
-Alice が 200 ダメージ。残りHP=0/100
-Alice がレベル 2 になった！ MaxHP=120
-```
+`TakeDamage` の中でも `Hp` プロパティを通して値を変えているので、HP が負になることはありません。クラスの中でも、値を調べる処理を通したいときは、フィールドではなくプロパティを使います。
 
 ---
 
 ## よくあるミス
 
-### ミス①：バッキングフィールドをプロパティ自身で返す（無限再帰）
+### get や set の中で、プロパティ自身を使う
 
 ```csharp
-// ❌ NG: プロパティが自分自身を呼び出して無限ループになる
-public int Hp
+// ❌ NG: get の中で Score（プロパティ自身）を返している
+// class Player
+// {
+//     public int Score
+//     {
+//         get { return Score; }
+//         set { Score = value; }
+//     }
+// }
+```
+
+`get` の中で `Score` を読むと、また `Score` の `get` が実行され、それが終わりなく続きます。コンパイルエラーにはなりませんが、実行するとスタックオーバーフロー（[再帰関数とコールスタック](/unity-csharp-learning/csharp/recursion/) で学ぶ、呼び出しの積み重ねがあふれるエラー）でプログラムが異常終了します。値は、バッキングフィールド（`_score`）に読み書きします。
+
+### set の中で value の代わりにプロパティを使う
+
+```csharp
+Player p = new Player();
+p.Hp = 100;
+Console.WriteLine(p.Hp);
+
+class Player
 {
-    get { return Hp; }   // Hp（プロパティ）を呼ぶと再び get が実行される
-    set { Hp = value; }
-}
+    private int _hp;
 
-// ✅ OK: バッキングフィールド（_hp）を使う
-private int _hp;
-public int Hp
+    public int Hp
+    {
+        get { return _hp; }
+        set { _hp = Hp; }
+    }
+}
+```
+
+```
+0
+```
+
+`set` の中の `Hp` は、`get` で読み取った **今の値** です。書き込もうとしている値は `value` に入っているので、`_hp = value;` と書きます。
+
+---
+
+## ワンポイントアドバイス
+
+### init アクセサー（C# 9 以降）
+
+`set` の代わりに [init](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/init) と書くと、コンストラクターのほか、インスタンスを作る式の中でだけ値を入れられるプロパティになります。
+
+```csharp
+Player p = new Player { Name = "Alice", Level = 3 };
+Console.WriteLine($"{p.Name} (Lv.{p.Level})");
+
+class Player
 {
-    get { return _hp; }
-    set { _hp = value; }
+    public string Name { get; init; } = "";
+    public int Level { get; init; } = 1;
 }
 ```
 
-### ミス②：`set` の中で `value` の代わりにプロパティ名を使う
-
-```csharp
-// ❌ NG: value ではなく Hp を参照してしまっている
-set { _hp = Hp; }   // 書き込もうとした値ではなく現在値が入る
-
-// ✅ OK: 書き込もうとした値は value
-set { _hp = value; }
+```
+Alice (Lv.3)
 ```
 
-### ミス③：自動実装プロパティと不要なバッキングフィールドを両方書く
-
-```csharp
-// ❌ NG: 自動実装プロパティがあるのにフィールドが重複している
-private string _name;
-public string Name { get; set; }
-
-// ✅ OK: バリデーションが不要なら自動実装プロパティだけでよい
-public string Name { get; set; }
-```
+`new Player { Name = "Alice", Level = 3 }` の `{ }` の部分を、[オブジェクト初期化子](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/object-and-collection-initializers) といいます。インスタンスを作った後に `p.Name = "Bob";` と書くと、コンパイルエラーになります。
 
 ---
 
 ## まとめ
 
-- **プロパティ**は `get` / `set` アクセサーを持つ「フィールドのように使えるメソッド」
-- `set` アクセサー内の `value` は、書き込もうとした値が入る特殊な変数
-- `get` / `set` の本体を省略した**自動実装プロパティ**はバリデーション不要な場面で便利
-- **読み取り専用**にするには `{ get; }` または `{ get; private set; }` を使い分ける
-- バッキングフィールドはプロパティとは別の `private` フィールドであることに注意
+- プロパティは、フィールドのように読み書きでき、実際には `get` / `set` アクセサーが実行される
+- `set` アクセサーの中の `value` には、書き込もうとしている値が入っている
+- `set` アクセサーで値を調べると、範囲外の値が保存されるのを防げる
+- 値を調べる必要がなければ、自動実装プロパティ `{ get; set; }` を使う
+- `{ get; }` はコンストラクターでだけ、`{ get; private set; }` はクラスの中からだけ、値を入れられる
+- `get` や `set` の中では、プロパティ自身ではなくバッキングフィールドを読み書きする
 
 ---
 
 ## 理解度チェック
 
-以下の問いに答えられるか確認しましょう。
-
-1. 次のプロパティは何が問題ですか？
+1. 次のプロパティには、どのような問題がありますか？
 
    ```csharp
    public int Score
@@ -367,60 +410,48 @@ public string Name { get; set; }
    }
    ```
 
-2. `{ get; private set; }` と `{ get; }` の違いは何ですか？
-
-3. 次のクラスの `_level` フィールドをプロパティ `Level`（クラス外から読み取り専用、クラス内から変更可能）に書き直してください。
+2. `{ get; private set; }` と `{ get; }` の違いを説明してください。
+3. 次のクラスの `_level` フィールドと `GetLevel` メソッドを、プロパティ `Level`（クラスの外からは読み取り専用、クラスの中からは変更できる）に書き換えてください。
 
    ```csharp
    class Hero
    {
        private int _level = 1;
 
-       public int GetLevel() { return _level; }
-       public void LevelUp() { _level++; }
+       public int GetLevel()
+       {
+           return _level;
+       }
+
+       public void LevelUp()
+       {
+           _level++;
+       }
    }
    ```
-
-4. （応用）`Name`（外から変更不可）と `Score`（0 未満にならないバリデーションつき）を持つ `GameRecord` クラスをプロパティで設計してください。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. `get` の中で `Score`（プロパティ自身）を返しているため、`get` が呼ばれるたびに再び `get` が呼ばれ、無限再帰によるスタックオーバーフローになる。バッキングフィールドを用意して `return _score;` とすべき。
-
-2. `{ get; }` はクラスの**内外どちらからも**代入できない（コンストラクター内での初期化のみ可）。`{ get; private set; }` はクラスの外からは読み取り専用だが、クラス内のメソッドからは変更できる。
-
+1. `get` の中で `Score`（プロパティ自身）を読むので、`get` が終わりなく呼び出され、スタックオーバーフローでプログラムが異常終了します。バッキングフィールド `_score` を用意して、`get` では `return _score;`、`set` では `_score = value;` と書きます。
+2. `{ get; }` は、コンストラクターの中（と初期値）でだけ値を入れられ、その後はクラスの中からも変えられません。`{ get; private set; }` は、クラスの外からは読み取り専用ですが、クラスの中のメソッドからは変えられます。
 3. ```csharp
+   Hero h = new Hero();
+   h.LevelUp();
+   Console.WriteLine(h.Level);
+
    class Hero
    {
        public int Level { get; private set; } = 1;
 
-       public void LevelUp() { Level++; }
-   }
-   ```
-
-4. ```csharp
-   class GameRecord
-   {
-       public string Name { get; }
-
-       private int _score;
-       public int Score
+       public void LevelUp()
        {
-           get { return _score; }
-           set
-           {
-               if (value < 0) { _score = 0; return; }
-               _score = value;
-           }
-       }
-
-       public GameRecord(string name)
-       {
-           Name = name;
+           Level++;
        }
    }
    ```
+
+   `2` が表示されます。
 
 </details>
 
@@ -428,4 +459,4 @@ public string Name { get; set; }
 
 ## 次のステップ
 
-**[インデクサ](/unity-csharp-learning/csharp/indexers/)** では、`[]` で要素にアクセスできる自作クラスの書き方を学びます。
+[インデクサ](/unity-csharp-learning/csharp/indexers/) では、自分で作ったクラスに、配列のように `[]` で要素を読み書きする機能を持たせる方法を学びます。

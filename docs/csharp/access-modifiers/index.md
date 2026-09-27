@@ -6,67 +6,115 @@ permalink: /csharp/access-modifiers/
 
 # アクセス修飾子
 
-フィールドをすべて `public` にしておくと、クラスの外から自由に書き換えられてしまいます。
-
-```csharp
-Player p = new Player("Alice", 100);
-p.hp = 999999;  // ゲームバランスを無視した書き換えが可能
-```
-
-**アクセス修飾子**はフィールドやメソッドへの「アクセス可能な範囲」を制限する仕組みです。外から触ってよい部分だけを公開し、内部の詳細を隠すことを**カプセル化**と呼びます。カプセル化によってクラスの誤用を防ぎ、後から内部実装を変更しやすくなります。
+**アクセス修飾子**（access modifier）は、フィールドやメソッドを、どこから使えるかを決めるキーワードです。クラスの外から使ってよいものだけを公開し、クラスの中の仕組みを隠すことを **カプセル化**（encapsulation）といいます。カプセル化すると、クラスが間違った使い方をされるのを防げます。
 
 ## 学習目標
 
+このページを読み終えると、以下のことができるようになります。
+
 - `public` と `private` の違いを説明できる
-- `private` フィールドをメソッド経由で操作できる
-- デフォルトのアクセスレベルを理解できる
+- `private` のフィールドを、メソッドを通して操作するクラスを作れる
+- アクセス修飾子を省略したときに、どのアクセスレベルになるかを説明できる
 
 ## 前提知識
 
-- [コンストラクタ](/unity-csharp-learning/csharp/constructors/) を読んでいること
+- [コンストラクター](/unity-csharp-learning/csharp/constructors/) を読んでいること
 
 ---
 
-## 1. `public` と `private`
+## 1. すべて public にすると困ること
 
-| 修飾子 | アクセス可能な範囲 |
-|---|---|
-| `public` | どこからでもアクセスできる |
-| `private` | 同じクラス内からのみアクセスできる |
-
-**書式：フィールドの定義（修飾子あり）**
-```
-アクセス修飾子 型 フィールド名;
-```
+フィールドを `public` にすると、クラスの外から、どのような値でも入れられます。
 
 ```csharp
+Player p = new Player("Alice", 100);
+p.Hp = -500;
+Console.WriteLine($"{p.Name}: HP={p.Hp}");
+
 class Player
 {
-    public string name;    // クラスの外から読み書きできる
-    private int _hp;       // クラスの外から直接触れない
+    public string Name;
+    public int Hp;
+
+    public Player(string name, int hp)
+    {
+        Name = name;
+        Hp = hp;
+    }
+}
+```
+
+```
+Alice: HP=-500
+```
+
+HP が負になるのは、ゲームとしてありえない状態です。しかし、`Hp` が `public` なので、クラスの外のどこからでも、このような値を入れられてしまいます。
+
+---
+
+## 2. public と private
+
+[アクセス修飾子](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/access-modifiers) の基本は、`public` と `private` の 2 つです。
+
+| 修飾子 | 使える範囲 |
+|---|---|
+| `public` | どこからでも使える |
+| `private` | 同じクラスの中からだけ使える |
+
+**書式：[アクセス修飾子を付けたメンバーの定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/access-modifiers)**
+```
+アクセス修飾子 型 フィールド名;
+アクセス修飾子 戻り値の型 メソッド名(パラメータ)
+```
+
+`Hp` を `private` にして、HP を変える処理は `TakeDamage` と `Heal` のメソッドだけにします。
+
+```csharp
+Player p = new Player("Alice", 100);
+p.TakeDamage(30);
+p.Heal(50);
+p.TakeDamage(500);
+Console.WriteLine($"現在の HP={p.GetHp()}");
+
+class Player
+{
+    public string Name;
+    private int _hp;
     private int _maxHp;
 
-    public Player(string playerName, int initialHp)
+    public Player(string name, int hp)
     {
-        name = playerName;
-        _hp = initialHp;
-        _maxHp = initialHp;
+        Name = name;
+        _hp = hp;
+        _maxHp = hp;
     }
 
     public void TakeDamage(int damage)
     {
-        if (damage < 0) { return; }  // 不正な値を弾く
+        if (damage < 0)
+        {
+            return;
+        }
         _hp = _hp - damage;
-        if (_hp < 0) { _hp = 0; }
-        Console.WriteLine($"{name} が {damage} ダメージ。残りHP={_hp}");
+        if (_hp < 0)
+        {
+            _hp = 0;
+        }
+        Console.WriteLine($"{Name} が {damage} ダメージ。残り HP={_hp}");
     }
 
     public void Heal(int amount)
     {
-        if (amount < 0) { return; }
+        if (amount < 0)
+        {
+            return;
+        }
         _hp = _hp + amount;
-        if (_hp > _maxHp) { _hp = _maxHp; }
-        Console.WriteLine($"{name} が {amount} 回復。残りHP={_hp}");
+        if (_hp > _maxHp)
+        {
+            _hp = _maxHp;
+        }
+        Console.WriteLine($"{Name} が {amount} 回復。残り HP={_hp}");
     }
 
     public int GetHp()
@@ -76,101 +124,116 @@ class Player
 }
 ```
 
+```
+Alice が 30 ダメージ。残り HP=70
+Alice が 50 回復。残り HP=100
+Alice が 500 ダメージ。残り HP=0
+現在の HP=0
+```
+
+`_hp` は `private` なので、クラスの外からは直接読み書きできません。HP を変えられるのは `TakeDamage` と `Heal` だけで、どちらも HP が 0 から最大値の範囲に収まるように調べています。HP を読みたいときのために、`_hp` の値を返す `GetHp` メソッドを `public` で用意しています。
+
+`private` のフィールドにクラスの外から触ろうとすると、コンパイルエラーになります。
+
 ```csharp
-Player p = new Player("Alice", 100);
-p.TakeDamage(30);
-p.Heal(20);
-Console.WriteLine($"現在HP={p.GetHp()}");
-
-// p._hp = 999;  // ❌ コンパイルエラー: private フィールドには外からアクセスできない
+// ❌ NG: private のフィールドは、クラスの外から使えない
+// p._hp = 999;  // CS0122
 ```
 
-```
-Alice が 30 ダメージ。残りHP=70
-Alice が 20 回復。残りHP=90
-現在HP=90
-```
-
-`_hp` を `private` にすることで `TakeDamage` と `Heal` だけが値を変更できるようになりました。不正な値のチェックをメソッド内に集約でき、バグを防ぎやすくなります。
-
-> 📌 C# では `private` フィールドの命名に `_camelCase`（アンダースコア＋小文字始まり）を使うことが多いです。
+> 💡 **名前の付け方**: `private` のフィールドは、`_hp` のように `_` で始まる camelCase（最初の単語は小文字、2 つ目以降の単語の先頭は大文字）で名付けるのが一般的です。`public` のメンバーは PascalCase で名付けます。名前を見れば、クラスの外から使えるかどうかがわかります。
 
 ---
 
-## 2. デフォルトのアクセスレベル
+## 3. アクセス修飾子を省略したとき
 
-アクセス修飾子を省略した場合のデフォルトは次のとおりです。
+アクセス修飾子を省略すると、次のアクセスレベルになります。
 
-| 要素 | 省略時のデフォルト |
+| 対象 | 省略したときのアクセスレベル |
 |---|---|
-| クラスのメンバー（フィールド・メソッド） | `private` |
-| クラス自体（トップレベル） | `internal` |
+| クラスのメンバー（フィールド、メソッドなど） | `private` |
+| クラスそのもの | `internal`（4 節の表を参照） |
 
-意図しない公開を防ぐため、フィールドには明示的に `private` と書く習慣をつけましょう。
+```csharp
+// ❌ NG: アクセス修飾子を省略したフィールドは private になる
+// Box b = new Box();
+// Console.WriteLine(b.Value);  // CS0122
+//
+// class Box
+// {
+//     int Value;
+// }
+```
+
+省略したメンバーは `private` になりますが、読む人に意図が伝わるように、`private` も省略せずに書く習慣をつけましょう。
 
 ---
 
-## 3. その他のアクセス修飾子
+## 4. その他のアクセス修飾子
 
-中規模以上のプロジェクトでは以下の修飾子も登場します。現段階では存在だけ確認してください。
+中規模以上のプログラムでは、次のアクセス修飾子も使われます。ここでは、名前と意味だけを確認しておきましょう。
 
-| 修飾子 | アクセス可能な範囲 |
+| 修飾子 | 使える範囲 |
 |---|---|
-| `internal` | 同じアセンブリ（プロジェクト）内からのみ |
-| `protected` | 同じクラスおよびそのクラスを継承したクラスから |
-| `protected internal` | `protected` と `internal` の和（どちらかを満たせばOK） |
-| `private protected` | 同じアセンブリ内かつ派生クラスのみ |
+| `internal` | 同じアセンブリ（同じプロジェクトからビルドされたプログラム）の中から |
+| `protected` | 同じクラスと、そのクラスを継承したクラスの中から |
+| `protected internal` | `protected` または `internal` のどちらかの条件を満たす場所から |
+| `private protected` | 同じアセンブリの中で、かつ、継承したクラスの中から |
 
-`internal` は複数プロジェクトを組み合わせる場面で、`protected` は継承（派生クラス）の学習後に詳しく扱います。
+`protected` は、継承を学んだ後の [protected 修飾子](/unity-csharp-learning/csharp/protected-modifier/) で詳しく学びます。
 
 ---
 
 ## まとめ
 
-- **`public`** — どこからでもアクセス可能。外部に公開したいメソッドや情報に使う
-- **`private`** — クラス内部からのみアクセス可能。フィールドは基本的に `private` にする
-- **カプセル化** — 内部状態を隠してメソッドを通じてのみ操作させる設計の考え方
-- アクセス修飾子を省略したメンバーは `private` 扱いになる
+- `public` のメンバーはどこからでも使え、`private` のメンバーは同じクラスの中からだけ使える
+- フィールドは `private` にして、値の変更はメソッドを通して行う。これをカプセル化という
+- `private` のメンバーをクラスの外から使うと、コンパイルエラー（CS0122）になる
+- アクセス修飾子を省略したメンバーは `private` になる
 
 ---
 
 ## 理解度チェック
 
-1. 次のコードはコンパイルエラーになりますか？ 理由とともに答えてください。
+1. 次のコードはコンパイルエラーになりますか？理由も答えてください。
 
    ```csharp
+   Box b = new Box(10);
+   Console.WriteLine(b._value);
+
    class Box
    {
        private int _value;
 
-       public Box(int v) { _value = v; }
+       public Box(int value)
+       {
+           _value = value;
+       }
    }
-
-   Box b = new Box(10);
-   Console.WriteLine(b._value);
    ```
 
-2. 下のクラスの `_score` フィールドを `private` に変更し、スコアを加算する `AddScore(int points)` メソッドと現在のスコアを返す `GetScore()` メソッドを追加してください。
+2. 次のクラスの `_score` フィールドを `private` にして、スコアを足す `AddScore(int points)` メソッドと、今のスコアを返す `GetScore()` メソッドを追加してください。
 
    ```csharp
    class Player
    {
-       public string name;
-       public int _score;  // ← private に変える
+       public int _score;
    }
    ```
 
-3. （応用）`private` フィールド `_level`（初期値 1）と `_exp` を持つ `Character` クラスを定義してください。`AddExp(int amount)` メソッドで `_exp` を加算し、100 以上になったら `_level` を 1 上げて `_exp` を 0 にリセットするよう実装してください。
+3. （応用）`private` のフィールド `_level`（最初は 1）と `_exp`（最初は 0）を持つ `Character` クラスを定義してください。`AddExp(int amount)` メソッドで `_exp` を増やし、100 以上になったら `_level` を 1 上げて `_exp` を 0 に戻します。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. コンパイルエラーになる。`_value` は `private` であり、クラスの外（`Box` クラスの外）からアクセスできない。
-
+1. コンパイルエラーになります（CS0122）。`_value` は `private` なので、`Box` クラスの外からは使えません。
 2. ```csharp
+   Player p = new Player();
+   p.AddScore(30);
+   p.AddScore(20);
+   Console.WriteLine(p.GetScore());
+
    class Player
    {
-       public string name;
        private int _score;
 
        public void AddScore(int points)
@@ -185,19 +248,18 @@ Alice が 20 回復。残りHP=90
    }
    ```
 
+   `50` が表示されます。
+
 3. ```csharp
+   Character c = new Character();
+   c.AddExp(60);
+   c.AddExp(50);
+   Console.WriteLine(c.GetStatus());
+
    class Character
    {
-       public string name;
-       private int _level;
+       private int _level = 1;
        private int _exp;
-
-       public Character(string charName)
-       {
-           name = charName;
-           _level = 1;
-           _exp = 0;
-       }
 
        public void AddExp(int amount)
        {
@@ -206,16 +268,17 @@ Alice が 20 回復。残りHP=90
            {
                _level = _level + 1;
                _exp = 0;
-               Console.WriteLine($"{name} がレベル {_level} になった！");
            }
        }
 
        public string GetStatus()
        {
-           return $"{name}: Lv={_level}, EXP={_exp}";
+           return $"Lv={_level}, EXP={_exp}";
        }
    }
    ```
+
+   `Lv=2, EXP=0` が表示されます。
 
 </details>
 
@@ -223,5 +286,4 @@ Alice が 20 回復。残りHP=90
 
 ## 次のステップ
 
-**プロパティ**（`get` / `set`）を使うと、`private` フィールドへの読み書きをより簡潔に安全に記述できます。
-次のページで学びましょう → [プロパティ](/unity-csharp-learning/csharp/properties/)
+[プロパティ](/unity-csharp-learning/csharp/properties/) では、`private` のフィールドを、`GetHp()` のようなメソッドを使わずに、フィールドのような書き方で安全に読み書きする方法を学びます。

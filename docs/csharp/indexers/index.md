@@ -6,16 +6,15 @@ permalink: /csharp/indexers/
 
 # インデクサ
 
-配列と同じように `[]` でアクセスできる、自作クラスを作るための仕組みが**インデクサ**です。プロパティが「フィールドを外部に公開する構文」なら、インデクサは「内部の配列やデータを外部に公開する構文」と言えます。
+**インデクサ**（indexer）は、自分で作ったクラスのインスタンスを、配列と同じように `[]` で読み書きできるようにする仕組みです。プロパティが「名前で値を読み書きする窓口」なら、インデクサは「番号やキーで値を読み書きする窓口」です。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
-- インデクサの構文を理解し、自作クラスに `[]` でアクセスできるようにできる
-- `int` キーと `string` キーの両方でインデクサを定義できる
-- 読み取り専用インデクサを作れる
-- よくある実装ミス（範囲外アクセス・`this` の書き忘れ）を避けられる
+- インデクサを定義し、自分で作ったクラスのインスタンスを `[]` で読み書きできる
+- `int` と `string` の両方のインデックスでインデクサを定義できる
+- 読み取り専用のインデクサを作れる
 
 ## 前提知識
 
@@ -25,70 +24,39 @@ permalink: /csharp/indexers/
 
 ## 1. インデクサが必要になる場面
 
-配列は `items[0]` のように `[]` で要素にアクセスできます。
+配列は、`items[0]` のように `[]` で要素を読み書きできます。
 
 ```csharp
 string[] items = { "剣", "盾", "回復薬" };
-Console.WriteLine(items[0]);   // 剣
+Console.WriteLine(items[0]);
 ```
 
-自分で作ったクラスも同じように `inventory[0]` と書けたら自然ですが、普通のクラスはそのままでは `[]` をサポートしていません。
-
-```csharp
-Inventory inventory = new Inventory(4);
-// inventory[0] = "剣";   // ❌ このままではコンパイルエラー
+```
+剣
 ```
 
-これを可能にするのが**インデクサ**です。プロパティが「フィールド名でアクセスする窓口」なら、インデクサは「インデックス（番号やキー）でアクセスする窓口」です。
+ゲームのアイテム欄を表す `Inventory` クラスを作り、中で配列を使うとします。配列を `private` にすると、クラスの外からは `inventory[0]` のように書けません。インデクサを定義すると、`Inventory` のインスタンスにも `[]` を使えるようになります。
 
 ---
 
-## 2. インデクサの基本構文
+## 2. インデクサを定義する
 
-**書式：インデクサの定義**
+**書式：[インデクサの定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/indexers)**
 ```
-アクセス修飾子 型 this[インデックスの型 パラメーター名]
+アクセス修飾子 型 this[インデックスの型 パラメータ名]
 {
-    get { ... }
-    set { ... }
+    get { /* 値を返す */ }
+    set { /* value を保存する */ }
 }
 ```
 
 | 要素 | 説明 |
 |---|---|
-| `this` | インデクサであることを示すキーワード。プロパティとの最大の違い |
-| `インデックスの型` | `[]` の中に書く値の型。`int` が最も一般的で、`string` も使える |
-| `パラメーター名` | インデックスの値を受け取るローカル変数名（`index`、`key` など） |
-| `get` アクセサー | `[]` で読み取るときに実行されるブロック |
-| `set` アクセサー | `[]` で書き込むときに実行されるブロック。書き込む値は `value` で参照する |
-
-プロパティと同じく、`value` は `set` アクセサー内でのみ使える特殊な変数です。
-
----
-
-## 3. int インデックスのインデクサ
-
-### 最もシンプルな例
-
-ゲームのアイテム欄を管理する `Inventory` クラスで試してみましょう。
-
-```csharp
-class Inventory
-{
-    private string[] _slots;
-
-    public Inventory(int size)
-    {
-        _slots = new string[size];
-    }
-
-    public string this[int index]
-    {
-        get { return _slots[index]; }
-        set { _slots[index] = value; }
-    }
-}
-```
+| `型` | `[]` で読み書きする値の型 |
+| `this` | インデクサであることを表すキーワード。プロパティ名の代わりに書く |
+| `インデックスの型 パラメータ名` | `[]` の中に書く値（インデックス）を受け取るパラメータ |
+| `get` アクセサー | `[]` で読み取るときに実行される |
+| `set` アクセサー | `[]` に書き込むときに実行される。書き込む値は `value` に入っている |
 
 ```csharp
 Inventory inventory = new Inventory(4);
@@ -96,28 +64,12 @@ inventory[0] = "剣";
 inventory[1] = "盾";
 inventory[2] = "回復薬";
 
-Console.WriteLine(inventory[0]);   // 剣
-Console.WriteLine(inventory[2]);   // 回復薬
-```
+Console.WriteLine(inventory[0]);
+Console.WriteLine(inventory[2]);
 
-```
-剣
-回復薬
-```
-
-`[]` でアクセスするたびに、インデクサの `get` / `set` が呼ばれます。内部の `_slots` 配列は `private` なので、外部からは直接触れません。
-
-### Length プロパティと組み合わせる
-
-コレクションらしく扱えるよう、`Length` プロパティも追加するとより便利です。
-前の例に `Length` プロパティを1つ加えた版です。
-
-```csharp
 class Inventory
 {
     private string[] _slots;
-
-    public int Length => _slots.Length;   // ★ 追加
 
     public Inventory(int size)
     {
@@ -131,6 +83,17 @@ class Inventory
     }
 }
 ```
+
+```
+剣
+回復薬
+```
+
+`inventory[0] = "剣";` では、`set` アクセサーが実行され、`index` に `0`、`value` に `"剣"` が入ります。`inventory[0]` を読むと、`get` アクセサーが実行されます。中の `_slots` 配列は `private` のままなので、クラスの外からは直接触れません。
+
+### 要素の数を返すプロパティと組み合わせる
+
+配列の `Length` のように、要素の数を返すプロパティも用意すると、`for` 文ですべての要素を処理できます。
 
 ```csharp
 Inventory inventory = new Inventory(3);
@@ -140,29 +103,54 @@ inventory[2] = "回復薬";
 
 for (int i = 0; i < inventory.Length; i++)
 {
-    Console.WriteLine($"スロット{i}: {inventory[i]}");
+    Console.WriteLine($"スロット {i}: {inventory[i]}");
 }
-```
 
-```
-スロット0: 剣
-スロット1: 盾
-スロット2: 回復薬
-```
-
----
-
-## 4. バリデーションを入れる
-
-プロパティと同様に、インデクサの `get` / `set` の中に処理を書けます。範囲外アクセスを防ぐバリデーションを入れてみましょう。
-前の例の `get` / `set` に範囲チェックを追加したものです。
-
-```csharp
 class Inventory
 {
     private string[] _slots;
 
-    public int Length => _slots.Length;
+    public int Length
+    {
+        get { return _slots.Length; }
+    }
+
+    public Inventory(int size)
+    {
+        _slots = new string[size];
+    }
+
+    public string this[int index]
+    {
+        get { return _slots[index]; }
+        set { _slots[index] = value; }
+    }
+}
+```
+
+```
+スロット 0: 剣
+スロット 1: 盾
+スロット 2: 回復薬
+```
+
+---
+
+## 3. インデックスを調べる
+
+プロパティと同じく、`get` と `set` の中には処理を書けます。インデックスが範囲内かを調べて、範囲外のときは配列を使わないようにします。
+
+```csharp
+Inventory inventory = new Inventory(3);
+inventory[0] = "剣";
+inventory[5] = "魔法書";
+
+Console.WriteLine(inventory[0]);
+Console.WriteLine($"[{inventory[5]}]");
+
+class Inventory
+{
+    private string[] _slots;
 
     public Inventory(int size)
     {
@@ -175,8 +163,8 @@ class Inventory
         {
             if (index < 0 || index >= _slots.Length)
             {
-                Console.WriteLine("範囲外のインデックスです。");
-                return string.Empty;
+                Console.WriteLine($"{index} は範囲外のインデックスです。");
+                return "";
             }
             return _slots[index];
         }
@@ -184,7 +172,7 @@ class Inventory
         {
             if (index < 0 || index >= _slots.Length)
             {
-                Console.WriteLine("範囲外のインデックスです。");
+                Console.WriteLine($"{index} は範囲外のインデックスです。");
                 return;
             }
             _slots[index] = value;
@@ -193,93 +181,88 @@ class Inventory
 }
 ```
 
-```csharp
-Inventory inventory = new Inventory(3);
-inventory[0] = "剣";
-inventory[5] = "魔法書";   // 範囲外 → メッセージが出るだけでクラッシュしない
-
-Console.WriteLine(inventory[0]);   // 剣
-Console.WriteLine(inventory[5]);   // 範囲外 → 空文字が返る
 ```
-
-```
-範囲外のインデックスです。
+5 は範囲外のインデックスです。
 剣
-範囲外のインデックスです。
-
+5 は範囲外のインデックスです。
+[]
 ```
+
+範囲外のインデックスでも、`IndexOutOfRangeException` でプログラムが止まることはありません。書き込みは何もせず、読み取りは空文字列を返します。
+
+範囲外のインデックスを渡すこと自体が間違いなら、メッセージを表示するより、例外を投げて呼び出し元に知らせるほうがよい場合もあります。例外を投げる方法は、[例外を投げる](/unity-csharp-learning/csharp/throwing-exceptions/) で学びます。
 
 ---
 
-## 5. string インデックスのインデクサ
+## 4. string のインデックス
 
-インデックスの型は `int` に限りません。`string` を使えば、名前（文字列キー）でアクセスするインデクサも作れます。
+インデックスの型は `int` に限りません。`string` にすると、名前（文字列のキー）で読み書きするインデクサを作れます。
 
 ```csharp
+StatusEffects effects = new StatusEffects();
+effects["poison"] = true;
+
+Console.WriteLine(effects["poison"]);
+Console.WriteLine(effects["paralyze"]);
+
 class StatusEffects
 {
     private bool _poisoned;
     private bool _paralyzed;
-    private bool _cursed;
 
-    public bool this[string effectName]
+    public bool this[string name]
     {
         get
         {
-            // switch 式：「値 switch { 条件 => 結果, ... }」と書き、値を返します（C# 8 以降）
-            return effectName switch
+            switch (name)
             {
-                "poison"   => _poisoned,
-                "paralyze" => _paralyzed,
-                "curse"    => _cursed,
-                _          => false
-            };
+                case "poison":
+                    return _poisoned;
+                case "paralyze":
+                    return _paralyzed;
+                default:
+                    return false;
+            }
         }
         set
         {
-            switch (effectName)
+            switch (name)
             {
-                case "poison":   _poisoned  = value; break;
-                case "paralyze": _paralyzed = value; break;
-                case "curse":    _cursed    = value; break;
+                case "poison":
+                    _poisoned = value;
+                    break;
+                case "paralyze":
+                    _paralyzed = value;
+                    break;
             }
         }
     }
 }
 ```
 
-> ※ `switch` 式（`effectName switch { ... }`）は C# 8 から使えます。
-
-```csharp
-StatusEffects effects = new StatusEffects();
-effects["poison"] = true;
-effects["paralyze"] = false;
-
-Console.WriteLine(effects["poison"]);    // True
-Console.WriteLine(effects["paralyze"]); // False
-Console.WriteLine(effects["curse"]);    // False
-```
-
 ```
 True
 False
-False
 ```
 
-> 💡 文字列キーでデータを管理する場面では、`Dictionary<string, T>` が便利です。ただし、`Dictionary` の詳細はコレクション（`List<T>`・`Dictionary` など）の章（準備中）でさらに詳しく扱います。
+`get` の `switch` 文では、`break` の代わりに `return` で値を返して抜けています。
+
+> 💡 **ポイント**: 文字列などのキーで値を保存・検索したいときは、.NET に用意されている [Dictionary\<TKey, TValue\>](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary-2) クラスが便利です。`Dictionary` も、インデクサで `dictionary["キー"]` のように読み書きします。
 
 ---
 
-## 6. 読み取り専用インデクサ
+## 5. 読み取り専用のインデクサ
 
-`set` アクセサーを省略すると、外部からの書き込みを禁止できます。プロパティの読み取り専用と同じ仕組みです。
+`set` アクセサーを書かないと、読み取り専用のインデクサになります。プロパティの `{ get; }` と同じ考え方です。
 
 ```csharp
+ReadOnlyInventory inv = new ReadOnlyInventory(new string[] { "炎の剣", "氷の盾" });
+Console.WriteLine(inv[0]);
+Console.WriteLine(inv[1]);
+
 class ReadOnlyInventory
 {
     private string[] _slots;
-
-    public int Length => _slots.Length;
 
     public ReadOnlyInventory(string[] items)
     {
@@ -289,90 +272,60 @@ class ReadOnlyInventory
     public string this[int index]
     {
         get { return _slots[index]; }
-        // set がないので外部から書き込めない
     }
 }
 ```
 
-```csharp
-ReadOnlyInventory inv = new ReadOnlyInventory(new[] { "炎の剣", "氷の盾" });
-Console.WriteLine(inv[0]);   // 炎の剣
-// inv[0] = "木の棒";          // ❌ コンパイルエラー（set がないため書き込み不可）
-```
-
 ```
 炎の剣
+氷の盾
+```
+
+```csharp
+// ❌ NG: set のないインデクサには、書き込めない
+// inv[0] = "木の棒";  // CS0200
 ```
 
 ---
 
 ## よくあるミス
 
-### ミス①：`this` を書き忘れてコンパイルエラー
+### this を書き忘れる
 
 ```csharp
-// ❌ NG: this がないとインデクサにならず、コンパイルエラー
-public string [int index]
-{
-    get { return _slots[index]; }
-    set { _slots[index] = value; }
-}
-
-// ✅ OK: this を必ず付ける
-public string this[int index]
-{
-    get { return _slots[index]; }
-    set { _slots[index] = value; }
-}
+// ❌ NG: this がないので、インデクサとして読み取れない
+// public string [int index]  // CS1001 など
+// {
+//     get { return _slots[index]; }
+// }
 ```
 
-### ミス②：範囲チェックを忘れて IndexOutOfRangeException
-
-```csharp
-// ❌ NG: 範囲チェックなし → 範囲外アクセスで例外が発生しクラッシュ
-public string this[int index]
-{
-    get { return _slots[index]; }
-    set { _slots[index] = value; }
-}
-
-// ✅ OK: 事前に範囲を確認する
-public string this[int index]
-{
-    get
-    {
-        if (index < 0 || index >= _slots.Length) { return string.Empty; }
-        return _slots[index];
-    }
-    set
-    {
-        if (index < 0 || index >= _slots.Length) { return; }
-        _slots[index] = value;
-    }
-}
-```
+インデクサには、名前の代わりに `this` を書きます。`this` がないと、構文として正しく読み取れず、コンパイルエラーになります。
 
 ---
 
 ## まとめ
 
-- **インデクサ**を使うと、自作クラスに `[]` でアクセスできるようになる
-- 構文はプロパティに似ているが、プロパティ名の代わりに `this[型 パラメーター名]` と書く
-- インデックスの型は `int` が一般的だが、`string` など他の型も使える
-- `set` を省略すると**読み取り専用インデクサ**になる
-- `get` / `set` の中にバリデーションを書いて範囲外アクセスを防ぐことが推奨される
+- インデクサを定義すると、自分で作ったクラスのインスタンスを `[]` で読み書きできる
+- プロパティ名の代わりに `this[インデックスの型 パラメータ名]` と書く
+- `get` と `set` の中で、インデックスが範囲内かを調べられる
+- インデックスの型は `int` が一般的だが、`string` なども使える
+- `set` を書かないと、読み取り専用のインデクサになる
 
 ---
 
 ## 理解度チェック
 
-以下の問いに答えられるか確認しましょう。
-
-1. インデクサの構文でプロパティと異なる点は何ですか？
-
-2. 次のコードの出力結果は何になりますか？
+1. インデクサの書き方で、プロパティと違う点は何ですか？
+2. 次のコードを実行すると何が出力されますか？
 
    ```csharp
+   Counter c = new Counter();
+   c[0] = 10;
+   c[1] = 20;
+   c[2] = c[0] + c[1];
+   Console.WriteLine(c[2]);
+
    class Counter
    {
        private int[] _counts = new int[3];
@@ -383,91 +336,70 @@ public string this[int index]
            set { _counts[index] = value; }
        }
    }
-
-   Counter c = new Counter();
-   c[0] = 10;
-   c[1] = 20;
-   c[2] = c[0] + c[1];
-   Console.WriteLine(c[2]);
    ```
 
-3. 次の `ScoreBoard` クラスに、`string` キーで `int` スコアを読み書きできるインデクサを追加してください。
+3. 次の `ScoreBoard` クラスに、`"alice"`・`"bob"` の名前で `int` のスコアを読み書きできるインデクサを追加してください。登録されていない名前を読んだときは `0` を返します。
 
    ```csharp
    class ScoreBoard
    {
        private int _alice;
        private int _bob;
-       private int _carol;
-
-       // ここにインデクサを追加してください
    }
    ```
-
-4. （応用）サイズが `3` の `Inventory` クラスで、`inventory[0]` から `inventory[2]` を読み取り専用にするにはどう書きますか？コンストラクターで初期値を受け取るようにしてください。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. プロパティ名の代わりに `this[インデックスの型 パラメーター名]` と書く点。`this` キーワードを使うのがインデクサの特徴。
+1. プロパティ名の代わりに `this` を書き、その後の `[ ]` の中に、インデックスを受け取るパラメータを書く点です。
+2. `30` が出力されます。`c[0] + c[1]` は `10 + 20` で `30` になり、`c[2]` に保存されます。
 
-2. `30`
+   ```
+   30
+   ```
 
 3. ```csharp
+   ScoreBoard board = new ScoreBoard();
+   board["alice"] = 80;
+   Console.WriteLine(board["alice"]);
+   Console.WriteLine(board["carol"]);
+
    class ScoreBoard
    {
        private int _alice;
        private int _bob;
-       private int _carol;
 
        public int this[string name]
        {
            get
            {
-               return name switch
+               switch (name)
                {
-                   "alice" => _alice,
-                   "bob"   => _bob,
-                   "carol" => _carol,
-                   _       => 0
-               };
+                   case "alice":
+                       return _alice;
+                   case "bob":
+                       return _bob;
+                   default:
+                       return 0;
+               }
            }
            set
            {
                switch (name)
                {
-                   case "alice": _alice = value; break;
-                   case "bob":   _bob   = value; break;
-                   case "carol": _carol = value; break;
+                   case "alice":
+                       _alice = value;
+                       break;
+                   case "bob":
+                       _bob = value;
+                       break;
                }
            }
        }
    }
    ```
 
-4. ```csharp
-   class Inventory
-   {
-       private string[] _slots;
-
-       public int Length => _slots.Length;
-
-       public Inventory(string item0, string item1, string item2)
-       {
-           _slots = new[] { item0, item1, item2 };
-       }
-
-       public string this[int index]
-       {
-           get
-           {
-               if (index < 0 || index >= _slots.Length) { return string.Empty; }
-               return _slots[index];
-           }
-           // set を書かないので読み取り専用
-       }
-   }
-   ```
+   `80` と `0` が表示されます。
 
 </details>
 
@@ -475,4 +407,4 @@ public string this[int index]
 
 ## 次のステップ
 
-[ref / out / in パラメータ](/unity-csharp-learning/csharp/ref-out-in/) では、メソッド引数を参照として渡す書き方と、その違いを学びます。
+これで「C# クラスとオブジェクト」のセクションは終わりです。[ref / out / in パラメータ](/unity-csharp-learning/csharp/ref-out-in/) からは「C# メソッドの応用文法」のセクションに進み、メソッドの引数の渡し方を学びます。

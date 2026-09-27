@@ -6,24 +6,17 @@ permalink: /csharp/methods/
 
 # メソッド
 
-「HP をダメージ分だけ減らす」処理を複数箇所で書くとします。
-
-```csharp
-p1.hp = p1.hp - 10;
-p2.hp = p2.hp - 10;
-```
-
-同じ処理を繰り返し書くのは非効率で、修正漏れの原因にもなります。**メソッド**は処理に名前をつけてクラスに定義する仕組みです。一度書けばどこからでも呼び出して再利用できます。
+**メソッド**（method）は、処理に名前を付けてクラスに定義したものです。一度定義すれば、名前を書くだけで何度でも呼び出して使えます。このページでは、メソッドの定義と呼び出し、値を受け取るパラメータ、結果を返す戻り値、同じ名前のメソッドを複数定義するオーバーロードを学びます。
 
 ## 学習目標
 
-- メソッドの定義と呼び出しの違いを説明できる
-- 呼び出し→実行→復帰の流れを理解できる
-- `void` メソッドを定義して呼び出せる
-- パラメータを使って処理に値を渡せる
-- 戻り値を使って処理の結果を受け取れる
-- シグネチャの概念を理解できる
-- オーバーロードで同名メソッドを使い分けられる
+このページを読み終えると、以下のことができるようになります。
+
+- メソッドを定義し、呼び出せる
+- メソッドを呼び出すと、処理が実行されて呼び出し元に戻る流れを説明できる
+- パラメータで、メソッドに値を渡せる
+- 戻り値で、メソッドの結果を受け取れる
+- シグネチャとオーバーロードを説明できる
 
 ## 前提知識
 
@@ -33,46 +26,69 @@ p2.hp = p2.hp - 10;
 
 ## 1. メソッドを定義する
 
-メソッドはクラスの中に次の形で書きます。
+「HP をダメージの分だけ減らす」処理を、いろいろな場所で書くとします。
 
-**書式：メソッドの定義**
-```
-アクセス修飾子  戻り値の型  メソッド名()
+```csharp
+Player p1 = new Player();
+p1.Hp = 100;
+Player p2 = new Player();
+p2.Hp = 80;
+
+p1.Hp = p1.Hp - 10;
+p2.Hp = p2.Hp - 10;
+Console.WriteLine($"{p1.Hp}, {p2.Hp}");
+
+class Player
 {
-    処理
+    public int Hp;
 }
 ```
 
-**アクセス修飾子** — 「このメソッドをどこから呼び出せるか」を指定します。詳細は後述するので、まずはどこからでもアクセス可能であることを意味する `public` を使います。
+```
+90, 70
+```
 
-**戻り値の型** — メソッドが「処理の結果として何かを返すか」を指定します。まずは「返さない」ケースから始めましょう。返すものが何もない場合は `void` と書きます（英語で「空」「何もない」という意味）。戻り値については [4. 戻り値](#4-戻り値) で詳しく扱います。
+同じ処理を何度も書くと、手間がかかるうえに、処理を変えたいときにすべての場所を直す必要があります。処理をメソッドとしてクラスに定義しておけば、1 か所を直すだけで済みます。
 
-**メソッド名** — このメソッドを呼び出すときに使う名前です。変数と同じように自由に命名できますが、`Run`（実行する）や `Create`（生成する）のように動詞で命名します。
+[メソッド](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/methods) は、クラスの中に次の形で定義します。
 
-具体的に書くとこうなります。
+**書式：[メソッドの定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/methods#method-signatures)**
+```
+アクセス修飾子 戻り値の型 メソッド名()
+{
+    // 処理
+}
+```
+
+| 要素 | 説明 |
+|---|---|
+| `アクセス修飾子` | メソッドをどこから呼び出せるか。ここでは、クラスの外からも呼び出せる `public` を書く |
+| `戻り値の型` | メソッドが結果として返す値の型。何も返さないときは [void](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/void)（「空」という意味）と書く。戻り値は 4 節で学ぶ |
+| `メソッド名` | メソッドの名前。PascalCase で、`Greet`（あいさつする）や `TakeDamage`（ダメージを受ける）のように、動作を表す名前にするのが慣例 |
+| `{ }` | メソッドの本体。実行する処理を書く |
 
 ```csharp
 class Player
 {
-    public string name;
-    public int hp;
+    public string Name = "";
+    public int Hp;
 
     public void Greet()
     {
-        Console.WriteLine($"こんにちは、{name}です！");
+        Console.WriteLine($"こんにちは、{Name}です！");
     }
 }
 ```
 
-波かっこ `{ }` の中が**メソッドの本体**です。ここに実行したい処理を書きます。
+メソッドの本体では、同じクラスのフィールドを、`Name` のように名前だけで使えます。
 
-> ⚠️ **重要**: メソッドを定義しただけでは**何も実行されません**。クラスに「こういう処理を実行できる」という能力を追加したに過ぎず、実際に動かすには「呼び出し」が必要です。
+メソッドを定義しただけでは、何も実行されません。クラスに「こういう処理ができる」という能力を加えただけです。実行するには、メソッドを **呼び出す** 必要があります。
 
 ---
 
 ## 2. メソッドを呼び出す
 
-メソッドを実行するには、インスタンスに対して `インスタンス.メソッド名()` と書きます。これを**メソッドの呼び出し（コール）**といいます。
+メソッドを呼び出すには、`インスタンス.メソッド名()` と書きます。
 
 **書式：メソッドの呼び出し**
 ```
@@ -81,12 +97,21 @@ class Player
 
 ```csharp
 Player p = new Player();
-p.name = "Alice";
-p.hp = 100;
+p.Name = "Alice";
 
 Console.WriteLine("--- 呼び出し前 ---");
-p.Greet();                         // ← ここで Greet() が実行される
+p.Greet();
 Console.WriteLine("--- 呼び出し後 ---");
+
+class Player
+{
+    public string Name = "";
+
+    public void Greet()
+    {
+        Console.WriteLine($"こんにちは、{Name}です！");
+    }
+}
 ```
 
 ```
@@ -95,32 +120,40 @@ Console.WriteLine("--- 呼び出し後 ---");
 --- 呼び出し後 ---
 ```
 
-呼び出し前後の `Console.WriteLine` を見ると、メソッドが呼ばれた瞬間だけ中の処理が実行され、**終わったら呼び出し元に戻ってくる**ことがわかります。
-
-### 実行の流れ
+`p.Greet()` を実行すると、`Greet` の本体の処理が実行されます。本体の最後まで実行すると、呼び出した場所に戻り、次の行から実行が続きます。
 
 ```mermaid
 sequenceDiagram
-    participant C as メインコード
+    participant C as 呼び出し元
     participant M as p.Greet()
-
+    C->>C: 「--- 呼び出し前 ---」を出力
     C->>M: p.Greet() を呼び出す
-    Note over M: Console.WriteLine(...) を実行
-    M-->>C: メソッドの終端に達し<br/>呼び出し元に復帰
-    Note over C: 次の処理（呼び出し後の行）を続ける
+    M->>M: 「こんにちは、Aliceです！」を出力
+    M-->>C: 本体の最後まで実行して戻る
+    C->>C: 「--- 呼び出し後 ---」を出力
 ```
 
-この「呼び出し → 実行 → 復帰」の流れはすべてのメソッドに共通です。同じメソッドを何度でも呼び出せます。
+同じメソッドを、何度でも呼び出せます。メソッドの本体の `Name` は、呼び出したインスタンスのフィールドです。
 
 ```csharp
 Player p1 = new Player();
-p1.name = "Alice";
+p1.Name = "Alice";
 Player p2 = new Player();
-p2.name = "Bob";
+p2.Name = "Bob";
 
 p1.Greet();
 p2.Greet();
 p1.Greet();
+
+class Player
+{
+    public string Name = "";
+
+    public void Greet()
+    {
+        Console.WriteLine($"こんにちは、{Name}です！");
+    }
+}
 ```
 
 ```
@@ -129,224 +162,280 @@ p1.Greet();
 こんにちは、Aliceです！
 ```
 
+`p1.Greet()` では `p1` の `Name`、`p2.Greet()` では `p2` の `Name` が使われます。
+
 ---
 
 ## 3. パラメータ
 
-「10 ダメージ」「25 ダメージ」のように、呼び出すたびに異なる値を処理に渡したいことがあります。**パラメータ**はメソッドの呼び出し元から値を受け取るための「入口」です。
+「10 ダメージ」「25 ダメージ」のように、呼び出すたびに違う値をメソッドに渡したいことがあります。メソッドが値を受け取るための変数を **パラメータ**（parameter）といいます。
 
-**書式：パラメータありメソッドの定義**
+**書式：[パラメータのあるメソッドの定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/methods#method-parameters-vs-arguments)**
 ```
-アクセス修飾子  戻り値の型  メソッド名(型 パラメータ名1, 型 パラメータ名2, ...)
+アクセス修飾子 戻り値の型 メソッド名(型 パラメータ名, 型 パラメータ名, ...)
 {
-    処理
+    // 処理
 }
 ```
 
-**パラメータ名**はメソッド本体の中でその値を使うときに書く名前です。呼び出し側で渡した値がこの名前で受け取れます。**型**はフィールドや変数と同様に `int`・`string` などを指定します。複数受け取るときはカンマで区切って並べます。
-
-まず 1 つのパラメータから見てみましょう。
+パラメータは、メソッドの本体で使える変数です。複数のパラメータは、`,` で区切って並べます。
 
 ```csharp
+Player p = new Player();
+p.Name = "Alice";
+p.Hp = 100;
+
+p.TakeDamage(10);
+p.TakeDamage(25);
+
 class Player
 {
-    public string name;
-    public int hp;
+    public string Name = "";
+    public int Hp;
 
     public void TakeDamage(int damage)
     {
-        hp = hp - damage;
-        Console.WriteLine($"{name} が {damage} ダメージを受けた。残りHP={hp}");
+        Hp = Hp - damage;
+        Console.WriteLine($"{Name} が {damage} ダメージを受けた。残り HP={Hp}");
     }
 }
 ```
 
+```
+Alice が 10 ダメージを受けた。残り HP=90
+Alice が 25 ダメージを受けた。残り HP=65
+```
+
+`p.TakeDamage(10)` と呼び出すと、パラメータ `damage` に `10` が入った状態で本体が実行されます。呼び出すときに渡す値 `10` を、**引数**（argument）といいます。
+
+パラメータが複数あるときは、引数を `,` で区切って、パラメータと同じ順番に並べます。
+
 ```csharp
 Player p = new Player();
-p.name = "Alice";
-p.hp = 100;
-p.TakeDamage(10);   // damage = 10 として実行される
-p.TakeDamage(25);   // damage = 25 として実行される
-```
+p.Name = "Alice";
+p.Move(3, 5);
 
-```
-Alice が 10 ダメージを受けた。残りHP=90
-Alice が 25 ダメージを受けた。残りHP=65
-```
-
-複数のパラメータの例です。カンマで区切って複数の値を受け取ることができます。
-
-```csharp
 class Player
 {
-    public string name;
+    public string Name = "";
 
     public void Move(int x, int y)
     {
-        Console.WriteLine($"{name} が ({x}, {y}) に移動した");
+        Console.WriteLine($"{Name} が ({x}, {y}) に移動した");
     }
 }
-```
-
-```csharp
-Player p = new Player();
-p.name = "Alice";
-p.Move(3, 5);    // 1番目の値 3 → x、2番目の値 5 → y に渡る
 ```
 
 ```
 Alice が (3, 5) に移動した
 ```
 
-呼び出し元は**定義されたパラメータの数・型・順番に従って**値を渡す必要があります。数が合わない場合や型が異なる場合はコンパイルエラーになります。
+1 つ目の引数 `3` が `x` に、2 つ目の引数 `5` が `y` に入ります。
+
+引数は、パラメータの数・型・順番に合わせて渡す必要があります。合っていないと、コンパイルエラーになります。
 
 ```csharp
-p.Move(3);        // ❌ 引数が足りない
-p.Move(3, 5, 7);  // ❌ 引数が多すぎる
-p.Move("left", 5); // ❌ 1番目は int なのに string を渡している
+// ❌ NG: 引数がパラメータと合っていない
+// p.Move(3);          // CS7036（引数が足りない）
+// p.Move(3, 5, 7);    // CS1501（引数が多すぎる）
+// p.Move("left", 5);  // CS1503（1 つ目は int なのに string を渡している）
 ```
 
 ---
 
 ## 4. 戻り値
 
-「HP が 0 より大きいか調べて結果を使いたい」「現在のステータスを文字列で取り出したい」など、処理の結果を呼び出し元に返したい場面があります。メソッドが返す値を**戻り値**といいます。
+「HP が 0 より大きいか」「今の状態を表す文字列」のように、メソッドで計算した結果を呼び出し元で使いたいことがあります。メソッドが返す値を **戻り値** といいます。
 
-戻り値がある場合は `void` の代わりに**返す値の型**を書き、本体の中で `return` で値を返します。
+戻り値のあるメソッドでは、`void` の代わりに返す値の型を書き、本体の中で [return 文](https://learn.microsoft.com/dotnet/csharp/language-reference/statements/jump-statements#the-return-statement) を使って値を返します。
 
-**書式：return 文**
+**書式：[return 文](https://learn.microsoft.com/dotnet/csharp/language-reference/statements/jump-statements#the-return-statement)**
 ```
-return 値;
+return 式;
 ```
 
-`return` に達するとその値を呼び出し元に渡してメソッドが終了します。返す型は `int`・`bool`・`string` など、メソッドの定義と一致している必要があります。
-
-`bool` を返す例と `string` を返す例を見てみましょう。
-
-```csharp
-class Player
-{
-    public string name;
-    public int hp;
-    public int score;
-
-    public bool IsAlive()
-    {
-        return hp > 0;
-    }
-
-    public string GetStatus()
-    {
-        return $"{name}: HP={hp}, Score={score}";
-    }
-}
-```
+`return` を実行すると、式の値を呼び出し元に返して、メソッドを終えます。式の型は、メソッドの戻り値の型に合わせます。
 
 ```csharp
 Player p = new Player();
-p.name = "Alice";
-p.hp = 100;
-p.score = 50;
+p.Name = "Alice";
+p.Hp = 100;
 
 Console.WriteLine(p.GetStatus());
 Console.WriteLine($"生存中={p.IsAlive()}");
 
-p.hp = 0;
+p.Hp = 0;
 Console.WriteLine($"生存中={p.IsAlive()}");
+
+class Player
+{
+    public string Name = "";
+    public int Hp;
+
+    public bool IsAlive()
+    {
+        return Hp > 0;
+    }
+
+    public string GetStatus()
+    {
+        return $"{Name}: HP={Hp}";
+    }
+}
 ```
 
 ```
-Alice: HP=100, Score=50
+Alice: HP=100
 生存中=True
 生存中=False
 ```
 
-`return` に達するとメソッドはそこで終了します。残りのコードは実行されません。`void` メソッドでは `return;`（値なし）で途中終了できます。
-
-### 戻り値がある場合の実行の流れ
+`p.IsAlive()` は、メソッドが返した `bool` の値になります。戻り値のあるメソッドの呼び出しは式なので、`Console.WriteLine` の引数や文字列補間の中に書けます。
 
 ```mermaid
 sequenceDiagram
-    participant C as メインコード
+    participant C as 呼び出し元
     participant M as p.IsAlive()
-
     C->>M: p.IsAlive() を呼び出す
-    Note over M: return hp > 0 を実行
-    M-->>C: true または false を返して復帰
-    Note over C: 受け取った値を使って処理を続ける
+    M->>M: Hp > 0 を計算する
+    M-->>C: 結果（true または false）を返す
+    C->>C: 受け取った値を使って処理を続ける
+```
+
+### return でメソッドを途中で終える
+
+`return` を実行すると、その後の処理は実行されずに、メソッドが終わります。戻り値のない `void` のメソッドでも、`return;` と書けば途中で終えられます。
+
+```csharp
+Player p = new Player();
+p.Hp = 100;
+
+p.TakeDamage(-5);
+p.TakeDamage(30);
+
+class Player
+{
+    public int Hp;
+
+    public void TakeDamage(int damage)
+    {
+        if (damage < 0)
+        {
+            Console.WriteLine("ダメージが負なので何もしない");
+            return;
+        }
+        Hp = Hp - damage;
+        Console.WriteLine($"残り HP={Hp}");
+    }
+}
+```
+
+```
+ダメージが負なので何もしない
+残り HP=70
 ```
 
 ---
 
 ## 5. シグネチャとオーバーロード
 
-**シグネチャ**とは、メソッドを識別するための「メソッド名＋パラメータの型の並び」のことです。
+メソッドの名前と、パラメータの型の並びをあわせたものを、**シグネチャ**（signature）といいます。
 
-```
-TakeDamage(int)         → シグネチャ: TakeDamage(int)
-TakeDamage(int, bool)   → シグネチャ: TakeDamage(int, bool)
-```
+| メソッド | シグネチャ |
+|---|---|
+| `void TakeDamage(int damage)` | `TakeDamage(int)` |
+| `void TakeDamage(int damage, bool critical)` | `TakeDamage(int, bool)` |
 
-C# では**同じクラス内にシグネチャが異なるメソッドを複数定義できます**。これを**オーバーロード**と呼びます。たとえば「通常のダメージ計算」と「クリティカルを考慮したダメージ計算」を同じ名前で書き分けられます。
+同じクラスの中に、名前が同じでシグネチャが違うメソッドを、複数定義できます。これを **オーバーロード**（overload）といいます。呼び出したときの引数の数と型によって、どのメソッドが実行されるかが決まります。
 
 ```csharp
+Player p = new Player();
+p.Name = "Alice";
+p.Hp = 100;
+
+p.TakeDamage(10);
+p.TakeDamage(10, true);
+
 class Player
 {
-    public string name;
-    public int hp;
+    public string Name = "";
+    public int Hp;
 
     public void TakeDamage(int damage)
     {
-        hp = hp - damage;
-        Console.WriteLine($"{name} が {damage} ダメージ。残りHP={hp}");
+        Hp = Hp - damage;
+        Console.WriteLine($"{Name} が {damage} ダメージ。残り HP={Hp}");
     }
 
     public void TakeDamage(int damage, bool critical)
     {
         int actualDamage = critical ? damage * 2 : damage;
-        hp = hp - actualDamage;
-        Console.WriteLine($"{name} が {actualDamage} ダメージ（クリティカル={critical}）。残りHP={hp}");
+        Hp = Hp - actualDamage;
+        Console.WriteLine($"{Name} が {actualDamage} ダメージ（クリティカル={critical}）。残り HP={Hp}");
     }
 }
 ```
 
+```
+Alice が 10 ダメージ。残り HP=90
+Alice が 20 ダメージ（クリティカル=True）。残り HP=70
+```
+
+`p.TakeDamage(10)` では引数が 1 つなので `TakeDamage(int)` が、`p.TakeDamage(10, true)` では `TakeDamage(int, bool)` が実行されます。どのメソッドが選ばれるかの詳しい規則は、[オーバーロード解決](/unity-csharp-learning/csharp/overload-resolution/) で学びます。
+
+---
+
+## よくあるミス
+
+### 戻り値の型だけが違うメソッドを定義する
+
 ```csharp
-Player p = new Player();
-p.name = "Alice";
-p.hp = 100;
-
-p.TakeDamage(10);
-p.TakeDamage(10, true);
+// ❌ NG: 戻り値の型だけが違うメソッドは、オーバーロードできない
+// class C
+// {
+//     public int F() { return 1; }
+//     public double F() { return 1.0; }  // CS0111
+// }
 ```
 
-```
-Alice が 10 ダメージ。残りHP=90
-Alice が 20 ダメージ（クリティカル=True）。残りHP=70
+戻り値の型は、シグネチャに含まれません。名前とパラメータの型の並びが同じメソッドは、戻り値の型が違っても、同じシグネチャのメソッドを 2 つ定義したことになり、コンパイルエラーになります。
+
+### 戻り値のあるメソッドで return を書き忘れる
+
+```csharp
+// ❌ NG: int を返すメソッドなのに、return がない
+// class C
+// {
+//     public int F()
+//     {
+//     }  // CS0161
+// }
 ```
 
-呼び出し時に渡した引数の型と数によって、どのメソッドが実行されるかが自動的に決まります。
-
-> ⚠️ **注意**: 戻り値の型だけが異なるメソッドはオーバーロードになりません（コンパイルエラー）。
+戻り値の型が `void` でないメソッドは、どのような道筋で実行しても、最後に必ず `return` で値を返す必要があります。
 
 ---
 
 ## まとめ
 
-- **メソッドの定義** — クラスに「この処理を実行できる」能力を追加する。定義しただけでは何も実行されない
-- **メソッドの呼び出し** — `インスタンス.メソッド名()` と書いた瞬間に処理が実行される。終端または `return` に達すると呼び出し元に復帰する
-- **`void` メソッド** — 戻り値なし。処理を実行するだけのメソッド
-- **パラメータ** — メソッドに値を渡すための仕組み。複数定義可
-- **戻り値** — `return` でメソッドの実行結果を呼び出し元に返す
-- **シグネチャ** — メソッド名＋パラメータの型の並び。メソッドの識別に使われる
-- **オーバーロード** — シグネチャが異なる同名メソッドを同じクラスに複数定義すること
+- メソッドは、処理に名前を付けてクラスに定義したもの。定義しただけでは実行されない
+- `インスタンス.メソッド名()` で呼び出すと、本体が実行され、終わると呼び出し元に戻る
+- パラメータで、メソッドに値を受け取る。呼び出すときに渡す値を引数という
+- 戻り値の型を書き、`return` で結果を返す。何も返さないメソッドの戻り値の型は `void`
+- `return` を実行すると、メソッドはそこで終わる
+- シグネチャは、メソッド名とパラメータの型の並び。シグネチャが違えば、同じ名前のメソッドを複数定義できる（オーバーロード）
 
 ---
 
 ## 理解度チェック
 
-1. 次のコードの出力結果を答えてください。
+1. 次のコードを実行すると何が出力されますか？
 
    ```csharp
+   Calc calc = new Calc();
+   Console.WriteLine($"result={calc.Add(3, 4)}");
+   Console.WriteLine($"result={calc.Add(1, 2, 3)}");
+
    class Calc
    {
        public int Add(int a, int b)
@@ -359,43 +448,60 @@ Alice が 20 ダメージ（クリティカル=True）。残りHP=70
            return a + b + c;
        }
    }
-
-   Calc calc = new Calc();
-   Console.WriteLine($"result={calc.Add(3, 4)}");
-   Console.WriteLine($"result={calc.Add(1, 2, 3)}");
    ```
 
-2. 次のクラスに `Heal(int amount)` メソッドを追加してください。HP が `maxHp` を超えないよう制限すること。
+2. 次のクラスに、HP を回復する `Heal(int amount)` メソッドを追加してください。回復した後の HP が `MaxHp` を超えないようにします。
 
    ```csharp
    class Player
    {
-       public string name;
-       public int hp;
-       public int maxHp;
+       public int Hp;
+       public int MaxHp;
    }
    ```
 
-3. （応用）`int` 型と `double` 型のどちらを渡しても面積を返す `Area` メソッドをオーバーロードで定義してください（縦×横の長方形）。
+3. （応用）縦と横の長さから長方形の面積を返す `Area` メソッドを、`int` の引数用と `double` の引数用に、オーバーロードで定義してください。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. ```
+1. 次のように出力されます。引数の数によって、呼び出される `Add` が決まります。
+
+   ```
    result=7
    result=6
    ```
-   引数の数が異なるためオーバーロードが選ばれる。
 
 2. ```csharp
-   public void Heal(int amount)
+   Player p = new Player();
+   p.MaxHp = 100;
+   p.Hp = 80;
+   p.Heal(50);
+   Console.WriteLine(p.Hp);
+
+   class Player
    {
-       hp = hp + amount;
-       if (hp > maxHp) { hp = maxHp; }
+       public int Hp;
+       public int MaxHp;
+
+       public void Heal(int amount)
+       {
+           Hp = Hp + amount;
+           if (Hp > MaxHp)
+           {
+               Hp = MaxHp;
+           }
+       }
    }
    ```
 
+   `100` が表示されます。
+
 3. ```csharp
+   Shape shape = new Shape();
+   Console.WriteLine(shape.Area(3, 4));
+   Console.WriteLine(shape.Area(1.5, 2.0));
+
    class Shape
    {
        public int Area(int width, int height)
@@ -410,10 +516,12 @@ Alice が 20 ダメージ（クリティカル=True）。残りHP=70
    }
    ```
 
+   `12` と `3` が表示されます。
+
 </details>
 
 ---
 
 ## 次のステップ
 
-[コンストラクタ](/unity-csharp-learning/csharp/constructors/) では、インスタンス生成時に自動的に呼び出されてフィールドを初期化する仕組みを学びます。
+[コンストラクター](/unity-csharp-learning/csharp/constructors/) では、インスタンスを作るときに自動的に呼び出され、フィールドを初期化するメソッドを学びます。

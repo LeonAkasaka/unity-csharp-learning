@@ -1,26 +1,20 @@
 ---
 layout: page
-title: コンストラクタ
+title: コンストラクター
 permalink: /csharp/constructors/
 ---
 
-# コンストラクタ
+# コンストラクター
 
-フィールドを定義しただけでは、インスタンスを生成した直後に必要な値を設定し忘れるリスクがあります。
-
-```csharp
-Player p = new Player();
-// name の設定を忘れた
-p.TakeDamage(10);  // name が null のまま使われる可能性がある
-```
-
-**コンストラクタ**は `new` が実行されたときに**自動的に呼び出されるメソッド**です。パラメータを設けることで「必要な値を渡さなければインスタンスを作れない」ように強制でき、初期化忘れを防ぎます。
+**コンストラクター**（constructor）は、`new` でインスタンスを作るときに自動的に呼び出される、特別なメソッドです。インスタンスのフィールドに最初の値を入れる（初期化する）ために使います。パラメータのあるコンストラクターを定義すると、必要な値を渡さなければインスタンスを作れないようにできます。
 
 ## 学習目標
 
-- コンストラクタを定義してインスタンスを初期化できる
-- コンストラクタと通常のメソッドの違いを説明できる
-- デフォルトコンストラクタが提供される条件を理解できる
+このページを読み終えると、以下のことができるようになります。
+
+- コンストラクターを定義し、インスタンスを作るときにフィールドを初期化できる
+- コンストラクターと通常のメソッドの違いを説明できる
+- パラメータのないコンストラクターが自動的に用意される条件を説明できる
 
 ## 前提知識
 
@@ -28,46 +22,73 @@ p.TakeDamage(10);  // name が null のまま使われる可能性がある
 
 ---
 
-## 1. コンストラクタの定義
+## 1. コンストラクターが必要な理由
 
-コンストラクタはクラス名と同じ名前を持ち、戻り値型（`void` を含む）を書きません。
-
-**書式：コンストラクタの定義**
-```
-アクセス修飾子 クラス名(パラメータ)
-{
-    初期化処理
-}
-```
-
-| 比較 | 通常のメソッド | コンストラクタ |
-|---|---|---|
-| 呼び出しタイミング | 任意のタイミング | `new` のときに自動呼び出し |
-| 戻り値型 | 指定する（`void` 含む） | 書かない |
-| 名前 | 任意 | クラス名と同じ |
+インスタンスを作った後で、フィールドに 1 つずつ値を入れる方法では、入れ忘れが起きやすくなります。
 
 ```csharp
+Player p = new Player();
+p.Hp = 100;
+p.Greet();
+
 class Player
 {
-    public string name;
-    public int hp;
-    public int score;
+    public string Name = "";
+    public int Hp;
 
-    public Player(string playerName, int initialHp)
+    public void Greet()
     {
-        name = playerName;
-        hp = initialHp;
-        score = 0;
+        Console.WriteLine($"こんにちは、[{Name}]です！ HP={Hp}");
     }
 }
 ```
+
+```
+こんにちは、[]です！ HP=100
+```
+
+`Name` に値を入れ忘れたまま `Greet` を呼び出したので、名前が空のまま表示されました。コンパイラーは、この入れ忘れを見つけてくれません。
+
+コンストラクターを使うと、インスタンスを作るときに、必要な値を必ず渡すようにできます。
+
+---
+
+## 2. コンストラクターを定義する
+
+[コンストラクター](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/constructors) は、クラスと同じ名前で、戻り値の型（`void` も）を書かずに定義します。
+
+**書式：[コンストラクターの定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/constructors#constructor-syntax)**
+```
+アクセス修飾子 クラス名(型 パラメータ名, ...)
+{
+    // 初期化の処理
+}
+```
+
+| | 通常のメソッド | コンストラクター |
+|---|---|---|
+| 呼び出されるとき | `インスタンス.メソッド名()` と書いたとき | `new` でインスタンスを作るとき（自動的に） |
+| 戻り値の型 | 書く（返さないときは `void`） | 書かない |
+| 名前 | 自由に付ける | クラス名と同じ |
 
 ```csharp
 Player p1 = new Player("Alice", 100);
 Player p2 = new Player("Bob", 80);
 
-Console.WriteLine($"{p1.name}: HP={p1.hp}");
-Console.WriteLine($"{p2.name}: HP={p2.hp}");
+Console.WriteLine($"{p1.Name}: HP={p1.Hp}");
+Console.WriteLine($"{p2.Name}: HP={p2.Hp}");
+
+class Player
+{
+    public string Name;
+    public int Hp;
+
+    public Player(string name, int hp)
+    {
+        Name = name;
+        Hp = hp;
+    }
+}
 ```
 
 ```
@@ -75,72 +96,59 @@ Alice: HP=100
 Bob: HP=80
 ```
 
-`new Player("Alice", 100)` と書くだけで `name` と `hp` が確実に設定されます。コンストラクタのパラメータが必須になるため、設定忘れがコンパイルエラーとして検出されます。
+`new Player("Alice", 100)` の `("Alice", 100)` は、コンストラクターに渡す引数です。コンストラクターのパラメータ `name` と `hp` に値が入り、本体でフィールドに代入されます。
+
+このクラスでは、名前を渡さないとインスタンスを作れないので、`Name` の入れ忘れは起きません。コンストラクターで必ず値を入れるので、`Name` に `""` の初期値を書かなくても、コンパイラーは警告を出しません。
 
 ---
 
-## 2. デフォルトコンストラクタ
+## 3. パラメータのないコンストラクターが自動的に用意される条件
 
-コンストラクタを**一つも定義しない**場合、コンパイラが自動的に**パラメータなしの空のコンストラクタ**（デフォルトコンストラクタ）を生成します。
+これまでの `new Player()` は、コンストラクターを定義していないクラスでも使えました。コンストラクターを **1 つも定義していない** クラスには、コンパイラーが、何もしないパラメータのないコンストラクター（**既定のコンストラクター**）を自動的に用意するからです。
 
-```csharp
-class Enemy
-{
-    public string name;
-    public int hp;
-    // コンストラクタを定義していない → デフォルトコンストラクタが自動生成される
-}
-
-Enemy e = new Enemy();  // OK: デフォルトコンストラクタが使われる
-e.name = "Slime";
-e.hp = 30;
-```
-
-ただし、**パラメータありのコンストラクタを 1 つでも定義すると**、デフォルトコンストラクタは自動生成されなくなります。
+ただし、コンストラクターを 1 つでも定義すると、既定のコンストラクターは用意されなくなります。
 
 ```csharp
-class Player
-{
-    public string name;
-
-    public Player(string playerName)
-    {
-        name = playerName;
-    }
-}
-
-Player p = new Player();        // ❌ コンパイルエラー: 引数が必要
-Player p = new Player("Alice"); // ✅ OK
+// ❌ NG: パラメータのあるコンストラクターしかないので、new Player() は使えない
+// Player p = new Player();  // CS7036
+//
+// class Player
+// {
+//     public string Name;
+//
+//     public Player(string name)
+//     {
+//         Name = name;
+//     }
+// }
 ```
 
-パラメータなしでも作れるようにしたい場合は、明示的にパラメータなしコンストラクタを追加します。
-
-```csharp
-class Player
-{
-    public string name;
-    public int hp;
-
-    public Player()
-    {
-        name = "名無し";
-        hp = 100;
-    }
-
-    public Player(string playerName, int initialHp)
-    {
-        name = playerName;
-        hp = initialHp;
-    }
-}
-```
+パラメータのないコンストラクターも使いたいときは、自分で定義します。コンストラクターもメソッドと同じように、パラメータの違うものを複数定義（オーバーロード）できます。
 
 ```csharp
 Player p1 = new Player();
 Player p2 = new Player("Alice", 80);
 
-Console.WriteLine($"{p1.name}: HP={p1.hp}");
-Console.WriteLine($"{p2.name}: HP={p2.hp}");
+Console.WriteLine($"{p1.Name}: HP={p1.Hp}");
+Console.WriteLine($"{p2.Name}: HP={p2.Hp}");
+
+class Player
+{
+    public string Name;
+    public int Hp;
+
+    public Player()
+    {
+        Name = "名無し";
+        Hp = 100;
+    }
+
+    public Player(string name, int hp)
+    {
+        Name = name;
+        Hp = hp;
+    }
+}
 ```
 
 ```
@@ -148,62 +156,106 @@ Console.WriteLine($"{p2.name}: HP={p2.hp}");
 Alice: HP=80
 ```
 
+`new Player()` ではパラメータのないコンストラクターが、`new Player("Alice", 80)` では 2 つのパラメータのあるコンストラクターが呼び出されます。
+
 ---
 
 ## よくあるミス
 
-### コンストラクタに戻り値型を書いてしまう
+### コンストラクターに戻り値の型を書く
 
 ```csharp
-class Player
-{
-    // ❌ NG: void を書くと通常のメソッドになりコンストラクタではなくなる
-    //        new Player() で自動呼び出しされない
-    public void Player(string name) { }
+// ❌ NG: void を書くと、クラスと同じ名前のメソッドになってしまう
+// class Player
+// {
+//     public void Player(string name)  // CS0542
+//     {
+//     }
+// }
+```
 
-    // ✅ OK: 戻り値型なし
-    public Player(string name) { }
+`void` などの戻り値の型を書くと、コンストラクターではなく、クラスと同じ名前のメソッドを定義したことになります。C# では、クラスと同じ名前のメンバーは定義できないので、コンパイルエラーになります。コンストラクターには、戻り値の型を書きません。
+
+---
+
+## ワンポイントアドバイス
+
+### this で自分自身のメンバーを指す
+
+コンストラクターやメソッドの本体では、[this](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/this) で、そのメソッドを呼び出したインスタンス自身を表せます。パラメータとフィールドの名前が同じときは、`this.フィールド名` と書いて、フィールドのほうを指定します。
+
+```csharp
+Item item = new Item("回復薬", 50);
+Console.WriteLine($"{item.GetName()}: {item.GetPrice()} G");
+
+class Item
+{
+    private string name;
+    private int price;
+
+    public Item(string name, int price)
+    {
+        this.name = name;
+        this.price = price;
+    }
+
+    public string GetName()
+    {
+        return name;
+    }
+
+    public int GetPrice()
+    {
+        return price;
+    }
 }
 ```
+
+```
+回復薬: 50 G
+```
+
+`this.name` はフィールドの `name`、`name` だけならパラメータの `name` です。`private` は、次のページで学ぶアクセス修飾子です。このサイトでは、`private` のフィールドの名前を `_name` のように `_` で始めて、パラメータと名前が重ならないようにします。
 
 ---
 
 ## まとめ
 
-- **コンストラクタ** — `new` 時に自動呼び出される。クラス名と同名で戻り値型なし
-- パラメータを設けることで初期化忘れをコンパイルエラーとして検出できる
-- コンストラクタを定義しなければデフォルトコンストラクタが自動生成される
-- パラメータありのコンストラクタを定義するとデフォルトコンストラクタは消える
+- コンストラクターは、`new` でインスタンスを作るときに自動的に呼び出される。クラスと同じ名前で、戻り値の型を書かない
+- パラメータのあるコンストラクターで、必要な値を渡さなければインスタンスを作れないようにできる
+- コンストラクターを 1 つも定義していないクラスには、パラメータのない既定のコンストラクターが自動的に用意される
+- コンストラクターを 1 つでも定義すると、既定のコンストラクターは用意されない
+- コンストラクターも、パラメータの違うものを複数定義できる
 
 ---
 
 ## 理解度チェック
 
-1. 次のコードはコンパイルエラーになりますか？ 理由とともに答えてください。
+1. 次のコードの `new Item()` はコンパイルエラーになりますか？理由も答えてください。
 
    ```csharp
+   Item i = new Item();
+
    class Item
    {
-       public string name;
-       public int price;
+       public string Name;
+       public int Price;
 
-       public Item(string itemName, int itemPrice)
+       public Item(string name, int price)
        {
-           name = itemName;
-           price = itemPrice;
+           Name = name;
+           Price = price;
        }
    }
-
-   Item i = new Item();
    ```
 
-2. 次のクラスのコンストラクタを完成させてください。`name` と `damage` を引数で受け取り、フィールドに代入してください。
+2. 次のクラスのコンストラクターを完成させてください。武器の名前と攻撃力を引数で受け取り、フィールドに代入します。
 
    ```csharp
    class Weapon
    {
-       public string name;
-       public int damage;
+       public string Name;
+       public int Damage;
 
        public Weapon(/* ここを埋める */)
        {
@@ -212,36 +264,51 @@ class Player
    }
    ```
 
-3. （応用）`name`（string）・`hp`（int）・`maxHp`（int）を持つ `Player` クラスを定義してください。コンストラクタで `name` と初期 HP を受け取り、`maxHp` と `hp` の両方を初期 HP で初期化してください。
+3. （応用）`Name`（`string`）・`Hp`（`int`）・`MaxHp`（`int`）のフィールドを持つ `Player` クラスを定義してください。コンストラクターで名前と最初の HP を受け取り、`Hp` と `MaxHp` の両方を、受け取った HP で初期化します。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. コンパイルエラーになる。`Item(string, int)` というパラメータありのコンストラクタを定義した時点でデフォルトコンストラクタが自動生成されなくなるため、`new Item()` は引数不足でエラーになる。
-
+1. コンパイルエラーになります（CS7036）。パラメータのあるコンストラクター `Item(string, int)` を定義しているので、パラメータのない既定のコンストラクターは用意されません。
 2. ```csharp
-   public Weapon(string weaponName, int weaponDamage)
-   {
-       name = weaponName;
-       damage = weaponDamage;
-   }
-   ```
+   Weapon w = new Weapon("鉄の剣", 12);
+   Console.WriteLine($"{w.Name}: {w.Damage}");
 
-3. ```csharp
-   class Player
+   class Weapon
    {
-       public string name;
-       public int hp;
-       public int maxHp;
+       public string Name;
+       public int Damage;
 
-       public Player(string playerName, int initialHp)
+       public Weapon(string name, int damage)
        {
-           name = playerName;
-           hp = initialHp;
-           maxHp = initialHp;
+           Name = name;
+           Damage = damage;
        }
    }
    ```
+
+   `鉄の剣: 12` が表示されます。
+
+3. ```csharp
+   Player p = new Player("Alice", 120);
+   Console.WriteLine($"{p.Name}: {p.Hp}/{p.MaxHp}");
+
+   class Player
+   {
+       public string Name;
+       public int Hp;
+       public int MaxHp;
+
+       public Player(string name, int hp)
+       {
+           Name = name;
+           Hp = hp;
+           MaxHp = hp;
+       }
+   }
+   ```
+
+   `Alice: 120/120` が表示されます。
 
 </details>
 
@@ -249,4 +316,4 @@ class Player
 
 ## 次のステップ
 
-[アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) では、フィールドやメソッドへのアクセス範囲を制御してクラスを安全に設計する方法を学びます。
+[アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) では、フィールドやメソッドを使える範囲を制限し、クラスを安全に作る方法を学びます。
