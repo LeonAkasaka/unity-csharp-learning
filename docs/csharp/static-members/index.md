@@ -6,254 +6,309 @@ permalink: /csharp/static-members/
 
 # static メンバーと static クラス
 
-クラスのメンバーには、各インスタンスごとに持つものと、クラス全体で共有するものがあります。`static` は「インスタンスではなく型に属する」ことを表すキーワードです。
+クラスのメンバーには、インスタンスごとに別々に持つもの（**インスタンスメンバー**）と、クラスそのものに属し、すべてのインスタンスで共有するもの（**static メンバー**）があります。[static](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/static) は、「インスタンスではなく、クラスに属する」ことを表すキーワードです。
 
 ## 学習目標
 
-- インスタンスメンバーと `static` メンバーの違いを説明できる
-- `static` フィールドと `static` メソッドの使い方を理解できる
-- `static` コンストラクタが 1 回だけ実行されることを説明できる
-- `static class` がインスタンス化できないことを理解できる
+このページを読み終えると、以下のことができるようになります。
+
+- インスタンスメンバーと static メンバーの違いを説明できる
+- static フィールドと static メソッドを定義し、使える
+- static コンストラクターが 1 回だけ実行されることを説明できる
+- static クラスを定義し、インスタンスを作れないことを説明できる
 
 ## 前提知識
 
-- [再帰関数とコールスタック](/unity-csharp-learning/csharp/recursion/) を読んでいること
+- [コンストラクター](/unity-csharp-learning/csharp/constructors/) を読んでいること
+- [メソッド](/unity-csharp-learning/csharp/methods/) を読んでいること
 
 ---
 
-## 1. インスタンスメンバーと `static` メンバーの違い
+## 1. インスタンスメンバーと static メンバー
 
-インスタンスメンバーは、各インスタンスに独立して存在します。`static` メンバーはクラスに属し、すべてのインスタンスで共有されます。
+これまでに定義したフィールドやメソッドは、すべて **インスタンスメンバー** です。インスタンスメンバーは、インスタンスごとに別々にあり、`インスタンス.メンバー名` で使います。
 
-- インスタンスメンバー: `a1` と `a2` が別々の値を持てる
-- `static` メンバー: `A.Count` のようにクラス名から直接アクセスできる
+**static メンバー** は、クラスに 1 つだけあり、すべてのインスタンスで共有されます。`クラス名.メンバー名` で使い、インスタンスを作らなくても使えます。
 
-インスタンスを生成しなくても使えるのが `static` メンバーの特徴です。
+| | インスタンスメンバー | static メンバー |
+|---|---|---|
+| 属する先 | それぞれのインスタンス | クラス |
+| 数 | インスタンスの数だけある | クラスに 1 つだけ |
+| 使い方 | `インスタンス.メンバー名` | `クラス名.メンバー名` |
+
+これまで使ってきた `Console.WriteLine` や `Array.Sort` も、static メソッドです。インスタンスを作らずに、`Console.WriteLine(...)` のようにクラス名から呼び出していました。
 
 ---
 
-## 2. `static` フィールド
+## 2. static フィールド
 
-**書式：static フィールド**
+**書式：[static フィールド](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/static-classes-and-static-class-members)**
 ```
 アクセス修飾子 static 型 フィールド名;
 ```
 
-| 要素 | 説明 |
-|---|---|
-| `static` | クラスに属するフィールドであることを示す |
-| `型` | 保存する値の型 |
-| `フィールド名` | 共有される変数の名前 |
+次の `Player` クラスでは、`Name` はインスタンスごとの値、`Count` は作ったプレイヤーの数を数える、全員で共有する値です。
 
-`static int Count;` と書くと、すべてのインスタンスから同じ `Count` を見ます。
+```csharp
+Player a = new Player("Alice");
+Player b = new Player("Bob");
 
----
+Console.WriteLine($"{a.Name}, {b.Name}");
+Console.WriteLine($"プレイヤーの数: {Player.Count}");
 
-## 3. `static` メソッド
-
-**書式：static メソッド**
-```
-アクセス修飾子 static 戻り値の型 メソッド名()
+class Player
 {
-    処理
+    public static int Count;
+
+    public string Name;
+
+    public Player(string name)
+    {
+        Name = name;
+        Count++;
+    }
 }
 ```
 
-| 要素 | 説明 |
-|---|---|
-| `static` | クラスに属するメソッドであることを示す |
-| `戻り値の型` | メソッドが返す値の型 |
-| `メソッド名` | クラス名から呼び出すメソッド名 |
+```
+Alice, Bob
+プレイヤーの数: 2
+```
 
-`static` メソッドは `クラス名.メソッド名()` で呼び出します。インスタンスに属さないので、メソッド本体に `this` は存在しません。
+`Name` は `a` と `b` でそれぞれ別の値を持ちますが、`Count` はクラスに 1 つだけです。コンストラクターで `Count++` するたびに、同じ `Count` が増えていきます。static フィールドは、`Player.Count` のようにクラス名で使います。
 
 ---
 
-## 4. `static` コンストラクタ
+## 3. static メソッド
 
-**書式：static コンストラクタ**
+**書式：[static メソッド](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/static-classes-and-static-class-members)**
+```
+アクセス修飾子 static 戻り値の型 メソッド名(パラメータ)
+{
+    // 処理
+}
+```
+
+static メソッドは、`クラス名.メソッド名()` で呼び出します。インスタンスのデータを使わず、引数だけで結果が決まる処理に向いています。
+
+```csharp
+Console.WriteLine(Calc.Square(4));
+Console.WriteLine(Calc.Max(3, 8));
+
+class Calc
+{
+    public static int Square(int x)
+    {
+        return x * x;
+    }
+
+    public static int Max(int a, int b)
+    {
+        return a > b ? a : b;
+    }
+}
+```
+
+```
+16
+8
+```
+
+static メソッドは、特定のインスタンスに属していないので、本体でインスタンスメンバーを使えません。static メソッドの本体で使えるのは、static メンバー、パラメータ、ローカル変数です（よくあるミスを参照）。
+
+---
+
+## 4. static コンストラクター
+
+**書式：[static コンストラクター](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/static-constructors)**
 ```
 static クラス名()
 {
-    処理
+    // 初期化の処理
 }
 ```
 
-| 要素 | 説明 |
-|---|---|
-| `static` | 型初期化用のコンストラクタであることを示す |
-| `クラス名` | 対象のクラス名 |
+**static コンストラクター** は、static フィールドを初期化するためのコンストラクターです。そのクラスが初めて使われる前に、**1 回だけ** 自動的に実行されます。パラメータとアクセス修飾子は書けません。
 
-`static` コンストラクタは、その型が最初に使われるときに**一度だけ**自動実行されます。**パラメータなし**、**アクセス修飾子なし**がルールです。
+```csharp
+Console.WriteLine("プログラム開始");
+Console.WriteLine(Config.Version);
+Console.WriteLine(Config.Version);
+
+class Config
+{
+    public static string Version;
+
+    static Config()
+    {
+        Console.WriteLine("Config の static コンストラクター");
+        Version = "1.0";
+    }
+}
+```
+
+```
+プログラム開始
+Config の static コンストラクター
+1.0
+1.0
+```
+
+`Config.Version` を 2 回使っていますが、static コンストラクターが実行されたのは、最初に使う直前の 1 回だけです。
 
 ---
 
-## 5. `static class`
+## 5. static クラス
 
-**書式：static クラス**
+クラスに `static` を付けると、**static クラス** になります。static クラスは、インスタンスを作れず、static メンバーだけを持てます。インスタンスのデータを持たない、便利なメソッドをまとめるのに使います。.NET の `Console` や `Math` も static クラスです。
+
+**書式：[static クラス](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/static-classes-and-static-class-members)**
 ```
 static class クラス名
 {
-    static メンバー
+    // static メンバーだけを書く
 }
 ```
-
-| 要素 | 説明 |
-|---|---|
-| `static class` | クラス全体を static にする宣言 |
-| `static メンバー` | クラス内に置けるメンバー。すべて static でなければならない |
-
-`static class` はインスタンス化できません。クラスのすべてのメンバーを `static` に限定したいときに使います。
-
----
-
-## 6. 実行例
-
-`Id` はインスタンスフィールド、`Count` は `static` フィールドです。それぞれの振る舞いの違いをまとめて確認します。
 
 ```csharp
-class A
-{
-    public int Id;                     // インスタンスフィールド（各インスタンスが独立して持つ）
-    public static int Count = 0;       // static フィールド（全インスタンスで共有される）
+Console.WriteLine(Temperature.ToFahrenheit(100));
+Console.WriteLine(Temperature.ToCelsius(32));
 
-    static A()
+static class Temperature
+{
+    public static double ToFahrenheit(double celsius)
     {
-        Console.WriteLine("A.static_ctor");
+        return celsius * 9 / 5 + 32;
     }
 
-    public A(int id) { Id = id; Count++; }
-
-    public static void M()
+    public static double ToCelsius(double fahrenheit)
     {
-        Console.WriteLine($"A.M: Count={Count}");
+        return (fahrenheit - 32) * 5 / 9;
     }
 }
-
-A.M();                      // インスタンス不要
-var a1 = new A(1);
-var a2 = new A(2);
-A.M();                      // Count=2
-Console.WriteLine($"a1.Id={a1.Id}, a2.Id={a2.Id}");  // Id は独立
 ```
 
 ```
-A.static_ctor
-A.M: Count=0
-A.M: Count=2
-a1.Id=1, a2.Id=2
+212
+0
 ```
-
-`Count` は `a1`・`a2` の両方の生成で更新されていますが、`Id` は `a1` と `a2` でそれぞれ独立した値を持っていることがわかります。`static` コンストラクタは最初の `A.M()` 呼び出し時に一度だけ実行されます。
-
-### `static class` の例
 
 ```csharp
-static class B
-{
-    public static void M() { Console.WriteLine("B.M"); }
-}
-
-B.M();
-// new B(); // ❌ インスタンス化できない
-```
-
-```
-B.M
+// ❌ NG: static クラスのインスタンスは作れない
+// Temperature t = new Temperature();  // CS0712
 ```
 
 ---
 
 ## よくあるミス
 
-### ミス①：`static` メソッドの中でインスタンスメンバーに直接アクセスする
+### static メソッドの中でインスタンスメンバーを使う
 
 ```csharp
-class A
-{
-    public int Value;
-
-    // ❌ NG: static メソッドの中に this はない
-    // public static void M() { Console.WriteLine(this.Value); }
-
-    // ✅ OK: static メソッドでは static メンバーだけを直接使う
-    public static int Count;
-    public static void M() { Console.WriteLine($"A.M: Count={Count}"); }
-}
+// ❌ NG: static メソッドは、どのインスタンスの Name かわからない
+// class Player
+// {
+//     public string Name = "";
+//
+//     public static void Show()
+//     {
+//         Console.WriteLine(Name);  // CS0120
+//     }
+// }
 ```
 
-### ミス②：`static` コンストラクタにアクセス修飾子を書く
+static メソッドは、インスタンスを作らずに `Player.Show()` と呼び出します。そのため、「どのインスタンスの `Name` か」が決まらず、インスタンスメンバーは使えません。`this` も使えません（CS0026）。インスタンスのデータが必要なら、インスタンスメソッドにするか、インスタンスを引数で受け取ります。
+
+### static クラスにインスタンスメンバーを書く
 
 ```csharp
-class A
-{
-    // ❌ NG: static コンストラクタに public/private は書けない
-    // public static A() { Console.WriteLine("A.static_ctor"); }
+// ❌ NG: static クラスには static メンバーしか書けない
+// static class Calc
+// {
+//     public int Double(int x)  // CS0708
+//     {
+//         return x * 2;
+//     }
+// }
+```
 
-    // ✅ OK: アクセス修飾子なしで書く
-    static A() { Console.WriteLine("A.static_ctor"); }
-}
+### static コンストラクターにアクセス修飾子を付ける
+
+```csharp
+// ❌ NG: static コンストラクターにはアクセス修飾子を付けられない
+// class Config
+// {
+//     public static Config()  // CS0515
+//     {
+//     }
+// }
 ```
 
 ---
 
 ## まとめ
 
-- インスタンスメンバーは各インスタンスに属し、`static` メンバーはクラスに属する
-- `static` フィールドはすべてのインスタンスで共有される
-- `static` メソッドは `クラス名.メソッド名()` で呼び出す
-- `static` コンストラクタは型が最初に使われるときに 1 回だけ実行される
-- `static class` はインスタンス化できず、メンバーはすべて `static` でなければならない
+- インスタンスメンバーはインスタンスごとにあり、static メンバーはクラスに 1 つだけあって共有される
+- static メンバーは `クラス名.メンバー名` で使う。インスタンスを作らなくても使える
+- static メソッドの中では、インスタンスメンバーや `this` を使えない
+- static コンストラクターは、クラスが初めて使われる前に 1 回だけ実行される
+- static クラスはインスタンスを作れず、static メンバーだけを持つ
 
 ---
 
 ## 理解度チェック
 
-以下の問いに答えられるか確認しましょう。
-
-1. インスタンスメンバーと `static` メンバーの違いは何ですか？
-2. 次のコードの出力結果は何になりますか？
+1. インスタンスメンバーと static メンバーの違いを説明してください。
+2. 次のコードを実行すると何が出力されますか？
 
    ```csharp
+   A.M();
+   A a1 = new A();
+   A a2 = new A();
+   A.M();
+
    class A
    {
        public static int Count = 1;
 
-       public A() { Count++; }
+       public A()
+       {
+           Count++;
+       }
 
        public static void M()
        {
            Console.WriteLine($"A.M: Count={Count}");
        }
    }
-
-   A.M();
-   var a = new A();
-   A.M();
    ```
 
-3. `static class B` の中に `public static void M()` を定義し、`"B.M"` を表示するコードを書いてください。
+3. 円の半径から面積を返す static メソッド `Area(double radius)` を持つ static クラス `Circle` を書いてください。円周率には `Math.PI` を使います。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. インスタンスメンバーは各オブジェクトごとに持つ値で、`static` メンバーはクラス全体で共有される値です。
-2. 
+1. インスタンスメンバーはインスタンスごとに別々にあり、`インスタンス.メンバー名` で使います。static メンバーはクラスに 1 つだけあってすべてのインスタンスで共有され、`クラス名.メンバー名` で使います。
+2. 次のように出力されます。`Count` はクラスに 1 つだけで、2 つのインスタンスを作るたびに増えます。
+
    ```
    A.M: Count=1
-   A.M: Count=2
+   A.M: Count=3
    ```
+
 3. ```csharp
-   static class B
+   Console.WriteLine(Circle.Area(2));
+
+   static class Circle
    {
-       public static void M()
+       public static double Area(double radius)
        {
-           Console.WriteLine("B.M");
+           return Math.PI * radius * radius;
        }
    }
-
-   B.M();
    ```
+
+   `12.566370614359172` が表示されます。
 
 </details>
 
@@ -261,4 +316,4 @@ class A
 
 ## 次のステップ
 
-[拡張メソッド](/unity-csharp-learning/csharp/extension-methods/) では、既存の型にメソッドを追加したように見せる書き方を学びます。
+[拡張メソッド](/unity-csharp-learning/csharp/extension-methods/) では、既存の型に、あとからメソッドを追加したように見せる書き方を学びます。

@@ -6,14 +6,16 @@ permalink: /csharp/extension-methods/
 
 # 拡張メソッド
 
-既存のクラスに新しいメソッドを追加したい場面があります。しかし、対象が外部ライブラリの型や `sealed` クラスなら、クラス定義そのものを編集できないことがあります。そういうときに使うのが**拡張メソッド**です。
+**拡張メソッド**（extension method）は、既存の型に、あとからメソッドを追加したように見せる書き方です。`string` や `int` のように、自分ではクラスの定義を書き換えられない型にも、`"Hello".Shout()` のような形で呼び出せるメソッドを用意できます。
 
 ## 学習目標
 
-- 拡張メソッドが必要になる場面を説明できる
-- `static class` と `this` を使った定義方法を理解できる
-- 通常のインスタンスメソッドと同じ形で呼び出せることを説明できる
-- 拡張メソッドが `private` / `protected` メンバーにアクセスできない理由を理解できる
+このページを読み終えると、以下のことができるようになります。
+
+- static クラスと `this` を使って、拡張メソッドを定義できる
+- 拡張メソッドを、インスタンスメソッドと同じ形で呼び出せる
+- 拡張メソッドが、static メソッドの呼び出しに変換されることを説明できる
+- 拡張メソッドから、対象の型の `private` メンバーを使えない理由を説明できる
 
 ## 前提知識
 
@@ -21,209 +23,253 @@ permalink: /csharp/extension-methods/
 
 ---
 
-## 1. 既存の型を直接編集できない場面
+## 1. 型の定義を書き換えられない場面
 
-たとえば既存のクラスに便利なメソッドを足したくても、そのクラスの定義を変更できないことがあります。
+文字列の最後に `!` を付けて大文字にする処理を、何度も使いたいとします。static メソッドとして書くと、次のようになります。
 
-- 外部ライブラリのクラスである
-- `sealed` クラスで継承できない
-- 既存コードを変更したくない
+```csharp
+Console.WriteLine(StringUtil.Shout("hello"));
 
-このようなとき、別の `static class` にメソッドを書くことで、元の型にメソッドが増えたように扱えます。
+static class StringUtil
+{
+    public static string Shout(string text)
+    {
+        return text.ToUpper() + "!";
+    }
+}
+```
+
+```
+HELLO!
+```
+
+正しく動きますが、`"hello".ToUpper()` のように、文字列の後に `.` を付けて呼び出すことはできません。`string` は .NET に用意されているクラスで、自分でメソッドを追加することはできないからです。
+
+拡張メソッドを使うと、`string` を書き換えずに、`"hello".Shout()` と書けるようになります。
 
 ---
 
-## 2. 拡張メソッドの定義
+## 2. 拡張メソッドを定義する
 
-**書式：拡張メソッド**
+**書式：[拡張メソッドの定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/extension-methods)**
 ```
-static class 拡張クラス名
+static class クラス名
 {
-    public static 戻り値の型 メソッド名(this 対象の型 引数名, 追加引数)
+    public static 戻り値の型 メソッド名(this 対象の型 パラメータ名, 追加のパラメータ)
     {
-        処理
+        // 処理
     }
 }
 ```
 
 | 要素 | 説明 |
 |---|---|
-| `static class` | 拡張メソッドを置くクラス。必ず static |
-| `public static` | 拡張メソッド本体。必ず static |
-| `this` | 第一引数が拡張対象であることを示す |
-| `対象の型` | 拡張したい型 |
-| `引数名` | 拡張先のインスタンスを受け取る名前 |
-| `追加引数` | 必要なら第2引数以降に追加する引数 |
+| `static class` | 拡張メソッドは、static クラスの中に定義する |
+| `public static` | 拡張メソッド自体も static メソッドにする |
+| `this 対象の型 パラメータ名` | 1 つ目のパラメータに `this` を付けると、その型の拡張メソッドになる。呼び出したインスタンスが、このパラメータに入る |
+| `追加のパラメータ` | 必要なら、2 つ目以降にふつうのパラメータを書ける |
 
-`this` を付けた**第一引数**が、「どの型を拡張するか」を決めます。
-
----
-
-## 3. 呼び出し方
-
-呼び出し側では、通常のインスタンスメソッドと同じように `変数.M()` と書けます。
-
-コンパイラはこれを、内部では `AExtensions.M(a)` のような `static` メソッド呼び出しに変換します。つまり、拡張メソッドは**糖衣構文**です。
-
----
-
-## 4. 実行例
+1 節の `Shout` を、拡張メソッドに書き換えます。変わるのは、パラメータに `this` を付けることだけです。
 
 ```csharp
-class A
-{
-    public int Value;
-}
+Console.WriteLine("hello".Shout());
 
-static class AExtensions
+string name = "alice";
+Console.WriteLine(name.Shout());
+Console.WriteLine(name.Repeat(3));
+
+static class StringExtensions
 {
-    public static void M(this A a)
+    public static string Shout(this string text)
     {
-        Console.WriteLine($"AExtensions.M: {a.Value}");
+        return text.ToUpper() + "!";
     }
 
-    public static void N(this A a, int x)
+    public static string Repeat(this string text, int count)
     {
-        Console.WriteLine($"AExtensions.N: {a.Value + x}");
+        string result = "";
+        for (int i = 0; i < count; i++)
+        {
+            result += text;
+        }
+        return result;
     }
 }
-
-var a = new A { Value = 42 };
-a.M();
-a.N(10);
 ```
 
 ```
-AExtensions.M: 42
-AExtensions.N: 52
+HELLO!
+ALICE!
+alicealicealice
 ```
 
-`a.M()` と書いていますが、実体は `AExtensions.M(a)` です。`a.N(10)` の実体は `AExtensions.N(a, 10)` です。
+`name.Shout()` と書くと、`name` の値が、`this` を付けたパラメータ `text` に入ります。`name.Repeat(3)` の `3` は、2 つ目のパラメータ `count` に入ります。
+
+`int` のような値の型にも、拡張メソッドを定義できます。
+
+```csharp
+Console.WriteLine(4.IsEven());
+Console.WriteLine(7.IsEven());
+
+static class IntExtensions
+{
+    public static bool IsEven(this int value)
+    {
+        return value % 2 == 0;
+    }
+}
+```
+
+```
+True
+False
+```
 
 ---
 
-## 5. 注意点
+## 3. 拡張メソッドの正体
 
-拡張メソッドは、対象クラスの内部に入り込む仕組みではありません。そのため、使えるのは対象型の **`public` メンバー** が中心です。
+`name.Shout()` と書くと、コンパイラーは、これを `StringExtensions.Shout(name)` という static メソッドの呼び出しに変換します。拡張メソッドは、static メソッドを、インスタンスメソッドのような形で呼び出せるようにするための **シンタックスシュガー**（書き方を短くするための構文）です。
 
-- `private` メンバーにはアクセスできない
-- `protected` メンバーにもアクセスできない
-- 既存クラスの実装そのものを書き換えるわけではない
+```csharp
+string name = "alice";
+Console.WriteLine(name.Shout());
+Console.WriteLine(StringExtensions.Shout(name));
 
-つまり、拡張メソッドは「見た目をインスタンスメソッドに近づける書き方」であり、アクセス制御を無視する仕組みではありません。
+static class StringExtensions
+{
+    public static string Shout(this string text)
+    {
+        return text.ToUpper() + "!";
+    }
+}
+```
+
+```
+ALICE!
+ALICE!
+```
+
+どちらの書き方でも、同じメソッドが呼び出されます。
+
+拡張メソッドは、対象の型の中にメソッドを追加するわけではありません。別のクラスにある static メソッドなので、[アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) の決まりどおり、対象の型の `public` のメンバーしか使えません。
 
 ---
 
 ## よくあるミス
 
-### ミス①：拡張メソッドを non-static クラスに定義する
+### static ではないクラスに拡張メソッドを定義する
 
 ```csharp
-class A
-{
-    public int Value;
-}
-
-// ❌ NG: 拡張メソッドを置くクラスは static 必須
-// class AExtensions
+// ❌ NG: 拡張メソッドは static クラスに定義する
+// class StringExtensions
 // {
-//     public static void M(this A a) { Console.WriteLine(a.Value); }
+//     public static string Shout(this string text)  // CS1106
+//     {
+//         return text.ToUpper() + "!";
+//     }
 // }
-
-// ✅ OK: static class に定義する
-static class AExtensions
-{
-    public static void M(this A a) { Console.WriteLine($"AExtensions.M: {a.Value}"); }
-}
 ```
 
-### ミス②：対象クラスの `private` メンバーにアクセスしようとする
+### 対象の型の private メンバーを使う
 
 ```csharp
-class A
-{
-    private int _value = 42;
-    public int Value { get { return _value; } }
-}
+// ❌ NG: 拡張メソッドから、対象の型の private メンバーは使えない
+// class A
+// {
+//     private int _value = 42;
+// }
+//
+// static class AExtensions
+// {
+//     public static void Show(this A a)
+//     {
+//         Console.WriteLine(a._value);  // CS0122
+//     }
+// }
+```
 
-static class AExtensions
-{
-    // ❌ NG: private メンバーにはアクセスできない
-    // public static void M(this A a) { Console.WriteLine(a._value); }
+拡張メソッドは、対象の型の外にある、ふつうの static メソッドです。対象の型の内部を特別に使えるわけではありません。
 
-    // ✅ OK: public メンバーを使う
-    public static void M(this A a) { Console.WriteLine($"AExtensions.M: {a.Value}"); }
+### もともとあるメソッドと同じ名前の拡張メソッドを書く
+
+```csharp
+Console.WriteLine("hello".ToUpper());
+
+static class StringExtensions
+{
+    public static string ToUpper(this string text)
+    {
+        return "拡張メソッドの ToUpper";
+    }
 }
 ```
+
+```
+HELLO
+```
+
+`string` には、もともと引数のない `ToUpper` メソッドがあります。型にもともとあるメソッドで呼び出せるときは、そちらが優先されるので、同じシグネチャの拡張メソッドは呼び出されません。コンパイラーは警告も出さないので、気付きにくい間違いです。拡張メソッドには、対象の型にない名前を付けます。
 
 ---
 
 ## まとめ
 
 - 拡張メソッドは、既存の型にメソッドを追加したように見せる書き方
-- `static class` の中に `public static 戻り値 M(this 型 引数名, ...)` と定義する
-- 呼び出し側では `変数.M()` と書けるが、内部では `static` メソッド呼び出しに変換される
-- 拡張メソッドは糖衣構文であり、元のクラスのアクセス制御は変えられない
-- `private` / `protected` メンバーにはアクセスできない
+- static クラスの中に、1 つ目のパラメータに `this` を付けた static メソッドとして定義する
+- `値.メソッド名()` の形で呼び出せる。コンパイラーは、これを static メソッドの呼び出しに変換する
+- 拡張メソッドから使えるのは、対象の型の `public` のメンバーだけ
+- 型にもともとある同じシグネチャのメソッドが、拡張メソッドより優先される
 
 ---
 
 ## 理解度チェック
 
-以下の問いに答えられるか確認しましょう。
-
-1. 拡張メソッドが必要になるのはどのような場面ですか？
-2. 次のコードの出力結果は何になりますか？
+1. 拡張メソッドは、どのような場面で役に立ちますか？
+2. 次のコードを実行すると何が出力されますか？
 
    ```csharp
-   class A
-   {
-       public int Value;
-   }
+   int score = 75;
+   Console.WriteLine(score.IsPassed());
+   Console.WriteLine(40.IsPassed());
+   Console.WriteLine(IntExtensions.IsPassed(60));
 
-   static class AExtensions
+   static class IntExtensions
    {
-       public static void M(this A a)
+       public static bool IsPassed(this int value)
        {
-           Console.WriteLine($"AExtensions.M: {a.Value}");
+           return value >= 60;
        }
    }
-
-   var a = new A { Value = 7 };
-   a.M();
    ```
 
-3. `A` の `Value` に `x` を足した結果を表示する拡張メソッド `N(this A a, int x)` を書いてください。
+3. `int` の値を 2 倍にして返す拡張メソッド `Double(this int value)` を書き、`5.Double()` の結果を表示するコードを書いてください。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. 外部ライブラリの型や `sealed` クラスなど、元のクラスを直接編集できないのに便利なメソッドを追加したい場面です。
-2. 
-   ```
-   AExtensions.M: 7
-   ```
-3. ```csharp
-   class A
-   {
-       public int Value;
-   }
+1. `string` や `int` のように、自分ではクラスの定義を書き換えられない型に、その型のメソッドのような形で呼び出せる処理を追加したい場面です。
+2. 次のように出力されます。`IntExtensions.IsPassed(60)` は、static メソッドとして直接呼び出しています。
 
-   static class AExtensions
+   ```
+   True
+   False
+   True
+   ```
+
+3. ```csharp
+   Console.WriteLine(5.Double());
+
+   static class IntExtensions
    {
-       public static void N(this A a, int x)
+       public static int Double(this int value)
        {
-           Console.WriteLine($"AExtensions.N: {a.Value + x}");
+           return value * 2;
        }
    }
-
-   var a = new A { Value = 10 };
-   a.N(5);
    ```
 
-   ```
-   AExtensions.N: 15
-   ```
+   `10` が表示されます。
 
 </details>
 
@@ -231,4 +277,4 @@ static class AExtensions
 
 ## 次のステップ
 
-[継承](/unity-csharp-learning/csharp/inheritance/) では、既存クラスのメンバーを引き継いで新しいクラスを作る仕組みを学びます。
+これで「C# メソッドの応用文法」のセクションは終わりです。[継承](/unity-csharp-learning/csharp/inheritance/) からは「C# 継承と抽象化」のセクションに進み、既存のクラスのメンバーを引き継いで、新しいクラスを作る仕組みを学びます。

@@ -6,269 +6,305 @@ permalink: /csharp/operator-overloading/
 
 # 演算子のオーバーロード
 
-`int` 同士なら `+` や `==` をそのまま使えますが、自作クラスでは最初から同じ書き方ができるとは限りません。演算子のオーバーロードを使うと、自作クラスに演算子の動作を定義できます。
+`int` どうしなら `+` や `==` をそのまま使えますが、自分で作ったクラスには、最初は `+` を使えません。**演算子のオーバーロード**（operator overloading）を使うと、自分で作ったクラスで、演算子が何をするかを定義できます。
 
 ## 学習目標
 
-- 自作クラスで演算子がそのまま使えない理由を説明できる
-- `public static A operator +(A a, A b)` の構文を理解できる
-- `a + b` が内部では特別なメソッド呼び出しに変換されることを説明できる
-- 比較演算子にペア定義の義務があることを理解できる
+このページを読み終えると、以下のことができるようになります。
+
+- 自分で作ったクラスに `+` などの演算子を定義できる
+- `a + b` が、演算子を定義したメソッドの呼び出しに変換されることを説明できる
+- `==` と `!=` のように、ペアで定義しなければならない演算子があることを説明できる
 
 ## 前提知識
 
 - [オーバーロード解決](/unity-csharp-learning/csharp/overload-resolution/) を読んでいること
+- [プロパティ](/unity-csharp-learning/csharp/properties/) を読んでいること
 
 ---
 
-## 1. 自作クラスはそのままでは `+` で足せない
+## 1. 自分で作ったクラスには + を使えない
 
-`int` には `+` が定義されているので、次のように書けます。
+2 次元のベクトル（`X` と `Y` の組）を表す `Vector` クラスを作るとします。`int` なら `x + y` と書けますが、`Vector` のインスタンスどうしを `+` で足そうとすると、コンパイルエラーになります。
 
 ```csharp
-int x = 1;
-int y = 2;
-Console.WriteLine(x + y);
+// ❌ NG: Vector には + が定義されていない
+// Vector a = new Vector(1, 2);
+// Vector b = new Vector(3, 4);
+// Vector c = a + b;  // CS0019
 ```
 
-```
-3
-```
-
-一方、自作クラス `A` を作っただけでは `a + b` とは書けません。`+` の動作をコンパイラが知らないからです。
+コンパイラーは、`Vector` どうしを `+` したときに何をすればよいかを知らないからです。
 
 ---
 
-## 2. 演算子オーバーロードの基本構文
+## 2. 演算子を定義する
 
-**書式：演算子オーバーロード**
+演算子は、[operator](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/operator-overloading) キーワードを使って、メソッドのように定義します。
+
+**書式：[演算子のオーバーロード](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/operator-overloading)**
 ```
 public static 戻り値の型 operator 演算子(型 左辺, 型 右辺)
 {
-    処理
+    // 処理
 }
 ```
 
 | 要素 | 説明 |
 |---|---|
-| `public` | 演算子を外部から使えるようにする |
-| `static` | 演算子がクラスに属することを示す |
-| `戻り値の型` | 演算の結果として返す型 |
-| `operator` | 演算子オーバーロードであることを示すキーワード |
-| `演算子` | `+`、`==` など定義したい演算子 |
-| `左辺` / `右辺` | 演算子の左右に来る値 |
+| `public static` | 演算子の定義には、必ず両方を付ける |
+| `戻り値の型` | 演算の結果の型 |
+| `operator 演算子` | 定義する演算子。`operator +` のように書く |
+| `左辺`・`右辺` | 演算子の左と右に書かれた値を受け取るパラメータ。少なくとも一方は、定義しているクラスの型にする |
 
-演算子オーバーロードは **`public` かつ `static` が必須** です。戻り値の型は任意ですが、`+` のような演算では同じ型を返すことが多いです。
-
----
-
-## 3. `a + b` は内部でメソッド呼び出しに変換される
-
-`a + b` と書くと、コンパイラはそれを演算子用の特別なメソッド呼び出しに変換します。`+` の場合は IL レベルで `op_Addition` という名前として表現されます。
-
-```text
-A.op_Addition(a, b)
-```
-
-これは「演算子も最終的にはメソッドとして扱われる」ということです。`==` なら `op_Equality`、`!=` なら `op_Inequality` に対応します。
-
----
-
-## 4. 比較演算子はペアで定義する
-
-比較演算子にはペアで定義しなければならないものがあります。
-
-- `==` を定義したら `!=` も必要
-- `<` を定義したら `>` も必要
-- `<=` を定義したら `>=` も必要
-
-片方だけ書くとコンパイルエラーになります。
-
----
-
-## 5. オーバーロードできる演算子の例
-
-代表的なものは次の通りです。
-
-- `+`
-- `-`
-- `*`
-- `/`
-- `==`
-- `!=`
-- `<`
-- `>`
-
-ただし、どの演算子でも自由に定義できるわけではありません。C# が許可している演算子だけをオーバーロードできます。
-
----
-
-## 6. 実行例
+`static` は、インスタンスではなくクラスそのものに属するメンバーを表すキーワードです。詳しくは、[static メンバーと static クラス](/unity-csharp-learning/csharp/static-members/) で学びます。
 
 ```csharp
-class A
+Vector a = new Vector(1, 2);
+Vector b = new Vector(3, 4);
+
+Vector c = a + b;
+Console.WriteLine($"({c.X}, {c.Y})");
+
+Vector d = b - a;
+Console.WriteLine($"({d.X}, {d.Y})");
+
+a += b;
+Console.WriteLine($"({a.X}, {a.Y})");
+
+class Vector
 {
-    public int Value;
+    public int X { get; }
+    public int Y { get; }
 
-    public A(int v) { Value = v; }
-
-    public static A operator +(A a, A b)
+    public Vector(int x, int y)
     {
-        Console.WriteLine("A.op_+");
-        return new A(a.Value + b.Value);
+        X = x;
+        Y = y;
     }
 
-    public static bool operator ==(A a, A b)
+    public static Vector operator +(Vector a, Vector b)
     {
-        Console.WriteLine("A.op_==");
-        return a.Value == b.Value;
+        return new Vector(a.X + b.X, a.Y + b.Y);
     }
 
-    public static bool operator !=(A a, A b)
+    public static Vector operator -(Vector a, Vector b)
     {
-        Console.WriteLine("A.op_!=");
-        return a.Value != b.Value;
+        return new Vector(a.X - b.X, a.Y - b.Y);
     }
 }
-
-var x = new A(1);
-var y = new A(2);
-var z = x + y;
-Console.WriteLine(z.Value);
-
-Console.WriteLine(x == y);
-Console.WriteLine(x != y);
 ```
 
 ```
-A.op_+
-3
-A.op_==
-False
-A.op_!=
+(4, 6)
+(2, 2)
+(4, 6)
+```
+
+`+` を定義すると、`a += b` のような複合代入も使えるようになります。`a += b` は `a = a + b` として計算されます。
+
+---
+
+## 3. a + b はメソッドの呼び出しになる
+
+`a + b` と書くと、コンパイラーは、定義した `operator +` を呼び出すコードに変換します。[中間言語と JIT コンパイル](/unity-csharp-learning/csharp/dotnet-internals/) で学んだ中間言語（IL）では、`operator +` は `op_Addition` という名前のメソッドになっています。
+
+| 演算子 | IL でのメソッド名 |
+|---|---|
+| `+` | `op_Addition` |
+| `-` | `op_Subtraction` |
+| `==` | `op_Equality` |
+| `!=` | `op_Inequality` |
+
+演算子も、最終的にはメソッドとして扱われる、ということです。
+
+---
+
+## 4. ペアで定義する演算子
+
+比較の演算子には、2 つをペアで定義しなければならないものがあります。片方だけを定義すると、コンパイルエラー（CS0216）になります。
+
+| ペア |
+|---|
+| `==` と `!=` |
+| `<` と `>` |
+| `<=` と `>=` |
+
+### == と != を定義する
+
+`==` と `!=` を定義するときは、あわせて `Equals` メソッドと `GetHashCode` メソッドもオーバーライドします。オーバーライドしないと、コンパイラーが警告（CS0660・CS0661）を出します。`Equals` は「等しいかどうか」を調べる別の方法で、`==` と同じ結果を返すようにそろえておく必要があるからです。オーバーライドについては、[オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) で学びます。ここでは、次の書き方をひとそろいとして覚えておきましょう。
+
+```csharp
+Vector a = new Vector(1, 2);
+Vector b = new Vector(1, 2);
+Vector c = new Vector(3, 4);
+
+Console.WriteLine(a == b);
+Console.WriteLine(a != c);
+
+class Vector
+{
+    public int X { get; }
+    public int Y { get; }
+
+    public Vector(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+
+    public static bool operator ==(Vector a, Vector b)
+    {
+        return a.X == b.X && a.Y == b.Y;
+    }
+
+    public static bool operator !=(Vector a, Vector b)
+    {
+        return !(a == b);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Vector other && this == other;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
+    }
+}
+```
+
+```
+True
 True
 ```
 
-`x + y` が `A` を返し、`x == y` と `x != y` が `bool` を返していることを確認できます。
+`a` と `b` は別々のインスタンスですが、`==` を「`X` と `Y` が等しいか」と定義したので、`True` になります。`!=` は、`==` の結果を反転して定義しています。`GetHashCode` の [HashCode.Combine メソッド](https://learn.microsoft.com/dotnet/api/system.hashcode.combine) は、複数の値から 1 つの整数（ハッシュコード）を作ります。
+
+---
+
+## 5. オーバーロードできる演算子
+
+[オーバーロードできる演算子](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/operator-overloading#overloadable-operators) は決まっています。
+
+| 種類 | 演算子 |
+|---|---|
+| 単項演算子 | `+`・`-`・`!`・`~`・`++`・`--` |
+| 算術演算子 | `+`・`-`・`*`・`/`・`%` |
+| ビット演算子 | `&`・`\|`・`^`・`<<`・`>>` |
+| 比較演算子 | `==`・`!=`・`<`・`>`・`<=`・`>=`（ペアで定義する） |
+
+`&&`・`||`・`=`・`.`・`? :` などは、オーバーロードできません。
+
+演算子は、「`+` なら足し算のような意味」のように、元の演算子から想像できる動作にします。予想と違う動作をする演算子は、コードを読む人を混乱させます。
 
 ---
 
 ## よくあるミス
 
-### ミス①：`==` だけ定義して `!=` を忘れる
+### == だけを定義して != を忘れる
 
 ```csharp
-class A
-{
-    public int Value;
-
-    // ❌ NG: == だけではコンパイルエラー
-    // public static bool operator ==(A a, A b) { return true; }
-
-    // ✅ OK: != もセットで定義する
-    public static bool operator ==(A a, A b) { return a.Value == b.Value; }
-    public static bool operator !=(A a, A b) { return a.Value != b.Value; }
-}
+// ❌ NG: == を定義したら != も必要
+// class A
+// {
+//     public int Value;
+//
+//     public static bool operator ==(A a, A b)  // CS0216
+//     {
+//         return a.Value == b.Value;
+//     }
+// }
 ```
 
-### ミス②：`static` を付け忘れる
+### static を付け忘れる
 
 ```csharp
-class A
-{
-    // ❌ NG: 演算子オーバーロードは static 必須
-    // public A operator +(A a, A b) { return new A(); }
-
-    // ✅ OK: public static で定義する
-    public static A operator +(A a, A b) { return new A(); }
-
-    public A() { Console.WriteLine("A.A"); }
-}
+// ❌ NG: 演算子の定義には static が必要
+// class A
+// {
+//     public A operator +(A a, A b)  // CS0558
+//     {
+//         return a;
+//     }
+// }
 ```
 
 ---
 
 ## まとめ
 
-- 自作クラスは、そのままでは `+` や `==` を使えない
-- 演算子オーバーロードは `public static 戻り値の型 operator ...` の形で定義する
-- `a + b` は内部で演算子用メソッド呼び出しに変換される
-- `==` と `!=`、`<` と `>`、`<=` と `>=` はペアで定義する必要がある
-- `+`、`-`、`*`、`/`、`==`、`!=` などが代表的な対象である
+- 自分で作ったクラスには、最初は `+` や `==` などの演算子を使えない
+- `public static 戻り値の型 operator 演算子(型 左辺, 型 右辺)` で演算子を定義する
+- `a + b` は、定義した演算子のメソッドの呼び出しに変換される
+- `==` と `!=`、`<` と `>`、`<=` と `>=` は、ペアで定義する
+- `==` と `!=` を定義するときは、`Equals` と `GetHashCode` もオーバーライドする
 
 ---
 
 ## 理解度チェック
 
-以下の問いに答えられるか確認しましょう。
-
-1. 演算子オーバーロードが `public static` でなければならないのはなぜですか？
-2. 次のコードの出力結果は何になりますか？
+1. 次のコードを実行すると何が出力されますか？
 
    ```csharp
-   class A
+   Money x = new Money(300);
+   Money y = new Money(500);
+   Money z = x + y;
+   Console.WriteLine(z.Amount);
+
+   class Money
    {
-       public int Value;
+       public int Amount { get; }
 
-       public A(int v) { Value = v; }
-
-       public static A operator +(A a, A b)
+       public Money(int amount)
        {
-           Console.WriteLine("A.op_+");
-           return new A(a.Value + b.Value);
+           Amount = amount;
+       }
+
+       public static Money operator +(Money a, Money b)
+       {
+           return new Money(a.Amount + b.Amount);
        }
    }
-
-   var x = new A(4);
-   var y = new A(5);
-   var z = x + y;
-   Console.WriteLine(z.Value);
    ```
 
-3. `A` の `Value` 同士を比較して `==` と `!=` を定義してください。メソッド本体では `"A.op_=="` と `"A.op_!="` を表示するようにしてください。
+2. 1 の `Money` クラスに、金額を整数倍する `*` 演算子（`Money * int`）を追加してください。
+3. `<` だけを定義して `>` を定義しないと、どうなりますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. 演算子はインスタンスではなく型に属する仕組みとして扱われるためです。C# の仕様として `public static` が必須です。
-2. 
+1. `800` が出力されます。`x + y` で `operator +` が呼び出され、`Amount` を足した新しい `Money` が返されます。
+
    ```
-   A.op_+
-   9
+   800
    ```
-3. ```csharp
-   class A
+
+2. ```csharp
+   Money price = new Money(300);
+   Money total = price * 3;
+   Console.WriteLine(total.Amount);
+
+   class Money
    {
-       public int Value;
+       public int Amount { get; }
 
-       public A(int v) { Value = v; }
-
-       public static bool operator ==(A a, A b)
+       public Money(int amount)
        {
-           Console.WriteLine("A.op_==");
-           return a.Value == b.Value;
+           Amount = amount;
        }
 
-       public static bool operator !=(A a, A b)
+       public static Money operator *(Money a, int times)
        {
-           Console.WriteLine("A.op_!=");
-           return a.Value != b.Value;
+           return new Money(a.Amount * times);
        }
-
    }
-
-   var x = new A(1);
-   var y = new A(2);
-   Console.WriteLine(x == y);
-   Console.WriteLine(x != y);
    ```
 
-   ```
-   A.op_==
-   False
-   A.op_!=
-   True
-   ```
+   `900` が表示されます。パラメータの型は、左辺と右辺で違っていてもかまいません。
+
+3. コンパイルエラー（CS0216）になります。`<` と `>` は、ペアで定義する必要があります。
 
 </details>
 
@@ -276,4 +312,4 @@ class A
 
 ## 次のステップ
 
-[再帰関数とコールスタック](/unity-csharp-learning/csharp/recursion/) では、メソッドが自分自身を呼び出す処理と、そのときのメモリの積み重なり方を学びます。
+[再帰関数とコールスタック](/unity-csharp-learning/csharp/recursion/) では、メソッドが自分自身を呼び出す再帰と、メソッドの呼び出しが積み重なるコールスタックを学びます。
