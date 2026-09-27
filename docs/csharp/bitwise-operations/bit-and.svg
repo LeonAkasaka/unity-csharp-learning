@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" width="360" font-family="sans-serif">
+  <text x="115" y="18" text-anchor="middle" font-size="10" fill="#999">bit3</text>
+  <text x="165" y="18" text-anchor="middle" font-size="10" fill="#999">bit2</text>
+  <text x="215" y="18" text-anchor="middle" font-size="10" fill="#999">bit1</text>
+  <text x="265" y="18" text-anchor="middle" font-size="10" fill="#999">bit0</text>
+  <text x="80" y="51" text-anchor="end" font-size="13" fill="#555">a</text>
+  <rect x="90" y="25" width="50" height="40" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/><text x="115" y="52" text-anchor="middle" font-size="22" fill="#e65100">1</text>
+  <rect x="140" y="25" width="50" height="40" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/><text x="165" y="52" text-anchor="middle" font-size="22" fill="#e65100">1</text>
+  <rect x="190" y="25" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="215" y="52" text-anchor="middle" font-size="22" fill="#333">0</text>
+  <rect x="240" y="25" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="265" y="52" text-anchor="middle" font-size="22" fill="#333">0</text>
+  <text x="302" y="51" font-size="13" fill="#555">= 12</text>
+  <text x="80" y="101" text-anchor="end" font-size="13" fill="#555">b</text>
+  <rect x="90" y="75" width="50" height="40" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/><text x="115" y="102" text-anchor="middle" font-size="22" fill="#e65100">1</text>
+  <rect x="140" y="75" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="165" y="102" text-anchor="middle" font-size="22" fill="#333">0</text>
+  <rect x="190" y="75" width="50" height="40" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/><text x="215" y="102" text-anchor="middle" font-size="22" fill="#e65100">1</text>
+  <rect x="240" y="75" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="265" y="102" text-anchor="middle" font-size="22" fill="#333">0</text>
+  <text x="302" y="101" font-size="13" fill="#555">= 10</text>
+  <text x="80" y="161" text-anchor="end" font-size="13" fill="#555">a &amp; b</text>
+  <rect x="90" y="135" width="50" height="40" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/><text x="115" y="162" text-anchor="middle" font-size="22" fill="#e65100">1</text>
+  <rect x="140" y="135" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="165" y="162" text-anchor="middle" font-size="22" fill="#333">0</text>
+  <rect x="190" y="135" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="215" y="162" text-anchor="middle" font-size="22" fill="#333">0</text>
+  <rect x="240" y="135" width="50" height="40" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/><text x="265" y="162" text-anchor="middle" font-size="22" fill="#333">0</text>
+  <text x="302" y="161" font-size="13" fill="#555">= 8</text>
+  <line x1="90" y1="125" x2="290" y2="125" stroke="#555" stroke-width="1.5"/>
+</svg>

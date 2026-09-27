@@ -6,25 +6,27 @@ permalink: /csharp/primitive-types/
 
 # プリミティブ型と型変換
 
-C# には値の種類ごとに「型」が用意されています。どの型を選ぶかで、扱える値の範囲・精度・メモリの使用量が変わります。このページでは数値・文字・文字列の型を詳しく学び、型同士の変換と異なる型の演算のルールを理解します。
+C# には、値の種類ごとに型が用意されています。どの型を選ぶかで、扱える値の範囲、精度、使うメモリの量が変わります。このページでは、数値・文字・文字列の型と、型どうしの変換、異なる型を混ぜた演算の規則を学びます。
 
 ## 学習目標
 
-- 主要な整数型・浮動小数点型の種類と表現範囲を説明できる
-- 符号あり / 符号なし整数型の違いを説明できる
+このページを読み終えると、以下のことができるようになります。
+
+- 主な整数型・浮動小数点型の種類と表現範囲を説明できる
+- 符号あり / 符号なしの整数型の違いを説明できる
 - `char` と `string` の違いを説明できる
-- 暗黙的型変換とキャスト（明示的型変換）の違いを説明できる
-- 異なる型を混ぜた演算の結果がどの型になるか説明できる
+- 暗黙的な型変換とキャスト（明示的な型変換）の違いを説明できる
+- 異なる型を混ぜた演算の結果が、どの型になるかを説明できる
 
 ## 前提知識
 
-- [最初のプログラムと変数](/unity-csharp-learning/csharp/variables/) — リテラル・変数・算術演算
+- [最初のプログラムと変数](/unity-csharp-learning/csharp/variables/) を読んでいること
 
 ---
 
 ## 1. 整数型の種類と表現範囲
 
-C# の整数型は「何ビットで値を記憶するか」と「負の数を扱うか（符号）」の組み合わせで決まります。
+C# の [整数型](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/integral-numeric-types) は、「何ビットで値を記憶するか」と「負の数を扱うか（符号）」の組み合わせで決まります。
 
 | 型名 | ビット数 | 符号 | 最小値 | 最大値 |
 |---|---|---|---|---|
@@ -37,75 +39,87 @@ C# の整数型は「何ビットで値を記憶するか」と「負の数を�
 | `long` | 64 | あり | -9,223,372,036,854,775,808 | 9,223,372,036,854,775,807 |
 | `ulong` | 64 | なし | 0 | 18,446,744,073,709,551,615 |
 
-> 💡 **型の選び方**: 迷ったら `int` を使ってください。`int` は最もよく使われる整数型です。`long` は `int` の範囲を超える大きな数（累計スコアなど）、`byte` は色の成分（0〜255）や小さな数値に使います。
+> 💡 **型の選び方**: 迷ったら `int` を使います。`int` は最もよく使われる整数型です。`int` の範囲を超える大きな数（累計の数など）には `long` を、色の成分（0〜255）のような小さな数には `byte` を使います。
 
-型の最大値・最小値はコードから確認できます。
+型の最大値と最小値は、[int.MaxValue フィールド](https://learn.microsoft.com/dotnet/api/system.int32.maxvalue) と [int.MinValue フィールド](https://learn.microsoft.com/dotnet/api/system.int32.minvalue) で確かめられます。`byte.MaxValue` や `long.MaxValue` のように、ほかの整数型にも同じものがあります。
 
-**`int.MaxValue`** — `int` 型が表現できる最大値の定数（`2147483647`）。`byte.MaxValue`・`long.MaxValue` など他の整数型でも同様に使える。<!-- [公式ドキュメント]() -->
-
-**書式：int.MaxValue フィールド**
+**書式：[int.MaxValue フィールド](https://learn.microsoft.com/dotnet/api/system.int32.maxvalue)**
 ```csharp
 public const int MaxValue = 2147483647;
 ```
 
-**`int.MinValue`** — `int` 型が表現できる最小値の定数（`-2147483648`）。<!-- [公式ドキュメント]() -->
-
-**書式：int.MinValue フィールド**
 ```csharp
-public const int MinValue = -2147483648;
+Console.WriteLine(int.MaxValue);
+Console.WriteLine(int.MinValue);
+Console.WriteLine(byte.MaxValue);
 ```
 
-```csharp
-Console.WriteLine(int.MaxValue);  // 2147483647
-Console.WriteLine(int.MinValue);  // -2147483648
-// 他の型も同様: byte.MaxValue → 255, long.MaxValue → 9223372036854775807
+```
+2147483647
+-2147483648
+255
 ```
 
-### 「符号あり」と「符号なし」
+### 符号あり と 符号なし
 
-整数型には **符号あり（signed）** と **符号なし（unsigned）** の2種類があります。
+整数型には、**符号あり**（signed）と **符号なし**（unsigned）の 2 種類があります。
 
-- **符号あり**（`int`・`long` など）: 負の数も表現できる。同じビット数の場合、正の最大値が半分になる。
-- **符号なし**（`uint`・`ulong` など）: 0以上の値しか入れられない。その分、同じビット数でより大きな正の数を表現できる。
+- **符号あり**（`int`・`long` など）：負の数も表せる。同じビット数の符号なしの型と比べると、正の最大値はおよそ半分になる
+- **符号なし**（`uint`・`ulong` など）：0 以上の値だけを表せる。その分、同じビット数でより大きな正の数を表せる
 
-8 ビットの例で比べると:
+8 ビットの型で比べると、次のようになります。どちらも 2⁸ = 256 通りの値を表しますが、範囲の割り当て方が違います。
 
-```
-符号あり sbyte: -128 〜 127  （256通りを負・0・正に振り分ける）
-符号なし byte:     0 〜 255  （256通りをすべて 0 以上に使う）
-```
-
-どちらも 2⁸ = 256 通りの値を表現しますが、範囲の割り当てが異なります。
+| 型 | 範囲 | 256 通りの割り当て方 |
+|---|---|---|
+| `sbyte` | -128 〜 127 | 負の数・0・正の数に振り分ける |
+| `byte` | 0 〜 255 | すべて 0 以上に使う |
 
 ### オーバーフロー
 
-変数に入れられる範囲を超えた計算をすると**オーバーフロー**が発生します。C# のデフォルト動作では例外は発生せず、値が反対端から折り返します。
+型の範囲を超える計算をすると、**オーバーフロー** が起きます。C# の既定の動作では、例外は発生せず、値が反対側の端に折り返します。
 
 ```csharp
 int maxInt = int.MaxValue;
-Console.WriteLine(maxInt);      // 2147483647
-Console.WriteLine(maxInt + 1);  // -2147483648 （最大値の次は最小値に折り返す）
+Console.WriteLine(maxInt);
+Console.WriteLine(maxInt + 1);
 ```
 
-> ⚠️ **注意**: オーバーフローは実行時に無警告で起きます。意図しない計算結果にならないよう、値の範囲に合った型を選ぶことが大切です。
+```
+2147483647
+-2147483648
+```
 
-> 🔍 **なぜ折り返すのか・もっと深く知りたい方へ**: 2の補数による負数表現のしくみ、`int` と `System.Int32` の関係、16進数/2進数リテラルの書き方などは補足ページで解説しています → [数値リテラルと型エイリアス（補足）](/unity-csharp-learning/csharp/numeric-literals/)
+最大値に 1 を足すと、最小値になります。オーバーフローはエラーにならずに起きるので、扱う値の範囲に合った型を選ぶことが大切です。なぜ折り返すのかは、[数値リテラルと型エイリアス（補足）](/unity-csharp-learning/csharp/numeric-literals/) で説明します。
 
 ---
 
 ## 2. 浮動小数点型の種類と精度
 
-小数を扱う型は3種類あります。
+小数を扱う [浮動小数点型](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types) は 3 種類あります。
 
 | 型名 | ビット数 | 有効桁数 | 主な用途 |
 |---|---|---|---|
-| `float` | 32 | 約7桁 | 3D グラフィックスの座標・角度など（精度より速度とメモリを優先） |
-| `double` | 64 | 約15〜17桁 | 一般的な小数計算（C# のデフォルト） |
-| `decimal` | 128 | 約28〜29桁 | 金融計算など（誤差を許容できない場合） |
+| `float` | 32 | 約 6〜9 桁 | 3D グラフィックスの座標・角度など（精度より速度とメモリを優先） |
+| `double` | 64 | 約 15〜17 桁 | 一般的な小数の計算（C# の既定） |
+| `decimal` | 128 | 28〜29 桁 | 金額の計算など（10 進数の小数を誤差なく扱いたい場合） |
+
+同じ `1 / 3` を計算すると、型によって表せる桁数が違うことがわかります。
+
+```csharp
+Console.WriteLine(1.0f / 3);
+Console.WriteLine(1.0 / 3);
+Console.WriteLine(1.0m / 3);
+```
+
+```
+0.33333334
+0.3333333333333333
+0.3333333333333333333333333333
+```
 
 ### リテラルのサフィックス
 
-小数リテラルは既定で `double` 型です。`float` や `decimal` のリテラルを書くにはサフィックスを付けます。
+小数のリテラルは、既定で `double` 型です。`float` や `decimal` のリテラルを書くには、**サフィックス**（接尾辞）を付けます。
 
 | 書き方 | 型 |
 |---|---|
@@ -114,199 +128,244 @@ Console.WriteLine(maxInt + 1);  // -2147483648 （最大値の次は最小値に
 | `3.14m` | `decimal` |
 
 ```csharp
-double  d = 3.14;   // double リテラルをそのまま代入
-float   f = 3.14f;  // f サフィックスで float リテラル
-decimal m = 3.14m;  // m サフィックスで decimal リテラル
+double d = 3.14;
+float f = 3.14f;
+decimal m = 3.14m;
+Console.WriteLine($"{d}, {f}, {m}");
 ```
 
-```csharp
-float f = 3.14;   // ❌ コンパイルエラー: double は float に暗黙的に変換できない
-float f = 3.14f;  // ✅ OK
+```
+3.14, 3.14, 3.14
 ```
 
-> 💡 **`float` を使う場面**: 3D グラフィックスのように大量の小数を扱う分野では、座標や角度などの値に `float` 型がよく使われます。`float` の変数に小数リテラルを代入するときは、`3.14f` のように `f` を付けます。
+`$"..."` は、文字列の中に値を埋め込む書き方です。6 節で説明します。
 
 ### 浮動小数点数の誤差
 
-`float` と `double` は値を2進数で**近似**して記憶します。そのため、計算結果に小さな誤差が出ることがあります。
+`float` と `double` は、値を 2 進数で **近似** して記憶します。そのため、計算の結果に小さな誤差が出ることがあります。
 
 ```csharp
-Console.WriteLine(0.1 + 0.2);         // 0.30000000000000004
-Console.WriteLine(0.1 + 0.2 == 0.3);  // False
+Console.WriteLine(0.1 + 0.2);
+Console.WriteLine(0.1 + 0.2 == 0.3);
 ```
 
-金融計算など誤差を許容できない場面では `decimal` を使ってください。
+```
+0.30000000000000004
+False
+```
+
+`0.1` や `0.2` は、2 進数ではぴったり表せません。金額のように、10 進数の小数を誤差なく扱いたいときは `decimal` を使います。
 
 ---
 
-## 3. `char` — 1文字を扱う型
+## 3. char — 1 文字を扱う型
 
-`char` は**1文字**を表す型です。リテラルは**シングルクォート（`'`）** で囲みます。
+[char](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/char) は **1 文字** を表す型です。リテラルは **シングルクォート**（`'`）で囲みます。
 
 ```csharp
 char c = 'A';
-Console.WriteLine(c);  // A
+Console.WriteLine(c);
 ```
 
-`char` は内部的に **Unicode のコードポイント**（0〜65535 の整数）として記憶されています。そのため整数への変換や算術演算も行えます。
+```
+A
+```
+
+`char` の値は、内部では文字に割り当てられた番号（UTF-16 という方式での 0〜65535 の整数）として記憶されています。そのため、整数に変換したり、計算に使ったりできます。
 
 ```csharp
 char c = 'A';
-Console.WriteLine((int)c);          // 65  （'A' の Unicode コードポイント）
-Console.WriteLine((char)('A' + 1)); // B   （コードポイント 66 → 'B'）
+Console.WriteLine((int)c);
+Console.WriteLine((char)(c + 1));
+```
+
+```
+65
+B
+```
+
+`'A'` の番号は `65` です。`c + 1` は `int` の `66` になるので、`(char)` で文字に戻すと `'B'` になります。`(int)` や `(char)` は型を変換するキャストで、5 節で説明します。
+
+---
+
+## 4. string — 文字列を扱う型
+
+[string](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/reference-types#the-string-type) は **文字の並び** を表す型です。リテラルは **ダブルクォート**（`"`）で囲みます。文字数は [Length プロパティ](https://learn.microsoft.com/dotnet/api/system.string.length) で調べられます。
+
+```csharp
+string name = "Alice";
+Console.WriteLine(name);
+Console.WriteLine(name.Length);
+```
+
+```
+Alice
+5
+```
+
+### char と string の違い
+
+| | `char` | `string` |
+|---|---|---|
+| 文字数 | 必ず 1 文字 | 0 文字以上 |
+| リテラルの囲み | `'`（シングルクォート） | `"`（ダブルクォート） |
+| 例 | `'A'` | `"Alice"`、`"A"`、`""` |
+
+`"A"` のように 1 文字でも、ダブルクォートで囲めば `string` です。
+
+### 文字列の連結
+
+`+` 演算子で文字列をつなげられます。
+
+```csharp
+string firstName = "Alice";
+string lastName = "Smith";
+string fullName = firstName + " " + lastName;
+Console.WriteLine(fullName);
+```
+
+```
+Alice Smith
 ```
 
 ### エスケープシーケンス
 
-特殊文字は `\` を使った**エスケープシーケンス**で表現します。
+改行やダブルクォートのように、そのままでは文字列に書けない文字は、`\` から始まる **エスケープシーケンス** で表します。`char` のリテラルでも使えます。
 
 | シーケンス | 意味 |
 |---|---|
-| `'\n'` | 改行 |
-| `'\t'` | タブ |
-| `'\\'` | バックスラッシュ自体 |
-| `'\''` | シングルクォート自体 |
-
----
-
-## 4. `string` — 文字列を扱う型
-
-`string` は**文字の並び（シーケンス）** を表す型です。リテラルは**ダブルクォート（`"`）** で囲みます。
+| `\n` | 改行 |
+| `\t` | タブ |
+| `\\` | `\` そのもの |
+| `\"` | `"` そのもの |
+| `\'` | `'` そのもの |
 
 ```csharp
-string name = "Alice";
-Console.WriteLine(name);          // Alice
-Console.WriteLine(name.Length);   // 5 （文字数）
+Console.WriteLine("1行目\n2行目");
+Console.WriteLine("A\tB");
+Console.WriteLine("\"Hello\"");
+Console.WriteLine("C:\\Users");
 ```
 
-### `char` と `string` の違い
-
-| 比較項目 | `char` | `string` |
-|---|---|---|
-| 文字数 | 必ず1文字 | 0文字以上（何文字でも可） |
-| リテラルの囲み | `'` シングルクォート | `"` ダブルクォート |
-| 例 | `'A'` | `"Alice"` |
-
-```csharp
-char   c = 'A';      // ✅ char は1文字
-string s = "A";      // ✅ string は1文字でもOK
-char   c = "A";      // ❌ コンパイルエラー: string を char には代入できない
 ```
-
-### 文字列の連結
-
-`+` 演算子で文字列を連結できます。
-
-```csharp
-string firstName = "Alice";
-string lastName  = "Smith";
-string fullName  = firstName + " " + lastName;
-Console.WriteLine(fullName);  // Alice Smith
-```
-
-### string 内のエスケープシーケンス
-
-`char` と同じエスケープシーケンスが `string` 内でも使えます。
-
-| シーケンス | 意味 |
-|---|---|
-| `"\n"` | 改行 |
-| `"\t"` | タブ |
-| `"\\"` | バックスラッシュ |
-| `"\""` | ダブルクォート |
-
-```csharp
-Console.WriteLine("1行目\n2行目");  // 改行して2行に出力
-Console.WriteLine("A\tB");          // タブで区切って出力
-Console.WriteLine("\"Hello\"");     // "Hello"（ダブルクォートを含む文字列）
+1行目
+2行目
+A	B
+"Hello"
+C:\Users
 ```
 
 ---
 
 ## 5. 型変換
 
-異なる型の値を別の型に変換する操作を**型変換**と呼びます。
+ある型の値を別の型の値にすることを **型変換** といいます。
 
-### 暗黙的型変換
+### 暗黙的な型変換
 
-情報が失われない（= より広い型への）変換は**自動で**行われます。これを**暗黙的型変換（implicit conversion）** と呼びます。
+情報が失われない変換は、自動的に行われます。これを **暗黙的な型変換**（implicit conversion）といいます。
 
 ```csharp
-int    i = 42;
-long   l = i;   // int → long へ暗黙的に変換
-double d = i;   // int → double へ暗黙的に変換
+int i = 42;
+long l = i;
+double d = i;
+Console.WriteLine($"{l}, {d}");
 ```
 
-暗黙的型変換が可能な主な方向（矢印の向きに自動変換される）:
+```
+42, 42
+```
+
+主な [暗黙的な数値変換](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/numeric-conversions#implicit-numeric-conversions) は、次の矢印の向きに行われます。
 
 ```
 byte → short → int → long → float → double
 ```
 
-### 明示的型変換（キャスト）
+表せる範囲が広い型へは、暗黙的に変換できます。ただし `long` から `float` への変換のように、値は範囲に収まっても、桁数が足りずに下の桁が丸められることがあります。
 
-情報が失われる可能性のある変換は**明示的に指定**する必要があります。これを**キャスト（cast）** と呼びます。
+### 明示的な型変換（キャスト）
 
-**書式：キャスト**
+情報が失われる可能性のある変換は、自動では行われません。変換先の型を書いて、明示的に変換します。これを **キャスト**（cast）といいます。
+
+**書式：[キャスト式](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/type-testing-and-cast#cast-expression)**
 ```
 (変換先の型)式
 ```
 
 | 要素 | 説明 |
 |---|---|
-| `(変換先の型)` | 変換したい型名をカッコで囲む |
+| `(変換先の型)` | 変換したい型名を `( )` で囲む |
 | `式` | 変換する値 |
 
 ```csharp
 double d = 3.7;
-int    i = (int)d;         // double → int にキャスト
-Console.WriteLine(i);      // 3 （小数点以下は切り捨て）
+int i = (int)d;
+Console.WriteLine(i);
 ```
 
-> ⚠️ **注意**: キャストによる小数→整数の変換は**切り捨て**です。四捨五入ではありません。`3.9` をキャストしても `3` になります。
+```
+3
+```
 
-表現範囲を超えた値をキャストするとオーバーフローが起きます。
+小数から整数へのキャストでは、小数点以下が **切り捨て** られます。四捨五入ではないので、`3.7` は `3` になります。
+
+範囲を超える値をキャストすると、上位のビットが捨てられ、元とはまったく違う値になります。
 
 ```csharp
-int  big = 300;
-byte b   = (byte)big;    // int → byte にキャスト（300 は byte の範囲 0〜255 を超えている）
-Console.WriteLine(b);   // 44 （300 % 256 = 44）
+int big = 300;
+byte b = (byte)big;
+Console.WriteLine(b);
 ```
 
-### 文字列 → 数値の変換
+```
+44
+```
 
-`Parse` メソッドを使うと文字列を数値に変換できます。
+`byte` の範囲は 0〜255 なので、`300` は収まりません。`300` を 256 で割った余りの `44` になります。
 
-**`int.Parse` メソッド** — 文字列を `int` に変換する<!-- [公式ドキュメント]() -->
+### 文字列から数値への変換
 
-**書式：int.Parse メソッド**
+文字列を数値に変換するには、[int.Parse メソッド](https://learn.microsoft.com/dotnet/api/system.int32.parse) などを使います。
+
+**書式：[int.Parse メソッド](https://learn.microsoft.com/dotnet/api/system.int32.parse)**
 ```csharp
-int int.Parse(string s);
+public static int Parse(string s);
 ```
 
-| パラメータ | 型 | 説明 |
-|---|---|---|
-| `s` | `string` | 整数を表す文字列 |
+| パラメータ | 説明 |
+|---|---|
+| `s` | 整数を表す文字列 |
 
 ```csharp
 string s = "42";
-int    i = int.Parse(s);
-Console.WriteLine(i + 1);  // 43
+int i = int.Parse(s);
+Console.WriteLine(i + 1);
 ```
 
-数値に変換できない文字列を渡すと実行時に例外が発生します（例外の扱いは後のページで学びます）。
-
-```csharp
-int.Parse("abc");  // ❌ 実行時例外: 入力文字列が正しい形式ではありません
+```
+43
 ```
 
-### 数値 → 文字列の変換
-
-`ToString` メソッドで数値を文字列に変換できます。ただし後述の文字列補間 `$"..."` を使う方が読みやすい場面が多いです。
+数値として読めない文字列を渡すと、実行したときに [FormatException](https://learn.microsoft.com/dotnet/api/system.formatexception) という例外が発生します。例外については、[例外の基本](/unity-csharp-learning/csharp/exceptions/) で学びます。
 
 ```csharp
-int    score = 100;
-string s     = score.ToString();  // "100"
+// ❌ NG: 数値として読めない文字列を変換している
+// int.Parse("abc");  // FormatException
+```
+
+### 数値から文字列への変換
+
+数値を文字列に変換するには、[ToString メソッド](https://learn.microsoft.com/dotnet/api/system.object.tostring) を使います。
+
+```csharp
+int score = 100;
+string s = score.ToString();
+Console.WriteLine(s + "点");
+```
+
+```
+100点
 ```
 
 ---
@@ -315,136 +374,168 @@ string s     = score.ToString();  // "100"
 
 ### 数値型の昇格
 
-整数と浮動小数点数を混ぜて演算すると、**より広い型に自動的に変換**されてから計算されます。これを**型の昇格（numeric promotion）** と呼びます。
+整数と浮動小数点数のように、異なる型の数値を混ぜて演算すると、範囲の広い型に変換されてから計算されます。これを **数値の昇格**（numeric promotion）といいます。
 
 ```csharp
-int    i      = 5;
-double d      = 1.5;
-var    result = i + d;        // result は double 型
-Console.WriteLine(result);    // 6.5
+int i = 5;
+double d = 1.5;
+var result = i + d;
+Console.WriteLine(result);
+Console.WriteLine(result.GetType());
 ```
 
-主な数値昇格の組み合わせ:
+```
+6.5
+System.Double
+```
+
+`i` が `double` に変換されてから計算されるので、`result` は `double` になります。
 
 | 演算の組み合わせ | 結果の型 |
 |---|---|
-| `int` ± `int` | `int` |
-| `int` ± `long` | `long` |
-| `int` ± `float` | `float` |
-| `int` ± `double` | `double` |
-| `float` ± `double` | `double` |
+| `int` と `int` | `int` |
+| `int` と `long` | `long` |
+| `int` と `float` | `float` |
+| `int` と `double` | `double` |
+| `float` と `double` | `double` |
 
-> 💡 **ポイント**: 「より精度の高い・範囲の広い型に合わせる」と覚えましょう。
+> 💡 **ポイント**: 範囲の広い型に合わせると覚えましょう。ただし、`byte` や `short` どうしの演算は、`int` に変換してから計算されるので、結果は `int` になります。
 
-### `string` と数値の `+` 演算
+### string と数値の + 演算
 
-`string` に数値を `+` で結合すると、数値が文字列に変換されてから連結されます。
+`string` と数値を `+` でつなぐと、数値が文字列に変換されてから連結されます。
 
 ```csharp
-int    score   = 100;
+int score = 100;
 string message = "スコア: " + score;
-Console.WriteLine(message);  // スコア: 100
+Console.WriteLine(message);
 ```
 
-ただし、`+` は**左から右に評価**されるため、意図しない結果になることがあります。
+```
+スコア: 100
+```
+
+`+` は左から順に計算されるので、数値の足し算と組み合わせると、意図しない結果になることがあります。
 
 ```csharp
-Console.WriteLine("1 + 2 = " + 1 + 2);    // ❌ "1 + 2 = 12"
-Console.WriteLine("1 + 2 = " + (1 + 2));  // ✅ "1 + 2 = 3"
+Console.WriteLine("1 + 2 = " + 1 + 2);
+Console.WriteLine("1 + 2 = " + (1 + 2));
 ```
 
-`"文字列" + 1` は `"文字列1"` になり、さらに `+ 2` で `"文字列12"` になります。数値計算はカッコで先に計算してから連結しましょう。
+```
+1 + 2 = 12
+1 + 2 = 3
+```
 
----
+1 行目は、`"1 + 2 = " + 1` が先に計算されて `"1 + 2 = 1"` という文字列になり、さらに `+ 2` で `"1 + 2 = 12"` になります。数値の計算は、`( )` で囲んで先に済ませます。
 
-## ワンポイントアドバイス
+### 文字列補間
 
-**文字列補間 `$"..."`** — 文字列の中に式を `{式}` で埋め込めます。`+` で連結するより読みやすく、計算の優先順位の問題も起きません。
+文字列の前に `$` を付けると、文字列の中に `{式}` で値を埋め込めます。これを [文字列補間](https://learn.microsoft.com/dotnet/csharp/language-reference/tokens/interpolated) といいます。`+` でつなぐより読みやすく、計算の順序の問題も起きません。
+
+**書式：[文字列補間](https://learn.microsoft.com/dotnet/csharp/language-reference/tokens/interpolated)**
+```
+$"文字列{式}文字列"
+```
 
 ```csharp
-int    score = 100;
-string name  = "Alice";
-Console.WriteLine($"{name} のスコアは {score} 点です。");  // Alice のスコアは 100 点です。
-Console.WriteLine($"1 + 2 = {1 + 2}");                    // 1 + 2 = 3
+string name = "Alice";
+int score = 100;
+Console.WriteLine($"{name} のスコアは {score} 点です。");
+Console.WriteLine($"1 + 2 = {1 + 2}");
 ```
 
-`{式}` の部分が評価され、その結果が文字列として埋め込まれます。
+```
+Alice のスコアは 100 点です。
+1 + 2 = 3
+```
+
+`{ }` の中の式が計算され、その結果が文字列として埋め込まれます。以降のページのコード例でも、値を表示するときによく使います。
 
 ---
 
 ## よくあるミス
 
-### float リテラルに `f` を付け忘れる
+### float のリテラルに f を付け忘れる
 
 ```csharp
-float speed = 1.5;   // ❌ コンパイルエラー: double を float に暗黙的に変換できない
-float speed = 1.5f;  // ✅ OK
+// ❌ NG: 3.14 は double のリテラルなので、float の変数に入れられない
+// float speed = 1.5;  // CS0664
 ```
 
-### キャストが切り捨てだと知らずに使う
+`1.5` は `double` のリテラルです。`double` から `float` へは暗黙的に変換できないので、`1.5f` と書きます。
+
+### char と string のリテラルを混同する
 
 ```csharp
-int i = (int)3.9;
-Console.WriteLine(i);  // 3 （3.9 ではなく 3）
+// ❌ NG: "A" は string のリテラルなので、char の変数に入れられない
+// char c = "A";  // CS0029
 ```
 
-四捨五入したい場合は `Math.Round` を使います。
+1 文字でも、`"` で囲むと `string` です。`char` には `'A'` と書きます。
+
+### Math.Round が四捨五入だと思い込む
+
+キャストは小数点以下を切り捨てます。丸めたいときは [Math.Round メソッド](https://learn.microsoft.com/dotnet/api/system.math.round) を使いますが、`Math.Round` の既定の動作は四捨五入ではありません。ちょうど `.5` のときは、結果が偶数になる方に丸めます。
 
 ```csharp
-int i = (int)Math.Round(3.9);
-Console.WriteLine(i);  // ✅ 4
+Console.WriteLine(Math.Round(2.5));
+Console.WriteLine(Math.Round(3.5));
+Console.WriteLine(Math.Round(2.5, MidpointRounding.AwayFromZero));
 ```
 
-### `char` と `string` のリテラルを混同する
+```
+2
+4
+3
+```
+
+学校で習う四捨五入にしたいときは、2 つ目の引数に [MidpointRounding.AwayFromZero](https://learn.microsoft.com/dotnet/api/system.midpointrounding) を指定します。
+
+---
+
+## ワンポイントアドバイス
+
+### checked でオーバーフローを検出する
+
+計算を [checked](https://learn.microsoft.com/dotnet/csharp/language-reference/statements/checked-and-unchecked) で囲むと、オーバーフローしたときに値を折り返さず、[OverflowException](https://learn.microsoft.com/dotnet/api/system.overflowexception) という例外を発生させます。オーバーフローしたら困る計算で、間違いに気付けるようにするために使います。
 
 ```csharp
-char c = "A";   // ❌ コンパイルエラー: string を char に代入できない
-char c = 'A';   // ✅ OK
+int maxInt = int.MaxValue;
+int result = checked(maxInt + 1);
 ```
 
-### string の `+` で計算結果が変わる
-
-```csharp
-Console.WriteLine("合計: " + 3 + 4);    // ❌ "合計: 34"
-Console.WriteLine("合計: " + (3 + 4));  // ✅ "合計: 7"
-```
+このコードは、実行すると `OverflowException` が発生して止まります。
 
 ---
 
 ## まとめ
 
-- 整数型はビット数と符号の有無で決まる。迷ったら `int` を使う
-- 表現範囲を超えるとオーバーフローが起き、値が折り返す
-- 浮動小数点型は `float`（32bit・速度とメモリ優先）・`double`（64bit・汎用）・`decimal`（128bit・精度重視）の3種類
-- `double` リテラルは `3.14`、`float` は `3.14f`、`decimal` は `3.14m`
-- `char` は1文字（`'A'`）、`string` は0文字以上の文字列（`"Hello"`）
-- 情報が失われない変換は**暗黙的**に行われる
-- 情報が失われる可能性がある変換は**キャスト** `(型)式` で明示的に行う。小数→整数は切り捨て
-- 異なる数値型の演算では、より広い型に昇格してから計算される
-- `string + 数値` は文字列に変換して連結される。計算結果を埋め込むには文字列補間 `$"..."` が便利
+- 整数型は、ビット数と符号の有無で決まる。迷ったら `int` を使う
+- 範囲を超えるとオーバーフローが起き、値が折り返す
+- 浮動小数点型は `float`（32 ビット）・`double`（64 ビット、既定）・`decimal`（128 ビット、10 進数の小数を正確に扱う）の 3 種類。`float` と `double` の計算には誤差が出ることがある
+- 小数のリテラルは `3.14` が `double`、`3.14f` が `float`、`3.14m` が `decimal`
+- `char` は 1 文字（`'A'`）、`string` は 0 文字以上の文字列（`"Alice"`）
+- 情報が失われない変換は暗黙的に行われる。情報が失われる可能性のある変換は、キャスト `(型)式` で明示的に行う。小数から整数へのキャストは切り捨て
+- 異なる数値型の演算では、範囲の広い型に昇格してから計算される
+- `string` と数値の `+` は文字列の連結になる。値を埋め込むには文字列補間 `$"..."` が便利
 
 ---
 
 ## 理解度チェック
 
-1. `int` と `uint` の違いを説明してください。また、同じ32ビットでも最大値が異なるのはなぜですか？
-
-2. 次のコードの出力結果を答えてください。
+1. `int` と `uint` の違いを説明してください。また、同じ 32 ビットなのに最大値が異なるのはなぜですか？
+2. 次のコードを実行すると何が出力されますか？
 
    ```csharp
    double d = 9.9;
-   int    i = (int)d;
+   int i = (int)d;
    Console.WriteLine(i);
-   ```
-
-3. 次のコードの出力結果を答えてください。
-
-   ```csharp
    Console.WriteLine("答えは " + 3 + 4);
-   Console.WriteLine("答えは " + (3 + 4));
+   Console.WriteLine($"答えは {3 + 4}");
    ```
 
-4. 次のコードにはコンパイルエラーがあります。どこを修正すればよいですか？
+3. 次のコードはコンパイルエラーになります。どこを直せばよいですか？
 
    ```csharp
    float speed = 5.0;
@@ -453,17 +544,16 @@ Console.WriteLine("合計: " + (3 + 4));  // ✅ "合計: 7"
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. `int` は負の数も扱える（符号あり）、`uint` は 0 以上の値しか扱えない（符号なし）。32ビットで表現できる値の個数（2³² ≈ 42 億通り）は同じだが、`int` はその半分を負の数に使うため正の最大値が小さくなる。`uint.MaxValue`（約 42 億）は `int.MaxValue`（約 21 億）の約2倍。
+1. `int` は負の数も扱えます（符号あり）が、`uint` は 0 以上の値しか扱えません（符号なし）。どちらも 2³² 通りの値を表せますが、`int` はその半分を負の数に使うので、正の最大値が `uint` のおよそ半分になります。
+2. 次のように出力されます。キャストは小数点以下を切り捨てるので `9` です。`"答えは " + 3 + 4` は左から順に連結されて `答えは 34` になります。文字列補間では `{3 + 4}` が計算されて `7` になります。
 
-2. `9`。`(int)` キャストは小数点以下を切り捨てるため、`9.9` は `9` になる。四捨五入ではない点に注意。
-
-3. 1行目は `答えは 34`（`"答えは " + 3` → `"答えは 3"`、さらに `+ 4` → `"答えは 34"` と左から評価される）、2行目は `答えは 7`（カッコ内の `3 + 4 = 7` を先に計算してから連結）。
-
-4. `5.0` は `double` リテラルなので `float` 型の変数には代入できない。`f` サフィックスを付ける。
-
-   ```csharp
-   float speed = 5.0f;
    ```
+   9
+   答えは 34
+   答えは 7
+   ```
+
+3. `5.0` は `double` のリテラルなので、`float` の変数には入れられません。`f` を付けて `5.0f` と書きます。
 
 </details>
 
@@ -471,4 +561,4 @@ Console.WriteLine("合計: " + (3 + 4));  // ✅ "合計: 7"
 
 ## 次のステップ
 
-[条件分岐（準備中）] では、条件によって実行する処理を変える方法を学びます。
+[数値リテラルと型エイリアス（補足）](/unity-csharp-learning/csharp/numeric-literals/) では、16 進数や 2 進数のリテラル、`int` と `System.Int32` の関係、負の数のビット表現を学びます。
