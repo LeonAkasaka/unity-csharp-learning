@@ -97,6 +97,8 @@ static T Double<T>(T value) where T : struct
 }
 ```
 
+値型と参照型の違いは [値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) で、ボクシングは [ボクシングとアンボクシング](/unity-csharp-learning/csharp/boxing/) で詳しく学びます。
+
 ---
 
 ## 4. `new()` 制約

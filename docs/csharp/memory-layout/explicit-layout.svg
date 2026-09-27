@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" width="400" font-family="sans-serif">
+  <g font-size="10" fill="#999" text-anchor="middle">
+    <text x="136" y="20">0</text><text x="196" y="20">1</text><text x="256" y="20">2</text><text x="316" y="20">3</text>
+  </g>
+
+  <text x="96" y="52" font-size="13" fill="#333" text-anchor="end">Value</text>
+  <rect x="106" y="34" width="240" height="30" fill="#fff3e0" stroke="#e65100"/>
+  <text x="226" y="54" font-size="13" fill="#e65100" text-anchor="middle">0x12345678（int）</text>
+
+  <text x="96" y="100" font-size="13" fill="#333" text-anchor="end">B0〜B3</text>
+  <rect x="106" y="80" width="60" height="32" fill="#e3f2fd" stroke="#bbb"/>
+  <rect x="166" y="80" width="60" height="32" fill="#e3f2fd" stroke="#bbb"/>
+  <rect x="226" y="80" width="60" height="32" fill="#e3f2fd" stroke="#bbb"/>
+  <rect x="286" y="80" width="60" height="32" fill="#e3f2fd" stroke="#bbb"/>
+  <g font-size="13" fill="#1565c0" text-anchor="middle">
+    <text x="136" y="101">78</text><text x="196" y="101">56</text><text x="256" y="101">34</text><text x="316" y="101">12</text>
+  </g>
+  <g font-size="10" fill="#555" text-anchor="middle">
+    <text x="136" y="128">B0</text><text x="196" y="128">B1</text><text x="256" y="128">B2</text><text x="316" y="128">B3</text>
+  </g>
+  <text x="106" y="146" font-size="11" fill="#555">同じ 4 バイトを、int と 4 つの byte の両方から見ている</text>
+</svg>

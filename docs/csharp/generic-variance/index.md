@@ -196,4 +196,4 @@ interface IReadWrite<out T>
 
 ## 次のステップ
 
-[デリゲートの基本](/unity-csharp-learning/csharp/delegates/) では、メソッドへの参照を変数として扱うデリゲートのしくみを学びます。
+[値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) では、代入やメソッドの呼び出しでコピーされるものが型によって違うことと、その背景にあるメモリの仕組みを学びます。

@@ -142,7 +142,7 @@ A.M: count=0
 
 `object` はどの型の値でも参照できる型です。`params object[]` を使うと、`int`、`string`、`bool` など異なる型の値を 1 回の呼び出しでまとめて渡せます。
 
-`int` や `bool` のような値型を `object` として配列に入れると、ボクシングが発生します。ここでは、値型が `object` として扱える形に変換されると理解しておけば十分です。
+`int` や `bool` のような値型を `object` として配列に入れると、ボクシングが発生します。ここでは、値型が `object` として扱える形に変換されると理解しておけば十分です。詳しくは [ボクシングとアンボクシング](/unity-csharp-learning/csharp/boxing/) で学びます。
 
 ```csharp
 using System;

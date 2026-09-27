@@ -20,12 +20,15 @@ permalink: /csharp/dispose-using/
 
 - [インターフェイス](/unity-csharp-learning/csharp/interfaces/) を読んでいること
 - [例外の基本](/unity-csharp-learning/csharp/exceptions/) を読んでいること
+- [ガベージコレクション](/unity-csharp-learning/csharp/garbage-collection/) を読んでいること
 
 ---
 
 ## 1. IDisposable インターフェイス
 
 [IDisposable インターフェイス](https://learn.microsoft.com/dotnet/api/system.idisposable) は、`Dispose` メソッドを 1 つだけ宣言したインターフェイスです。`Dispose` には、オブジェクトを使い終わったときの後片付けの処理を書きます。何を後片付けするかは、実装するクラスが決めます。
+
+[ガベージコレクション](/unity-csharp-learning/csharp/garbage-collection/) で学んだように、ガベージコレクターが回収するのはメモリだけで、いつ回収されるかも決まっていません。開いたファイルなどのリソースは、使い終わった時点で閉じる必要があります。`Dispose` は、その後片付けを呼び出し元から確実に行えるようにするためのメソッドです。
 
 **書式：[IDisposable.Dispose メソッド](https://learn.microsoft.com/dotnet/api/system.idisposable.dispose)**
 ```csharp

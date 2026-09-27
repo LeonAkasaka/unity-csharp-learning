@@ -537,7 +537,7 @@ Console.WriteLine(state);                          // Jump, Run
 Console.WriteLine(state.HasFlag(PlayerState.Jump)); // True
 ```
 
-`[Flags]` を付けると `ToString()` が `"Jump, Run"` のように読みやすく表示されます。`HasFlag` でフラグの確認もできます。
+`[Flags]` を付けると `ToString()` が `"Jump, Run"` のように読みやすく表示されます。`HasFlag` でフラグの確認もできます。`enum`（列挙型）については、[列挙型](/unity-csharp-learning/csharp/enums/) で詳しく学びます。
 
 ---
 

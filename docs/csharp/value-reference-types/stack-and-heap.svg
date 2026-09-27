@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 190" width="540" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+  </defs>
+
+  <!-- スタック -->
+  <rect x="20" y="30" width="200" height="140" rx="4" fill="#f5f5f5" stroke="#bbb"/>
+  <text x="120" y="22" font-size="13" font-weight="bold" fill="#333" text-anchor="middle">スタック（ローカル変数）</text>
+
+  <text x="70" y="82" font-size="14" fill="#333" text-anchor="end">n</text>
+  <rect x="80" y="60" width="90" height="34" rx="3" fill="#fff" stroke="#bbb"/>
+  <text x="125" y="83" font-size="16" fill="#1565c0" text-anchor="middle">10</text>
+
+  <text x="70" y="137" font-size="14" fill="#333" text-anchor="end">box</text>
+  <rect x="80" y="115" width="90" height="34" rx="3" fill="#fff" stroke="#bbb"/>
+  <circle cx="125" cy="132" r="4" fill="#e65100"/>
+
+  <!-- ヒープ -->
+  <rect x="300" y="30" width="220" height="140" rx="4" fill="#f5f5f5" stroke="#bbb"/>
+  <text x="410" y="22" font-size="13" font-weight="bold" fill="#333" text-anchor="middle">ヒープ（オブジェクト）</text>
+
+  <rect x="330" y="85" width="160" height="64" rx="4" fill="#fff" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="410" y="104" font-size="12" fill="#555" text-anchor="middle">Box オブジェクト</text>
+  <text x="372" y="133" font-size="13" fill="#333" text-anchor="end">Value</text>
+  <rect x="380" y="116" width="70" height="26" rx="3" fill="#fff" stroke="#bbb"/>
+  <text x="415" y="134" font-size="15" fill="#1565c0" text-anchor="middle">20</text>
+
+  <line x1="129" y1="132" x2="326" y2="120" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+</svg>

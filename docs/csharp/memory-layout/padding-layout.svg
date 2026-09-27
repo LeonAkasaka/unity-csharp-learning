@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 190" width="560" font-family="sans-serif">
+  <!-- バイト位置 -->
+  <g font-size="10" fill="#999" text-anchor="middle">
+    <text x="128" y="20">0</text><text x="164" y="20">1</text><text x="200" y="20">2</text><text x="236" y="20">3</text>
+    <text x="272" y="20">4</text><text x="308" y="20">5</text><text x="344" y="20">6</text><text x="380" y="20">7</text>
+    <text x="416" y="20">8</text><text x="452" y="20">9</text><text x="488" y="20">10</text><text x="524" y="20">11</text>
+  </g>
+
+  <!-- Padded -->
+  <text x="100" y="58" font-size="13" fill="#333" text-anchor="end">Padded</text>
+  <text x="100" y="74" font-size="10" fill="#555" text-anchor="end">12 バイト</text>
+  <rect x="110" y="40" width="36" height="36" fill="#e3f2fd" stroke="#bbb"/>
+  <text x="128" y="63" font-size="13" fill="#1565c0" text-anchor="middle">A</text>
+  <rect x="146" y="40" width="108" height="36" fill="#f5f5f5" stroke="#bbb" stroke-dasharray="3 3"/>
+  <text x="200" y="63" font-size="11" fill="#999" text-anchor="middle">パディング</text>
+  <rect x="254" y="40" width="144" height="36" fill="#e3f2fd" stroke="#bbb"/>
+  <text x="326" y="63" font-size="13" fill="#1565c0" text-anchor="middle">B（int）</text>
+  <rect x="398" y="40" width="36" height="36" fill="#e3f2fd" stroke="#bbb"/>
+  <text x="416" y="63" font-size="13" fill="#1565c0" text-anchor="middle">C</text>
+  <rect x="434" y="40" width="108" height="36" fill="#f5f5f5" stroke="#bbb" stroke-dasharray="3 3"/>
+  <text x="488" y="63" font-size="11" fill="#999" text-anchor="middle">パディング</text>
+
+  <!-- Ordered -->
+  <text x="100" y="128" font-size="13" fill="#333" text-anchor="end">Ordered</text>
+  <text x="100" y="144" font-size="10" fill="#555" text-anchor="end">8 バイト</text>
+  <rect x="110" y="110" width="144" height="36" fill="#e3f2fd" stroke="#bbb"/>
+  <text x="182" y="133" font-size="13" fill="#1565c0" text-anchor="middle">B（int）</text>
+  <rect x="254" y="110" width="36" height="36" fill="#e3f2fd" stroke="#bbb"/>
+  <text x="272" y="133" font-size="13" fill="#1565c0" text-anchor="middle">A</text>
+  <rect x="290" y="110" width="36" height="36" fill="#e3f2fd" stroke="#bbb"/>
+  <text x="308" y="133" font-size="13" fill="#1565c0" text-anchor="middle">C</text>
+  <rect x="326" y="110" width="72" height="36" fill="#f5f5f5" stroke="#bbb" stroke-dasharray="3 3"/>
+  <text x="362" y="133" font-size="11" fill="#999" text-anchor="middle">パディング</text>
+
+  <text x="110" y="178" font-size="11" fill="#555">A と C は byte（1 バイト）、B は int（4 バイト）。B は 4 の倍数の位置に置かれる</text>
+</svg>
