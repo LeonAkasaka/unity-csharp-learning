@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" width="400" font-family="sans-serif">
+  <rect x="60" y="40" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="90" y="63" text-anchor="middle" font-size="16" fill="#333">85</text>
+  <rect x="120" y="40" width="60" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="150" y="63" text-anchor="middle" font-size="16" fill="#1565c0">72</text>
+  <rect x="180" y="40" width="60" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="210" y="63" text-anchor="middle" font-size="16" fill="#1565c0">90</text>
+  <rect x="240" y="40" width="60" height="34" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="270" y="63" text-anchor="middle" font-size="16" fill="#1565c0">68</text>
+  <rect x="300" y="40" width="60" height="34" rx="3" fill="#f5f5f5" stroke="#bbb" stroke-width="1.5"/>
+  <text x="330" y="63" text-anchor="middle" font-size="16" fill="#333">95</text>
+  <line x1="60" y1="30" x2="60" y2="84" stroke="#999" stroke-dasharray="2 2"/>
+  <text x="60" y="24" text-anchor="middle" font-size="12" fill="#1565c0">0</text>
+  <text x="60" y="98" text-anchor="middle" font-size="12" fill="#e65100">^5</text>
+  <line x1="120" y1="30" x2="120" y2="84" stroke="#999" stroke-dasharray="2 2"/>
+  <text x="120" y="24" text-anchor="middle" font-size="12" fill="#1565c0">1</text>
+  <text x="120" y="98" text-anchor="middle" font-size="12" fill="#e65100">^4</text>
+  <line x1="180" y1="30" x2="180" y2="84" stroke="#999" stroke-dasharray="2 2"/>
+  <text x="180" y="24" text-anchor="middle" font-size="12" fill="#1565c0">2</text>
+  <text x="180" y="98" text-anchor="middle" font-size="12" fill="#e65100">^3</text>
+  <line x1="240" y1="30" x2="240" y2="84" stroke="#999" stroke-dasharray="2 2"/>
+  <text x="240" y="24" text-anchor="middle" font-size="12" fill="#1565c0">3</text>
+  <text x="240" y="98" text-anchor="middle" font-size="12" fill="#e65100">^2</text>
+  <line x1="300" y1="30" x2="300" y2="84" stroke="#999" stroke-dasharray="2 2"/>
+  <text x="300" y="24" text-anchor="middle" font-size="12" fill="#1565c0">4</text>
+  <text x="300" y="98" text-anchor="middle" font-size="12" fill="#e65100">^1</text>
+  <line x1="360" y1="30" x2="360" y2="84" stroke="#999" stroke-dasharray="2 2"/>
+  <text x="360" y="24" text-anchor="middle" font-size="12" fill="#1565c0">5</text>
+  <text x="360" y="98" text-anchor="middle" font-size="12" fill="#e65100">^0</text>
+  <text x="4" y="24" font-size="10" fill="#1565c0">先頭から</text>
+  <text x="4" y="98" font-size="10" fill="#e65100">末尾から</text>
+  <path d="M 120 110 L 120 118 L 300 118 L 300 110" fill="none" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="210" y="138" text-anchor="middle" font-size="12" fill="#1565c0">[1..4]（[1..^1] と同じ）：境界 1 から境界 4 まで</text>
+</svg>

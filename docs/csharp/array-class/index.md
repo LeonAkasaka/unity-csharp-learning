@@ -352,4 +352,4 @@ else
 
 ## 次のステップ
 
-[ビットパッキング（補足）](/unity-csharp-learning/csharp/bit-packing/) では、`bool` の配列の値を、1 つの `byte` のビットに詰めて保存する方法を学びます。
+[インデックスと範囲（補足）](/unity-csharp-learning/csharp/ranges/) では、範囲演算子 `..` を使って、配列の一部を新しい配列として取り出す方法を学びます。
