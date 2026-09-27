@@ -20,6 +20,7 @@ docs/
     character-control/     # 3D キャラクター操作
     grid-games/            # グリッドゲーム
     conversation-scenes/   # 会話シーン
+  networking/              # ネットワーク通信
 ```
 
 ## 動作環境
