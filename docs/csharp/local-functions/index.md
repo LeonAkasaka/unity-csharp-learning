@@ -261,4 +261,4 @@ public class Example
 
 このページで「C# デリゲートとイベント」の章は終了です。デリゲート・コールバック・イベント・ラムダ式・変数キャプチャ・ローカル関数というひと続きの知識を習得しました。
 
-次の章の [例外の基本](/unity-csharp-learning/csharp/exceptions/) では、処理を続けられなくなったことを知らせる「例外」と、それを受け止める `try` / `catch` を学びます。
+次の章の [LINQ の基本](/unity-csharp-learning/csharp/linq-basics/) では、ラムダ式を使って、コレクションの要素の絞り込みや変換を短く書く LINQ を学びます。
