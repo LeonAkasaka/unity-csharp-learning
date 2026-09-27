@@ -316,4 +316,4 @@ static メソッドは、インスタンスを作らずに `Player.Show()` と�
 
 ## 次のステップ
 
-[拡張メソッド](/unity-csharp-learning/csharp/extension-methods/) では、既存の型に、あとからメソッドを追加したように見せる書き方を学びます。
+[const と readonly（補足）](/unity-csharp-learning/csharp/const-readonly/) では、値を変えられない定数と、作った後に変えられない読み取り専用フィールドを学びます。

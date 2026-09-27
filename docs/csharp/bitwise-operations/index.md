@@ -209,7 +209,7 @@ Console.WriteLine(negative >>> 1);
 
 1 つの整数のビットを、それぞれ 1 つの ON / OFF の状態（**フラグ**）に割り当てると、複数の状態を 1 つの整数で管理できます。このとき、特定のビットを取り出したり書き換えたりするために使う値を、**ビットマスク** といいます。
 
-次のコードでは、ビット 0 を「ジャンプ中」、ビット 1 を「走っている」、ビット 2 を「しゃがみ中」に割り当てています。[const](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/const) を付けた変数は、値を変えられない **定数** です。
+次のコードでは、ビット 0 を「ジャンプ中」、ビット 1 を「走っている」、ビット 2 を「しゃがみ中」に割り当てています。[const](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/const) を付けた変数は、値を変えられない **定数** です。定数については、[const と readonly（補足）](/unity-csharp-learning/csharp/const-readonly/) で詳しく学びます。
 
 ```csharp
 const int FlagJump = 0b0001;

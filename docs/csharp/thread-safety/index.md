@@ -182,7 +182,7 @@ finally
 
 `lock` で守れるのは、**同じオブジェクト** でロックする処理どうしだけです。同じデータを読み書きする処理は、すべて同じオブジェクトで `lock` します。
 
-ロックには、上の `gate` のように、ロックのためだけに作ったオブジェクトを使います。クラスの中で使うときは、`private readonly` のフィールドにします。
+ロックには、上の `gate` のように、ロックのためだけに作ったオブジェクトを使います。クラスの中で使うときは、[const と readonly（補足）](/unity-csharp-learning/csharp/const-readonly/) で学んだ `private readonly` のフィールドにして、ロックに使うオブジェクトが途中で差し替えられないようにします。
 
 ```csharp
 Counter counter = new Counter();
