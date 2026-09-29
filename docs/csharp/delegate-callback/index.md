@@ -49,8 +49,6 @@ permalink: /csharp/delegate-callback/
 書式では `?` を省略しています。コード例の `Callback?` の `?` は「このパラメータには `null` を渡してもよい」という意味です。
 
 ```csharp
-using System;
-
 public delegate void Callback();
 
 public class Program
@@ -89,8 +87,6 @@ public class Program
 同じメソッドに異なるコールバックを渡すと、同じ処理でも終了後の動作を変えられます。
 
 ```csharp
-using System;
-
 public delegate void OnDamageCalculated(int damage);
 
 public class Program
@@ -173,8 +169,6 @@ callback?.Invoke(damage);
 次のコードの出力結果は何になりますか？
 
 ```csharp
-using System;
-
 public delegate void ResultCallback(string result);
 
 public class Program

@@ -27,8 +27,6 @@ permalink: /csharp/lambda/
 これまでデリゲートに渡すメソッドは、名前付きのメソッドとして別途定義する必要がありました。ラムダ式を使うと、**メソッドをその場でインラインに書いて**デリゲート変数に代入できます。
 
 ```csharp
-using System;
-
 public delegate void Greet(string name);
 
 public class Program
@@ -83,8 +81,6 @@ public class Program
 | `{ 文; }` | 文ラムダでは通常のメソッド本体と同じように書く |
 
 ```csharp
-using System;
-
 public delegate int Transform(int x);
 
 public class Program
@@ -145,8 +141,6 @@ Func<T1, T2, ..., TResult>
 | `TResult` | 任意の型 | **最後の型パラメータ**が戻り値の型 |
 
 ```csharp
-using System;
-
 public class Program
 {
     public static void Main()
@@ -180,8 +174,6 @@ Hello from Action!
 ラムダ式はイベントの購読にも使えます。名前付きメソッドを用意する必要がなくなるため、短い処理であれば読みやすくなります。
 
 ```csharp
-using System;
-
 public class Button
 {
     public event Action? Clicked;
@@ -239,8 +231,6 @@ Func<int, int, int> correct = (a, b) => a + b;
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   using System;
-
    public class Program
    {
        public static void Main()

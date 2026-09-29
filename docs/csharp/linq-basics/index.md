@@ -93,7 +93,7 @@ public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSo
 
 書式を見ると、`Where` と `Select` は、[System.Linq.Enumerable クラス](https://learn.microsoft.com/dotnet/api/system.linq.enumerable) の static メソッドで、最初のパラメータに `this` が付いています。[拡張メソッド](/unity-csharp-learning/csharp/extension-methods/) で学んだように、これは `IEnumerable<TSource>` の拡張メソッドです。そのため、`IEnumerable<T>` を実装しているものなら、何にでも使えます。
 
-`Enumerable` クラスは `System.Linq` 名前空間にあります。このサイトのコード例を実行する環境では、`System.Linq` の `using` ディレクティブがあらかじめ読み込まれているので、何も書かずに使えます。
+`Enumerable` クラスは `System.Linq` 名前空間にあります。`System.Linq` は [暗黙的な using ディレクティブ](/unity-csharp-learning/csharp/using-directives/) で読み込まれているので、`using` を書かずに使えます。`Where` や `Select` は拡張メソッドなので、`System.Linq` が読み込まれていなければ呼び出せません（[名前空間](/unity-csharp-learning/csharp/namespaces/)）。
 
 `Where` と `Select` の戻り値も `IEnumerable<T>` です。[ジェネリックメソッド](/unity-csharp-learning/csharp/generic-methods/) で学んだ型推論によって、`Select(n => n * 10)` の `TResult` は、ラムダ式が返す値の型（`int`）に決まります。
 

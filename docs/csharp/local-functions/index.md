@@ -42,8 +42,6 @@ permalink: /csharp/local-functions/
 ローカル関数は、それを含むメソッドのスコープ内でのみ呼び出せます。
 
 ```csharp
-using System;
-
 public class Program
 {
     public static void Main()
@@ -74,8 +72,6 @@ public class Program
 ローカル関数は**再帰呼び出し**が得意です。再帰に必要なロジックを外部に公開せずにメソッドの内側に閉じ込めることができます。
 
 ```csharp
-using System;
-
 public class Program
 {
     public static void Main()
@@ -104,8 +100,6 @@ public class Program
 ローカル関数もラムダ式と同様に、外側スコープの変数をキャプチャできます。
 
 ```csharp
-using System;
-
 public class Program
 {
     public static void Main()
@@ -141,8 +135,6 @@ static 戻り値型 関数名(パラメータリスト)
 ```
 
 ```csharp
-using System;
-
 public class Program
 {
     public static void Main()
@@ -222,8 +214,6 @@ public class Example
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   using System;
-
    public class Program
    {
        public static void Main()

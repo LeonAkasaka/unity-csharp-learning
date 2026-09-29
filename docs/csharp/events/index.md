@@ -28,8 +28,6 @@ permalink: /csharp/events/
 マルチキャストデリゲートだけで通知を実装すると、**クラスの外から `=` で上書きしたり、直接呼び出したりできる**という問題があります。
 
 ```csharp
-using System;
-
 public delegate void Notify();
 
 public class Button
@@ -76,8 +74,6 @@ public class Program
 `event` を付けると、クラスの**外からは `+=` / `-=` だけ**が許可され、`=` による上書きと直接呼び出し（`Invoke()`）は禁止されます。
 
 ```csharp
-using System;
-
 public delegate void Notify();
 
 public class Button
@@ -117,8 +113,6 @@ public class Program
 | **購読者（Subscriber）** | イベントに `+=` でメソッドを登録し、通知を受け取るクラス |
 
 ```csharp
-using System;
-
 public delegate void ScoreChangedHandler(int newScore);
 
 // 発行者
@@ -201,8 +195,6 @@ public delegate void EventHandler<TEventArgs>(object? sender, TEventArgs e);
 イベントデータを渡すには、`EventArgs` を継承したクラスを作ります。
 
 ```csharp
-using System;
-
 // イベントデータクラス（EventArgs を継承）
 public class DamageEventArgs : EventArgs
 {
@@ -278,8 +270,6 @@ public class Program
 アクセサーを定義した場合、バッキングフィールド（デリゲートを保持する変数）は自分で用意します。
 
 ```csharp
-using System;
-
 public class Button
 {
     // バッキングフィールドを自分で管理する
