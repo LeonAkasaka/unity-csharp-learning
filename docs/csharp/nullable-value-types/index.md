@@ -245,7 +245,7 @@ int? FindIndex(int[] array, int target)
 
 [値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) で、`Box?` のように参照型にも `?` を付けました。これは **null 許容参照型**（nullable reference type）という別の機能です。
 
-参照型の変数にはもともと `null` を入れられるので、参照型の `?` は、`Nullable<T>` のような別の型を作るわけではありません。「この変数には `null` が入ることがある」という目印をコンパイラーに伝えるだけです。コンパイラーはこの目印を使って、`?` のない変数に `null` を入れたり、`?` のある変数を `null` かどうか確かめずに使ったりしたときに、警告を出します。この警告は、プロジェクトの設定（`Nullable`）で有効になります。このサイトのコード例を実行する環境では、有効になっています。
+参照型の変数にはもともと `null` を入れられるので、参照型の `?` は、`Nullable<T>` のような別の型を作るわけではありません。「この変数には `null` が入ることがある」という目印をコンパイラーに伝えるだけです。コンパイラーはこの目印を使って、`?` のない変数に `null` を入れたり、`?` のある変数を `null` かどうか確かめずに使ったりしたときに、警告を出します。この警告は、プロジェクトの設定（`Nullable`）で有効になります。このサイトのコード例を実行する環境では、有効になっています。詳しくは、次の [null 許容参照型](/unity-csharp-learning/csharp/nullable-reference-types/) で学びます。
 
 ---
 
@@ -297,4 +297,4 @@ int? FindIndex(int[] array, int target)
 
 ## 次のステップ
 
-[タプル](/unity-csharp-learning/csharp/tuples/) では、複数の値を 1 つにまとめるタプルと、その正体である `ValueTuple` 構造体を学びます。
+[null 許容参照型](/unity-csharp-learning/csharp/nullable-reference-types/) では、参照型の `?` の意味と、`null` を扱う誤りをコンパイラーに警告させる方法を学びます。

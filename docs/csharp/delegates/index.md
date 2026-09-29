@@ -137,7 +137,7 @@ public class Program
 こちらは安全に呼び出されます
 ```
 
-`handler("text")` や `handler.Invoke("text")` は、`handler` が `null` だと失敗します。代入されているか不安なときは、`?.Invoke()` を使うと安全です。
+`handler("text")` や `handler.Invoke("text")` は、`handler` が `null` だと失敗します。代入されているか不安なときは、`?.Invoke()` を使うと安全です。`?.` は、左辺が `null` ならメンバーを使わない演算子で、[null 許容参照型](/unity-csharp-learning/csharp/nullable-reference-types/) で学びました。
 
 ---
 
