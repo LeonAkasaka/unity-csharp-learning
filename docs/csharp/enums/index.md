@@ -406,4 +406,4 @@ enum Direction
 
 ## 次のステップ
 
-[デリゲートの基本](/unity-csharp-learning/csharp/delegates/) では、メソッドへの参照を変数として扱うデリゲートのしくみを学びます。
+これで「C# 値型と参照型」のセクションは終わりです。[パターンと is 演算子](/unity-csharp-learning/csharp/is-patterns/) からは「C# パターンマッチング」のセクションに進み、値の範囲や組み合わせを調べるパターンと、パターンを使って結果を選ぶ `switch` 式を学びます。

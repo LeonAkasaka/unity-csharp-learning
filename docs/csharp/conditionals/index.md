@@ -375,7 +375,7 @@ switch (day)
 休日
 ```
 
-`day` が `6` なので、`case 6:` と `case 7:` の後にある処理が実行され、`休日` が表示されます。
+`day` が `6` なので、`case 6:` と `case 7:` の後にある処理が実行され、`休日` が表示されます。値の範囲や組み合わせを調べるパターンは [パターンと is 演算子](/unity-csharp-learning/csharp/is-patterns/) で、値を選ぶための `switch` 式は [switch 式](/unity-csharp-learning/csharp/switch-expressions/) で学びます。
 
 ---
 
