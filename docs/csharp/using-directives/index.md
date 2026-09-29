@@ -184,6 +184,10 @@ Microsoft Windows 10.0.26200
 
 C# には、`using` キーワードを使う **using 文**（using statement）もあります。using 文は、ファイルなどのリソースを使い終わったときに後片付けをする構文で、名前空間を読み込む `using` ディレクティブとは、同じキーワードを使っているだけの別の機能です。using 文は、[IDisposable と using](/unity-csharp-learning/csharp/dispose-using/) で学びます。
 
+### 名前空間を自分で作る
+
+このページでは、.NET が用意している名前空間を使いました。自分で作る型を名前空間に入れる方法や、すべてのファイルに効く `global using` は、[名前空間](/unity-csharp-learning/csharp/namespaces/) で学びます。
+
 ---
 
 ## まとめ
