@@ -186,7 +186,7 @@ C# には、`using` キーワードを使う **using 文**（using statement）�
 
 ### 名前空間を自分で作る
 
-このページでは、.NET が用意している名前空間を使いました。自分で作る型を名前空間に入れる方法や、すべてのファイルに効く `global using` は、[名前空間](/unity-csharp-learning/csharp/namespaces/) で学びます。
+このページでは、.NET が用意している名前空間を使いました。自分で作る型を名前空間に入れる方法は [名前空間](/unity-csharp-learning/csharp/namespaces/) で、すべてのファイルに効く `global using` は [ファイルの分割と global using](/unity-csharp-learning/csharp/multiple-files/) で学びます。
 
 ---
 

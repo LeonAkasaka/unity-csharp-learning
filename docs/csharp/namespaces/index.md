@@ -6,7 +6,7 @@ permalink: /csharp/namespaces/
 
 # 名前空間
 
-[名前空間と using ディレクティブ（補足）](/unity-csharp-learning/csharp/using-directives/) では、.NET が用意している名前空間の型を使う方法を学びました。このページでは、自分で作る型を **名前空間**（namespace）に入れる方法と、同じ名前の型を区別する方法を学びます。拡張メソッドと名前空間の関係や、暗黙的な using ディレクティブの仕組みも説明します。
+[名前空間と using ディレクティブ（補足）](/unity-csharp-learning/csharp/using-directives/) では、.NET が用意している名前空間の型を使う方法を学びました。このページでは、自分で作る型を **名前空間**（namespace）に入れる方法と、同じ名前の型を区別する方法を学びます。`using static` と、拡張メソッドと名前空間の関係も説明します。
 
 ## 学習目標
 
@@ -14,10 +14,9 @@ permalink: /csharp/namespaces/
 
 - `namespace` で名前空間を宣言し、その中に型を定義できる
 - 同じ名前の型を、完全修飾名やエイリアスで区別できる
+- `using static` で、static メンバーをクラス名なしで使える
 - 拡張メソッドを使うには、その static クラスの名前空間を読み込む必要があることを説明できる
-- ファイルスコープの名前空間を使って、型を別のファイルに分けられる
-- `using static` と `global using` を使える
-- 暗黙的な using ディレクティブが、`global using` として作られていることを説明できる
+- 名前空間の中のコードが、外側の名前空間の型を `using` なしで使える理由を説明できる
 
 ## 前提知識
 
@@ -85,7 +84,7 @@ Game.Player
 
 自分で宣言した名前空間も、.NET の名前空間と同じように使えます。ファイルの先頭の `using Game;` で読み込めば `Player` と書けますし、完全修飾名で `Game.Player` とも書けます。`GetType` の結果からも、`Player` の完全修飾名が `Game.Player` になったことがわかります。
 
-トップレベルのステートメントと同じファイルに名前空間を書くときは、型の宣言と同じように、名前空間の宣言をステートメントより後ろに書きます。
+トップレベルのステートメントと同じファイルに名前空間を書くときは、型の宣言と同じように、名前空間の宣言をステートメントより後ろに書きます。型を別のファイルに分ける書き方は、[ファイルの分割と global using](/unity-csharp-learning/csharp/multiple-files/) で学びます。
 
 > 💡 **ポイント**: 名前空間は、型の名前を整理するためのもので、型を使える範囲を制限するものではありません。別の名前空間にある型でも、完全修飾名か `using` で指定すれば使えます。型を使える範囲を決めるのは、`public` や `internal` などの [アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) です。
 
@@ -160,7 +159,43 @@ Audio.Player
 
 ---
 
-## 4. 拡張メソッドと名前空間
+## 4. using static
+
+`using static` を使うと、static クラスの static メンバーを、クラス名を書かずに使えます。
+
+**書式：[using static ディレクティブ](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/using-directive#the-static-modifier)**
+```
+using static 型;
+```
+
+| 要素 | 説明 |
+|---|---|
+| `using static` | 型の static メンバーを読み込むことを表す |
+| `型` | static メンバーを読み込む型の完全修飾名 |
+
+[Math クラス](https://learn.microsoft.com/dotnet/api/system.math) の static メンバーを、`Math.` を付けずに使います。
+
+```csharp
+using static System.Math;
+
+Console.WriteLine(Sqrt(16));
+Console.WriteLine(Max(3, 8));
+Console.WriteLine(PI);
+```
+
+```
+4
+8
+3.141592653589793
+```
+
+`Sqrt(16)` は `Math.Sqrt(16)` と同じです。計算式の中で同じクラスのメンバーを何度も使うときに便利です。一方で、どのクラスのメンバーなのかが見えにくくなるので、使う場面は選びます。
+
+`using` ディレクティブに型の名前を書くと CS0138 のエラーになりますが、`using static` なら型の名前を書けます。`using` に書けるのは名前空間、`using static` に書けるのは型です。
+
+---
+
+## 5. 拡張メソッドと名前空間
 
 [拡張メソッド](/unity-csharp-learning/csharp/extension-methods/) の `Shout` を、`Game.Extensions` 名前空間の static クラスに入れます。すると、それまでと同じ呼び出し方でコンパイルエラーになります。
 
@@ -211,7 +246,7 @@ HELLO!
 
 ---
 
-## 5. 名前空間の階層
+## 6. 名前空間の階層
 
 名前空間の中には、さらに名前空間を書けます。次の 2 つの書き方は、同じ `Game.Characters` 名前空間を宣言します。
 
@@ -273,238 +308,14 @@ Game.Player
 
 ---
 
-## 6. 型をファイルに分ける
-
-ここまでは、1 つのファイルにすべてのコードを書いてきました。実際のプログラムでは、型ごとにファイルを分けるのが一般的です。ファイルに分けるときに使う、もう 1 つの名前空間の書き方を学びます。
-
-### ファイルスコープの名前空間
-
-**書式：[ファイルスコープの名前空間](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/namespace)**
-```
-namespace 名前空間名;
-
-// 型の定義
-```
-
-| 要素 | 説明 |
-|---|---|
-| `namespace 名前空間名;` | ファイルの先頭に書くと、そのファイルにあるすべての型が、この名前空間に入る |
-
-`{ }` で囲む書き方は、**ブロック形式**の名前空間です。`;` で終える書き方は **ファイルスコープの名前空間**（file-scoped namespace）といい、ファイル全体が 1 つの名前空間に入ります。字下げが 1 段少なくなるので、1 つのファイルに 1 つの名前空間を書くときに使います。
-
-### プロジェクトにファイルを追加する
-
-[.NET SDK と dotnet CLI](/unity-csharp-learning/csharp/dotnet-sdk/) で学んだ手順で、コンソールアプリのプロジェクトを作ります。
-
-```powershell
-dotnet new console -n SampleNamespaces
-```
-
-`SampleNamespaces` フォルダーに、`Player.cs` というファイルを追加して、次のように書きます。
-
-```csharp
-namespace Game;
-
-class Player
-{
-    public string Name = "勇者";
-}
-```
-
-`Program.cs` を、次のように書き換えます。
-
-```csharp
-using Game;
-
-Player p = new Player();
-Console.WriteLine(p.Name);
-```
-
-`SampleNamespaces` フォルダーで `dotnet run` を実行します。
-
-```
-勇者
-```
-
-同じプロジェクトにある `.cs` ファイルは、まとめて 1 つのプログラムとしてコンパイルされます。`Program.cs` から、別のファイルにある `Player` を使えるのはこのためです。`using Game;` が必要なのは、ファイルが分かれているからではなく、`Player` が `Game` 名前空間にあるからです。
-
-> 💡 **ポイント**: 名前空間の名前と、ファイルを置くフォルダーの名前は、一致させる決まりはありません。ただし、`Game/Characters/Enemy.cs` のファイルに `Game.Characters` 名前空間を書くように、フォルダーの構成と名前空間をそろえておくと、型のファイルを探しやすくなります。
-
----
-
-## 7. using static
-
-`using static` を使うと、static クラスの static メンバーを、クラス名を書かずに使えます。
-
-**書式：[using static ディレクティブ](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/using-directive#the-static-modifier)**
-```
-using static 型;
-```
-
-| 要素 | 説明 |
-|---|---|
-| `using static` | 型の static メンバーを読み込むことを表す |
-| `型` | static メンバーを読み込む型の完全修飾名 |
-
-[Math クラス](https://learn.microsoft.com/dotnet/api/system.math) の static メンバーを、`Math.` を付けずに使います。
-
-```csharp
-using static System.Math;
-
-Console.WriteLine(Sqrt(16));
-Console.WriteLine(Max(3, 8));
-Console.WriteLine(PI);
-```
-
-```
-4
-8
-3.141592653589793
-```
-
-`Sqrt(16)` は `Math.Sqrt(16)` と同じです。計算式の中で同じクラスのメンバーを何度も使うときに便利です。一方で、どのクラスのメンバーなのかが見えにくくなるので、使う場面は選びます。
-
-`using` ディレクティブに型の名前を書くと CS0138 のエラーになりますが、`using static` なら型の名前を書けます。`using` に書けるのは名前空間、`using static` に書けるのは型です。
-
----
-
-## 8. global using と暗黙的な using ディレクティブ
-
-### global using
-
-`using` ディレクティブの効果は、書いたファイルの中だけです。複数のファイルで同じ名前空間を使うなら、それぞれのファイルに `using` を書く必要があります。
-
-`global` を付けると、1 か所に書くだけで、プロジェクトのすべてのファイルに効果が及びます。
-
-**書式：[global using ディレクティブ](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/using-directive#the-global-modifier)**
-```
-global using 名前空間;
-```
-
-| 要素 | 説明 |
-|---|---|
-| `global` | プロジェクトのすべてのファイルに効果を及ぼすことを表す |
-| `名前空間` | 読み込む名前空間。`global using static` や `global using` のエイリアスも書ける |
-
-6 節の `SampleNamespaces` に、`Usings.cs` というファイルを追加します。
-
-```csharp
-global using Game;
-```
-
-`Program.cs` から `using Game;` を削除します。
-
-```csharp
-Player p = new Player();
-Console.WriteLine(p.Name);
-```
-
-`dotnet run` を実行すると、`using Game;` がなくても `Player` を使えます。
-
-```
-勇者
-```
-
-`global using` は、どのファイルに書いてもかまいません。ただし、どこに書いたのかがわからなくなりやすいので、`Usings.cs` のような 1 つのファイルにまとめておくのが一般的です。
-
-### 暗黙的な using ディレクティブの正体
-
-[名前空間と using ディレクティブ（補足）](/unity-csharp-learning/csharp/using-directives/) で学んだ暗黙的な using ディレクティブは、`global using` で作られています。`.csproj` の `<ImplicitUsings>enable</ImplicitUsings>` が有効なプロジェクトでは、ビルドするときに、`obj/Debug/net10.0/SampleNamespaces.GlobalUsings.g.cs` のようなファイルが自動で作られます。
-
-```csharp
-// <auto-generated/>
-global using System;
-global using System.Collections.Generic;
-global using System.IO;
-global using System.Linq;
-global using System.Net.Http;
-global using System.Threading;
-global using System.Threading.Tasks;
-```
-
-このファイルもプロジェクトのほかのファイルと一緒にコンパイルされるので、すべてのファイルで `Console` や `List<T>` を `using` なしで使えます。
-
-```mermaid
-flowchart LR
-    C["SampleNamespaces.csproj<br/>ImplicitUsings: enable"] -- ビルド時に作る --> G["GlobalUsings.g.cs<br/>global using System; など"]
-    G -- すべてのファイルに効く --> P["Program.cs"]
-    G -- すべてのファイルに効く --> PL["Player.cs"]
-    U["Usings.cs<br/>global using Game;"] -- すべてのファイルに効く --> P
-    U -- すべてのファイルに効く --> PL
-```
-
-読み込まれる名前空間は、プロジェクトの種類で変わります。たとえば、[ASP.NET Core でサーバーを作る](/unity-csharp-learning/networking/aspnetcore-server/) で使う Web アプリのプロジェクトでは、`Microsoft.AspNetCore.Http` などの名前空間も読み込まれます。種類ごとの一覧は、[.NET プロジェクト SDK の暗黙的な using ディレクティブ](https://learn.microsoft.com/dotnet/core/project-sdk/overview#implicit-using-directives) で確認できます。
-
-### .csproj で追加・除外する
-
-暗黙的に読み込む名前空間は、`.csproj` の `<Using>` 要素で追加したり、除外したりできます。`SampleNamespaces.csproj` の `</Project>` の前に、次の `<ItemGroup>` を追加します。
-
-```xml
-  <ItemGroup>
-    <Using Include="Game" />
-    <Using Remove="System.Net.Http" />
-  </ItemGroup>
-```
-
-| 要素 | 説明 |
-|---|---|
-| `<Using Include="名前空間" />` | 暗黙的に読み込む名前空間に追加する |
-| `<Using Remove="名前空間" />` | 暗黙的に読み込む名前空間から除外する |
-
-ビルドし直すと、`GlobalUsings.g.cs` に `global using Game;` が加わり、`global using System.Net.Http;` がなくなります。`Usings.cs` と同じ効果を、`.csproj` の設定で得られます。
-
----
-
-## よくあるミス
-
-### トップレベルのステートメントと同じファイルに、ファイルスコープの名前空間を書く
-
-```csharp
-// ❌ NG: ファイルスコープの名前空間は、ファイルのほかのすべてのメンバーより前に書く
-// Console.WriteLine(new Game.Player().Name);
-//
-// namespace Game;  // CS8956
-//
-// class Player
-// {
-//     public string Name = "勇者";
-// }
-```
-
-ファイルスコープの名前空間は、ファイルの中のすべての型を 1 つの名前空間に入れる書き方なので、ファイルの先頭（`using` ディレクティブの後）に書く必要があります。一方、トップレベルのステートメントは、名前空間の宣言より前に書く必要があります。この 2 つは同じファイルに書けないので、型を別のファイルに分けるか、ブロック形式の名前空間を使います。
-
-### 1 つのファイルに、ファイルスコープの名前空間を 2 つ書く
-
-```csharp
-// ❌ NG: ファイルスコープの名前空間は、1 つのファイルに 1 つだけ
-// namespace Game;
-// namespace Audio;  // CS8954
-```
-
-1 つのファイルに複数の名前空間を書きたいときは、ブロック形式を使います。
-
-### global using を、ふつうの using より後に書く
-
-```csharp
-// ❌ NG: global using は、ふつうの using ディレクティブより前に書く
-// using System.Text;
-// global using System.Diagnostics;  // CS8915
-```
-
-同じファイルに書くときは、`global using` をすべて先に書きます。
-
----
-
 ## まとめ
 
 - 名前空間を指定せずに定義した型は、グローバル名前空間に入る
-- `namespace 名前空間名 { }`（ブロック形式）や `namespace 名前空間名;`（ファイルスコープ）で、型を名前空間に入れる。名前空間は名前を整理するもので、使える範囲はアクセス修飾子で決まる
+- `namespace 名前空間名 { }` で、型を名前空間に入れる。名前空間は名前を整理するもので、使える範囲はアクセス修飾子で決まる
 - 同じ名前の型は、完全修飾名か、`using 別名 = 型;` のエイリアスで区別する
+- `using static 型;` で、static メンバーをクラス名なしで使える
 - 拡張メソッドは、定義した static クラスの名前空間を読み込んだときだけ呼び出せる
 - 名前空間の中のコードは、外側の名前空間の型を `using` なしで使える。`using` で読み込んでも、下の階層の名前空間は含まれない
-- ファイルスコープの名前空間は、トップレベルのステートメントと同じファイルには書けない
-- `using static 型;` で、static メンバーをクラス名なしで使える
-- `global using` は、プロジェクトのすべてのファイルに効く。暗黙的な using ディレクティブは、`ImplicitUsings` の設定から作られる `global using` で、`.csproj` の `<Using>` で追加・除外できる
 
 ---
 
@@ -532,8 +343,7 @@ flowchart LR
    }
    ```
 
-2. `Tools` 名前空間の static クラスに、`int` の拡張メソッド `Double` を定義しました。別のファイルの `Program.cs` で `5.Double()` と書いたところ、CS1061 のエラーになりました。どう直しますか？
-3. 次のコードを実行すると何が出力されますか？
+2. 次のコードを実行すると何が出力されますか？
 
    ```csharp
    using static System.Math;
@@ -541,7 +351,7 @@ flowchart LR
    Console.WriteLine(Abs(-7) + Min(2, 5));
    ```
 
-4. トップレベルのステートメントを書いた `Program.cs` に、`namespace Game;` と書いて `Player` クラスを定義したところ、コンパイルエラーになりました。直し方を 2 つ答えてください。
+3. `Tools` 名前空間の static クラスに、`int` の拡張メソッド `Double` を定義しました。トップレベルのステートメントで `5.Double()` と書いたところ、CS1061 のエラーになりました。どう直しますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
@@ -553,9 +363,8 @@ flowchart LR
    Shop.Item
    ```
 
-2. `Program.cs` の先頭に `using Tools;` を書きます。拡張メソッドは、定義した static クラスの名前空間を読み込んだときだけ呼び出せます。プロジェクトのすべてのファイルで使うなら、`global using Tools;` を書いてもかまいません。
-3. `9` が出力されます。`Abs(-7)` は `Math.Abs(-7)` で `7`、`Min(2, 5)` は `Math.Min(2, 5)` で `2` です。
-4. `Player` クラスを `Player.cs` などの別のファイルに移し、そのファイルに `namespace Game;` を書きます。または、`Program.cs` のまま、ブロック形式の `namespace Game { }` で `Player` を囲み、トップレベルのステートメントより後ろに書きます（CS8956）。
+2. `9` が出力されます。`Abs(-7)` は `Math.Abs(-7)` で `7`、`Min(2, 5)` は `Math.Min(2, 5)` で `2` です。
+3. ファイルの先頭に `using Tools;` を書きます。拡張メソッドは、定義した static クラスの名前空間を読み込んだときだけ呼び出せます。
 
 </details>
 
@@ -563,4 +372,4 @@ flowchart LR
 
 ## 次のステップ
 
-これで「C# メソッドの応用文法」のセクションは終わりです。[継承](/unity-csharp-learning/csharp/inheritance/) からは「C# 継承と抽象化」のセクションに進み、既存のクラスのメンバーを引き継いで、新しいクラスを作る仕組みを学びます。
+[ファイルの分割と global using](/unity-csharp-learning/csharp/multiple-files/) では、型を別のファイルに分ける方法と、プロジェクトのすべてのファイルに効く `global using` を学びます。
