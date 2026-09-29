@@ -143,3 +143,9 @@ Unity のスクリプトが「エディターでは動くがビルドでは動�
 3. **IL2CPP**。iOS は JIT（実行時コンパイル）を OS レベルで禁止しているため、事前にすべてネイティブコードに変換する AOT が必須となる。
 
 </details>
+
+---
+
+## 次のステップ
+
+[.NET SDK と dotnet CLI](/unity-csharp-learning/csharp/dotnet-sdk/) では、SDK をインストールして、プロジェクトの作成・ビルド・実行までを試します。
