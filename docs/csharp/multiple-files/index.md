@@ -164,10 +164,10 @@ global using System.Threading.Tasks;
 
 ```mermaid
 flowchart LR
-    C["SampleMultiFile.csproj<br/>ImplicitUsings: enable"] -- ビルド時に作る --> G["GlobalUsings.g.cs<br/>global using System; など"]
+    C["SampleMultiFile.csproj<br/>ImplicitUsings: enable"] -- ビルド時に作る --> G["GlobalUsings.g.cs<br/>global using System など"]
     G -- すべてのファイルに効く --> P["Program.cs"]
     G -- すべてのファイルに効く --> PL["Player.cs"]
-    U["Usings.cs<br/>global using Game;"] -- すべてのファイルに効く --> P
+    U["Usings.cs<br/>global using Game"] -- すべてのファイルに効く --> P
     U -- すべてのファイルに効く --> PL
 ```
 
