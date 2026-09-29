@@ -297,7 +297,7 @@ True
 False
 ```
 
-`[Flags]` を付けた列挙型の `ToString` は、組み合わせたメンバーの名前を `,` で区切って返します。[HasFlag メソッド](https://learn.microsoft.com/dotnet/api/system.enum.hasflag) は、指定したメンバーのビットが立っているかを調べます。どのビットも立っていない状態を表すために、`None = 0` を定義しておきます。
+`[Flags]` を付けた列挙型の `ToString` は、組み合わせたメンバーの名前を `,` で区切って返します。`[Flags]` のような `[ ]` で囲んだものを **属性** といいます。属性の仕組みは、[属性の基本](/unity-csharp-learning/csharp/attributes/) で学びます。[HasFlag メソッド](https://learn.microsoft.com/dotnet/api/system.enum.hasflag) は、指定したメンバーのビットが立っているかを調べます。どのビットも立っていない状態を表すために、`None = 0` を定義しておきます。
 
 ---
 

@@ -133,7 +133,7 @@ C# で定義した構造体は、ふつう、フィールドを書いた順に�
 
 ## 3. StructLayout 属性で並び方を指定する
 
-フィールドの並び方は、[StructLayout 属性](https://learn.microsoft.com/dotnet/api/system.runtime.interopservices.structlayoutattribute) で指定できます。`System.Runtime.InteropServices` 名前空間にあるので、ファイルの先頭に `using System.Runtime.InteropServices;` を書きます。
+フィールドの並び方は、[StructLayout 属性](https://learn.microsoft.com/dotnet/api/system.runtime.interopservices.structlayoutattribute) で指定できます。属性の仕組みは、[属性の基本](/unity-csharp-learning/csharp/attributes/) で学びます。`System.Runtime.InteropServices` 名前空間にあるので、ファイルの先頭に `using System.Runtime.InteropServices;` を書きます。
 
 並び方は、[LayoutKind 列挙型](https://learn.microsoft.com/dotnet/api/system.runtime.interopservices.layoutkind) の値で指定します。
 
