@@ -27,7 +27,7 @@ permalink: /csharp/bitwise-operations/
 
 [ビット演算子](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/bitwise-and-shift-operators) は、2 つの整数の同じ位置のビットどうしを、1 つずつ計算します。
 
-このページでは、計算の結果を 2 進数でも表示します。文字列補間の `{値:B4}` は、値を 4 桁の 2 進数で表示する書式です（[2 進数の書式指定子](https://learn.microsoft.com/dotnet/standard/base-types/standard-numeric-format-strings#binary-format-specifier-b)。.NET 8 以降で使えます）。
+このページでは、計算の結果を 2 進数でも表示します。文字列補間の `{値:B4}` は、値を 4 桁の 2 進数で表示する書式です（[2 進数の書式指定子](https://learn.microsoft.com/dotnet/standard/base-types/standard-numeric-format-strings#binary-format-specifier-b)。.NET 8 以降で使えます）。書式の書き方は、[文字列リテラルと書式（補足）](/unity-csharp-learning/csharp/string-literals/) で説明しています。
 
 ### & — AND（論理積）
 

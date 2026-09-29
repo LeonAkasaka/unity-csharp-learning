@@ -146,7 +146,7 @@ for (int i = 0; i < rows; i++)
   9 10 11 12
 ```
 
-文字列補間の `{matrix[i, j],3}` は、値を 3 文字分の幅で右にそろえて表示します。行ごとに `Console.Write` で横に並べ、行の最後に `Console.WriteLine()` で改行しています。
+文字列補間の `{matrix[i, j],3}` は、値を 3 文字分の幅で右にそろえて表示します。幅の指定は、[文字列リテラルと書式（補足）](/unity-csharp-learning/csharp/string-literals/) で説明しています。行ごとに `Console.Write` で横に並べ、行の最後に `Console.WriteLine()` で改行しています。
 
 ### foreach 文
 
