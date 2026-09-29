@@ -342,7 +342,7 @@ ObjectDisposedException: A
 
 ### using ディレクティブとの違い
 
-ファイルの先頭に書く `using System;` は **using ディレクティブ** といい、名前空間を省略して型を書けるようにするものです。このページの `using` 文・`using` 宣言とは、同じキーワードを使っているだけで、まったく別の機能です。
+ファイルの先頭に書く `using System;` は **using ディレクティブ** といい、名前空間を省略して型を書けるようにするものです（[名前空間と using ディレクティブ（補足）](/unity-csharp-learning/csharp/using-directives/)）。このページの `using` 文・`using` 宣言とは、同じキーワードを使っているだけで、まったく別の機能です。
 
 ---
 

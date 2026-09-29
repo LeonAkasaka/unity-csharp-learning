@@ -73,6 +73,8 @@ True
 
 `true` は `True` と表示されます。
 
+> 💡 **ポイント**: `Console` の正式な名前は `System.Console` です。`System` は、型をまとめる **名前空間** の名前です。ここで名前空間を書かずに済んでいるのは、`dotnet new console` で作ったプロジェクトの設定（[.NET SDK と dotnet CLI](/unity-csharp-learning/csharp/dotnet-sdk/) の `ImplicitUsings`）で、`System` があらかじめ読み込まれているからです。読み込まれていない名前空間の型を使うときは、`using` ディレクティブが必要です。詳しくは [名前空間と using ディレクティブ（補足）](/unity-csharp-learning/csharp/using-directives/) で学びます。
+
 改行しない [Console.Write メソッド](https://learn.microsoft.com/dotnet/api/system.console.write) もあります。`Console.Write` で表示した後の値は、同じ行に続けて表示されます。
 
 ```csharp
@@ -382,4 +384,4 @@ System.Int32
 
 ## 次のステップ
 
-[プリミティブ型と型変換](/unity-csharp-learning/csharp/primitive-types/) では、数値型の表現範囲、文字と文字列、型変換の規則を学びます。
+[名前空間と using ディレクティブ（補足）](/unity-csharp-learning/csharp/using-directives/) では、`Console` の正式な名前と、名前空間にある型を `using` ディレクティブで使えるようにする方法を学びます。

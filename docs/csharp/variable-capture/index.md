@@ -28,8 +28,6 @@ permalink: /csharp/variable-capture/
 通常のメソッドは、自分のパラメータとローカル変数しか使えません。ラムダ式は、それに加えて**定義された時点で見えていた外側の変数**もそのまま使えます。
 
 ```csharp
-using System;
-
 public class Program
 {
     public static void Main()
@@ -58,8 +56,6 @@ public class Program
 ## 2. キャプチャはコピーではなく参照
 
 ```csharp
-using System;
-
 public class Program
 {
     public static void Main()
@@ -90,9 +86,6 @@ public class Program
 ループ変数をキャプチャするときに、意図しない動作になりやすい罠があります。
 
 ```csharp
-using System;
-using System.Collections.Generic;
-
 public class Program
 {
     public static void Main()
@@ -123,9 +116,6 @@ public class Program
 ループごとに値を固定するには、ループ内に新しい変数を作ってキャプチャします。
 
 ```csharp
-using System;
-using System.Collections.Generic;
-
 public class Program
 {
     public static void Main()
@@ -172,8 +162,6 @@ static (パラメータ) => 式
 | `static` | キャプチャを禁止するキーワード |
 
 ```csharp
-using System;
-
 public class Program
 {
     public static void Main()
@@ -234,9 +222,6 @@ for (int i = 0; i < 3; i++)
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   using System;
-   using System.Collections.Generic;
-
    public class Program
    {
        public static void Main()

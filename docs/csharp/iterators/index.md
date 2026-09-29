@@ -105,7 +105,7 @@ class Countdown : IEnumerable<int>
 1
 ```
 
-前のページの `CountdownEnumerator` クラスがなくなり、`GetEnumerator` の中身が `for` 文だけになりました。ここでは `using System.Collections;` を書かずに、`System.Collections.IEnumerator` のように名前空間を含めた名前で書いています。
+前のページの `CountdownEnumerator` クラスがなくなり、`GetEnumerator` の中身が `for` 文だけになりました。ここでは `using System.Collections;` を書かずに、`System.Collections.IEnumerator` のように名前空間を含めた名前（[完全修飾名](/unity-csharp-learning/csharp/using-directives/)）で書いています。
 
 ---
 

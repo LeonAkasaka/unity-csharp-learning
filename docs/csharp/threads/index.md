@@ -48,7 +48,7 @@ public Thread(ThreadStart start);
 
 `Thread` オブジェクトを作っただけでは、まだ何も実行されません。[Start メソッド](https://learn.microsoft.com/dotnet/api/system.threading.thread.start) を呼び出すと、スレッドが開始され、渡したメソッドが実行されます。`Start` はスレッドを開始するとすぐに戻るので、呼び出し元はメソッドの終了を待たずに先へ進みます。
 
-> 💡 **ポイント**: `Thread` クラスは `System.Threading` 名前空間にあります。このサイトのコード例では、暗黙的な using ディレクティブによって自動で読み込まれます。暗黙的な using ディレクティブが無効な環境では、ファイルの先頭に `using System.Threading;` を書きます。
+> 💡 **ポイント**: `Thread` クラスは `System.Threading` 名前空間にあります。`System.Threading` は [暗黙的な using ディレクティブ](/unity-csharp-learning/csharp/using-directives/) で読み込まれているので、`using` を書かずに使えます。暗黙的な using ディレクティブが無効な環境では、ファイルの先頭に `using System.Threading;` を書きます。
 
 ### Thread.Sleep でスレッドを止める
 

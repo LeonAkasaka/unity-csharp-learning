@@ -37,8 +37,6 @@ permalink: /csharp/multicast-delegates/
 | `メソッド名` | 追加するメソッド（シグネチャが一致すること） |
 
 ```csharp
-using System;
-
 public delegate void Notify();
 
 public class Program
@@ -85,8 +83,6 @@ public class Program
 | `-=` | 登録されているメソッドをデリゲートから取り除く演算子 |
 
 ```csharp
-using System;
-
 public delegate void Notify();
 
 public class Program
@@ -127,8 +123,6 @@ public class Program
 複数のメソッドが登録されたデリゲートに戻り値がある場合、**最後に登録したメソッドの戻り値だけ**が返ります。
 
 ```csharp
-using System;
-
 public delegate int Calculate(int x);
 
 public class Program
@@ -172,8 +166,6 @@ Delegate[] GetInvocationList();
 | **戻り値** | `Delegate[]` | 登録されているメソッドを順番に並べた配列 |
 
 ```csharp
-using System;
-
 public delegate int Calculate(int x);
 
 public class Program
@@ -237,8 +229,6 @@ notify?.Invoke();
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   using System;
-
    public delegate void Log(string msg);
 
    public class Program

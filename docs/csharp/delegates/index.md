@@ -67,8 +67,6 @@ public delegate void MessageHandler(string message);
 - `DelegateName d = method;` の形で代入する（これを**メソッドグループ変換**と呼び、コンパイラが自動的に `new` ありの形に変換します）
 
 ```csharp
-using System;
-
 public delegate void MessageHandler(string message);
 
 public class Program
@@ -114,8 +112,6 @@ new で作成した呼び出し
 | `Invoke(引数)` | デリゲートが参照しているメソッドを実行する |
 
 ```csharp
-using System;
-
 public delegate void MessageHandler(string message);
 
 public class Program
@@ -150,8 +146,6 @@ public class Program
 デリゲートの便利さがよくわかるのは、**条件によって代入するメソッドを切り替える**場面です。次の例では、ゲームの難易度によって敵の行動メソッドを変えています。
 
 ```csharp
-using System;
-
 public delegate void EnemyAction(string enemyName);
 
 public class Program
@@ -195,8 +189,6 @@ Slime が距離を取りながら様子を見ている
 デリゲートには、**シグネチャが一致するメソッドだけ**を代入できます。引数の型や数、戻り値が違うメソッドは代入できません。
 
 ```csharp
-using System;
-
 public delegate void DamageHandler(int damage);
 
 public class Program
@@ -247,8 +239,6 @@ public class Program
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   using System;
-
    public delegate void TextAction(string text);
 
    public class Program
@@ -290,8 +280,6 @@ public class Program
 3. たとえば次のように書けます。
 
    ```csharp
-   using System;
-
    public delegate void HealAction(int amount);
 
    public class Program
