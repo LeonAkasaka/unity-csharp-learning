@@ -304,4 +304,4 @@ Console.WriteLine(s);
 
 ## 次のステップ
 
-[条件分岐](/unity-csharp-learning/csharp/conditionals/) では、条件によって実行する処理を変える `if` 文と `switch` 文を学びます。
+[文字列リテラルと書式（補足）](/unity-csharp-learning/csharp/string-literals/) では、`\` や `"` をそのまま書ける文字列リテラルと、文字列補間で数値の表示のしかたや幅を決める方法を学びます。

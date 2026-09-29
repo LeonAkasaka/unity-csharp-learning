@@ -26,6 +26,7 @@ C# プログラミングをゼロから学びます。
 | 4.1 | [名前空間と using ディレクティブ（補足）](/unity-csharp-learning/csharp/using-directives/) | 完全修飾名・`using` ディレクティブ・暗黙的な using ディレクティブと `ImplicitUsings`・下の階層の名前空間は読み込まれない |
 | 5 | [プリミティブ型と型変換](/unity-csharp-learning/csharp/primitive-types/) | 数値型の表現範囲・符号・char と string・型変換・異なる型の演算 |
 | 5.1 | [数値リテラルと型エイリアス（補足）](/unity-csharp-learning/csharp/numeric-literals/) | 0x/0b リテラル・型サフィックス・int=System.Int32・2の補数 |
+| 5.2 | [文字列リテラルと書式（補足）](/unity-csharp-learning/csharp/string-literals/) | 逐語的文字列リテラル `@""`・生文字列リテラル `"""`・書式指定 `{x:F2}` と丸め方・幅の指定 `{x,5}`・`{{` と `}}`・`$$"""` |
 | 6 | [条件分岐](/unity-csharp-learning/csharp/conditionals/) | `if` / `else`・比較演算子と論理演算子・`switch` 文 |
 | 6.1 | [ブロック文とスコープ（補足）](/unity-csharp-learning/csharp/block-and-scope/) | ブロック文・スコープ・`else if` の正体 |
 | 6.2 | [条件演算子と式・文（補足）](/unity-csharp-learning/csharp/conditional-operator/) | 式と文の違い・`? :` 演算子 |
