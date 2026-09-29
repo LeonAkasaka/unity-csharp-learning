@@ -270,4 +270,4 @@ flowchart LR
 
 ## 次のステップ
 
-これで「C# プログラムの構成」のセクションは終わりです。[継承](/unity-csharp-learning/csharp/inheritance/) からは「C# 継承と抽象化」のセクションに進み、既存のクラスのメンバーを引き継いで、新しいクラスを作る仕組みを学びます。
+[partial 型と partial メンバー](/unity-csharp-learning/csharp/partial/) では、1 つのクラスの定義を、複数のファイルに分けて書く方法を学びます。
