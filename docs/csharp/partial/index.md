@@ -197,6 +197,40 @@ partial class Player
 
 `Attack` は、グローバル名前空間の `Player` のメンバーです。`Game.Player` には `Attack` がないので、CS1061 のエラーになります。エラーが出るのは部分の定義ではなく、使った場所なので、原因に気づきにくいです。ファイルスコープの名前空間を書き忘れたときや、名前空間の名前を書き間違えたときに起こります。
 
+しかも、エラーになるとは限りません。次の例では、両方の `Player` に同じ `Describe` メソッドがあります。1 つの型にまとまっていれば、メンバーの重複で CS0102 のエラーになるはずのコードです。
+
+```csharp
+var p = new Game.Player();
+Console.WriteLine(p.Describe());
+
+namespace Game
+{
+    partial class Player
+    {
+        public string Describe()
+        {
+            return "Game.Player の Describe";
+        }
+    }
+}
+
+partial class Player
+{
+    public string Describe()
+    {
+        return "グローバル名前空間の Player の Describe";
+    }
+}
+```
+
+```
+Game.Player の Describe
+```
+
+エラーにならずに、`Game.Player` の `Describe` が実行されます。グローバル名前空間の `Player` に書いたコードは、使われないまま残ります。
+
+名前空間が食い違っていても、コンパイラーが教えてくれるとは限りません。partial 型の部分を書くときは、すべての部分で名前空間がそろっているかを確認します。
+
 > 💡 **ポイント**: `partial` は、クラスのほかに、後で学ぶ [構造体](/unity-csharp-learning/csharp/structs/)、[インターフェイス](/unity-csharp-learning/csharp/interfaces/)、[record](/unity-csharp-learning/csharp/records/) にも付けられます。
 
 ---
@@ -439,7 +473,7 @@ partial にできるメンバーは、C# のバージョンとともに増えて
 ## まとめ
 
 - `partial class` で、1 つのクラスの定義を複数の部分に分けて書ける。部分はファイルに分けても、同じファイルに並べてもよい
-- すべての部分に `partial` を付け、同じ名前空間・同じプロジェクトに書く。名前空間が違うと、エラーにならずに別々の型になる
+- すべての部分に `partial` を付け、同じ名前空間・同じプロジェクトに書く。名前空間が違うと、エラーにならずに別々の型になる。使う側でもエラーになるとは限らないので、名前空間がそろっているかを確認する
 - アクセス修飾子は、すべての部分で同じにするか、1 つの部分にだけ書く
 - partial メソッドは、宣言（本体の代わりに `;`）と実装を別々の部分に書く
 - アクセス修飾子がなく戻り値が `void` の partial メソッドは、実装を省略できる。省略すると、呼び出しごと取り除かれる
@@ -484,7 +518,7 @@ partial にできるメンバーは、C# のバージョンとともに増えて
    }
    ```
 
-3. `Item.cs` には `namespace Game;` と `partial class Item` を、`Item.Price.cs` には `partial class Item` だけを書きました。`Item.Price.cs` に書いたメソッドを、`Game.Item` のインスタンスから呼び出すと、CS1061 のエラーになりました。原因は何ですか？
+3. partial 型の部分を書いたファイルの 1 つで、`namespace Game;` を書き忘れました。コンパイルエラーになりますか？ 何が起きるかを説明してください。
 4. 次の partial メソッドのうち、実装を省略できるものはどれですか？
 
    ```
@@ -505,7 +539,7 @@ partial にできるメンバーは、C# のバージョンとともに増えて
    2
    ```
 
-3. `Item.Price.cs` に `namespace Game;` がないので、その `Item` はグローバル名前空間の別の型になっています。`Item.Price.cs` にも `namespace Game;` を書きます。
+3. 定義の時点ではエラーになりません。`namespace Game;` を書き忘れた部分は、グローバル名前空間の別の型になります。使う側で、もう一方の部分にしかないメンバーを呼び出すと CS1061 のエラーになることはありますが、必ずエラーになるとは限りません。両方の部分に同じ名前のメンバーがあると、エラーにならずに、別の型のメンバーが使われます。
 4. ① だけです。② と ③ は、アクセス修飾子が付いているので、実装が必要です（CS8795）。③ は戻り値があるので、そもそもアクセス修飾子なしでは宣言できません。
 
 </details>
