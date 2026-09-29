@@ -176,7 +176,7 @@ False
 
 `null` が入った変数からメンバーを使うと、`NullReferenceException` が発生します。
 
-> 💡 **ポイント**: このサイトのコード例では、参照型の変数に `null` を入れるとき、`Box?` のように型名の後に `?` を付けます。`?` のない参照型の変数に `null` を入れると、コンパイラーが警告を出す設定になっているからです。`?` の意味は [null 許容値型](/unity-csharp-learning/csharp/nullable-value-types/) で説明します。
+> 💡 **ポイント**: このサイトのコード例では、参照型の変数に `null` を入れるとき、`Box?` のように型名の後に `?` を付けます。`?` のない参照型の変数に `null` を入れると、コンパイラーが警告を出す設定になっているからです。`?` の意味は [null 許容参照型](/unity-csharp-learning/csharp/nullable-reference-types/) で説明します。
 
 フィールドや配列の要素は、値を代入しなくても **既定値** で初期化されます。既定値は、[default 演算子](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/default) で調べられます。
 
