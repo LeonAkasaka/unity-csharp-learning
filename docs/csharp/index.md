@@ -23,6 +23,7 @@ C# プログラミングをゼロから学びます。
 | # | トピック | 概要 |
 |---|---|---|
 | 4 | [最初のプログラムと変数](/unity-csharp-learning/csharp/variables/) | 逐次実行・リテラル・算術演算・変数の宣言と代入 |
+| 4.1 | [名前空間と using ディレクティブ（補足）](/unity-csharp-learning/csharp/using-directives/) | 完全修飾名・`using` ディレクティブ・暗黙的な using ディレクティブと `ImplicitUsings`・下の階層の名前空間は読み込まれない |
 | 5 | [プリミティブ型と型変換](/unity-csharp-learning/csharp/primitive-types/) | 数値型の表現範囲・符号・char と string・型変換・異なる型の演算 |
 | 5.1 | [数値リテラルと型エイリアス（補足）](/unity-csharp-learning/csharp/numeric-literals/) | 0x/0b リテラル・型サフィックス・int=System.Int32・2の補数 |
 | 6 | [条件分岐](/unity-csharp-learning/csharp/conditionals/) | `if` / `else`・比較演算子と論理演算子・`switch` 文 |
