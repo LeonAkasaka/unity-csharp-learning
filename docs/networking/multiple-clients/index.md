@@ -551,4 +551,4 @@ System.IO.IOException: Failed to bind to address http://127.0.0.1:8080: address 
 
 ## 次のステップ
 
-次の回では、クライアントから定期的にリクエストを送って、ほかのクライアントが起こした変化に追いつく方法を扱います。
+[ポーリングで追いつく](/unity-csharp-learning/networking/polling/) では、クライアントから定期的にリクエストを送って、ほかのクライアントが起こした変化に追いつきます。
