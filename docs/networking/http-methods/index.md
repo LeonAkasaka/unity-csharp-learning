@@ -690,3 +690,5 @@ fail: Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware[1]
 ## 次のステップ
 
 [Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) では、Unity から `UnityWebRequest` を使って、このページで作ったサーバーにリクエストを送ります。
+
+ブラウザで開いて Web ページとして表示される HTML を返す方法と、そのときに気をつけるインジェクションの危険は、[ブラウザに HTML を返す（補足）](/unity-csharp-learning/networking/html-response/) で扱います。
