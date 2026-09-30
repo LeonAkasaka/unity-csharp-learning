@@ -21,6 +21,12 @@ permalink: /networking/
 | 6 | [JSON でやり取りする](./json/) | サーバーと Unity の間で JSON を送受信し、`Content-Type`、`JsonUtility` の制約、URL のエンコードを扱う |
 | 7 | [失敗に備える](./failure-handling/) | 時間の制限、重ねて送らない工夫、破棄されたときの中止、失敗したリクエストの送り直しを扱う |
 
+## 第 2 部 そろえる
+
+| # | トピック | 概要 |
+|---|---|---|
+| 8 | [複数のクライアントをつなぐ](./multiple-clients/) | 回数をサーバーで数える「いいね」のサーバーを作り、ヘッダーで名乗ったクライアントをログで区別する。Multiplayer Play Mode で Unity を 2 つ動かし、ほかのクライアントの変化はリクエストを送るまでわからないことを確かめる |
+
 ## 前提知識
 
 - [.NET SDK と dotnet CLI](/unity-csharp-learning/csharp/dotnet-sdk/) で、コンソールアプリを作って実行できること
