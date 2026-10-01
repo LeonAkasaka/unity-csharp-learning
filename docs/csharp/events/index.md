@@ -387,4 +387,4 @@ btn.Clicked += OnClick;
 
 ## 次のステップ
 
-[ラムダ式](/unity-csharp-learning/csharp/lambda/) では、メソッドを短く書ける `=>` 構文と、組み込みデリゲート型 `Action` / `Func` を学びます。
+[ラムダ式](/unity-csharp-learning/csharp/lambda/) では、メソッドをその場に短く書ける `=>` 構文を学びます。

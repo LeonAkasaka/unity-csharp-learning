@@ -16,6 +16,7 @@ permalink: /csharp/delegates/
 - デリゲート変数にメソッドを代入して呼び出せる
 - `?.Invoke()` で null 安全に呼び出せる
 - 実行時にメソッドを切り替えられることを理解できる
+- ジェネリックなデリゲート型と、組み込みの `Action` / `Func` を使える
 
 ## 前提知識
 
@@ -166,6 +167,83 @@ Slime が距離を取りながら様子を見ている
 
 ---
 
+## 6. ジェネリックなデリゲート型と Action / Func
+
+ここまでは、扱いたいメソッドの形ごとに `MessageHandler` や `EnemyAction` のようなデリゲート型を宣言してきました。しかし、「`int` を受け取って `int` を返す」「`string` を受け取って `string` を返す」のように、型だけが違う形が出てくるたびに宣言するのは手間です。
+
+デリゲート型にも、[ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) で学んだ型パラメータを付けられます。
+
+```csharp
+Transformer<int> doubleIt = Double;
+Transformer<string> shout = Shout;
+
+Console.WriteLine(doubleIt(21));
+Console.WriteLine(shout("hello"));
+
+int Double(int value) => value * 2;
+string Shout(string text) => text.ToUpper() + "!";
+
+delegate T Transformer<T>(T value);
+```
+
+```
+42
+HELLO!
+```
+
+`Transformer<int>` は「`int` を受け取って `int` を返すメソッド」、`Transformer<string>` は「`string` を受け取って `string` を返すメソッド」を入れられる型になります。
+
+このようなジェネリックなデリゲート型は、.NET にあらかじめ用意されています。戻り値のないメソッドには `Action`、戻り値のあるメソッドには `Func` を使います。
+
+**書式：[Action\<T\> デリゲート](https://learn.microsoft.com/dotnet/api/system.action-1)**
+```
+Action<T1, T2, ...>
+```
+
+| 型パラメータ | 説明 |
+|---|---|
+| `T1`, `T2`, ... | メソッドの引数の型。引数がないときは型引数のない `Action` を使う（最大 16 個） |
+
+**書式：[Func\<T, TResult\> デリゲート](https://learn.microsoft.com/dotnet/api/system.func-2)**
+```
+Func<T1, T2, ..., TResult>
+```
+
+| 型パラメータ | 説明 |
+|---|---|
+| `T1`, `T2`, ... | メソッドの引数の型。引数がないときは `Func<TResult>` を使う |
+| `TResult` | **最後の型パラメータ**が戻り値の型 |
+
+```csharp
+Action greet = SayHello;
+Action<string> print = ShowMessage;
+Func<int, int> square = Square;
+Func<int, int, int> add = Add;
+
+greet();
+print("Action<string> で呼び出しました");
+Console.WriteLine(square(6));
+Console.WriteLine(add(3, 4));
+
+void SayHello() => Console.WriteLine("こんにちは");
+void ShowMessage(string message) => Console.WriteLine(message);
+int Square(int x) => x * x;
+int Add(int a, int b) => a + b;
+```
+
+```
+こんにちは
+Action<string> で呼び出しました
+36
+7
+```
+
+`Func<int, int, int>` は、型引数が 3 つありますが、引数は 2 つです。最後の `int` が戻り値の型を表します。
+
+自分でデリゲート型を宣言するのは、`MessageHandler` のように名前で用途を伝えたいときや、`ref` パラメータを持つなど `Action` / `Func` で表せない形のときです。それ以外は、`Action` / `Func` を使うと、型を宣言する手間が省けます。以降のページでも、`Action` / `Func` を使うことがあります。
+
+---
+
 ## よくあるミス
 
 デリゲートには、**シグネチャが一致するメソッドだけ**を代入できます。引数の型や数、戻り値が違うメソッドは代入できません。
@@ -204,6 +282,7 @@ delegate void DamageHandler(int damage);
 - デリゲート変数には `new DelegateName(method)` でも `DelegateName d = method;` でも代入できる
 - `?.Invoke()` を使うと、デリゲートが `null` のときでも安全に呼び出せる
 - 代入するメソッドを変えることで、実行時に処理を切り替えられる
+- デリゲート型にも型パラメータを付けられる。戻り値のないメソッドには `Action`、戻り値のあるメソッドには `Func`（最後の型引数が戻り値の型）が用意されている
 
 ---
 

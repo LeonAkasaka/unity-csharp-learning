@@ -6,7 +6,7 @@ permalink: /csharp/lambda/
 
 # ラムダ式
 
-**ラムダ式**を使うと、メソッドをその場で短く書いてデリゲートに渡せます。`Action` / `Func` という組み込みのデリゲート型と組み合わせると、毎回 `delegate` 型を宣言しなくて済みます。
+**ラムダ式**を使うと、メソッドをその場で短く書いてデリゲートに渡せます。[デリゲートの基本](/unity-csharp-learning/csharp/delegates/) で学んだ `Action` / `Func` と組み合わせると、デリゲート型もメソッドも別に宣言せずに済みます。
 
 ## 学習目標
 
@@ -14,7 +14,7 @@ permalink: /csharp/lambda/
 
 - `=>` を使ったラムダ式の構文を書ける
 - 式ラムダと文ラムダの違いを説明できる
-- `Action` / `Func` 組み込みデリゲート型を使える
+- ラムダ式を `Action` / `Func` の変数に代入できる
 
 ## 前提知識
 
@@ -99,34 +99,9 @@ delegate int Transform(int x);
 
 ---
 
-## 3. `Action` と `Func`
+## 3. ラムダ式と `Action` / `Func`
 
-毎回 `delegate` 型を宣言しなくても、.NET には汎用のデリゲート型が用意されています。
-
-**`Action<T>`** — 戻り値なし（`void`）のデリゲートです。
-
-**書式：[Action\<T\> デリゲート](https://learn.microsoft.com/dotnet/api/system.action-1)**
-```csharp
-Action<T1, T2, ...>
-```
-
-| パラメータ | 型 | 説明 |
-|---|---|---|
-| `T1`, `T2`, ... | 任意の型 | メソッドの引数の型（最大 16 個まで指定可能） |
-
-引数がゼロのときは `Action`、引数が 1 つなら `Action<T>` を使います。
-
-**`Func<T, TResult>`** — 戻り値ありのデリゲートです。
-
-**書式：[Func\<T, TResult\> デリゲート](https://learn.microsoft.com/dotnet/api/system.func-2)**
-```csharp
-Func<T1, T2, ..., TResult>
-```
-
-| パラメータ | 型 | 説明 |
-|---|---|---|
-| `T1`, `T2`, ... | 任意の型 | 引数の型（省略可能） |
-| `TResult` | 任意の型 | **最後の型パラメータ**が戻り値の型 |
+[デリゲートの基本](/unity-csharp-learning/csharp/delegates/) では、`Action` / `Func` の変数に名前付きのメソッドを代入しました。ラムダ式も、同じように代入できます。デリゲート型を宣言する必要も、メソッドに名前を付ける必要もなくなります。
 
 ```csharp
 // Action<string>：string を受け取り void を返す
@@ -148,6 +123,8 @@ Hello from Action!
 36
 7
 ```
+
+ラムダ式のパラメータ `message` や `x` に型を書いていないのは、代入先の `Action<string>` や `Func<int, int>` から、コンパイラーが型を決められるからです。
 
 ---
 
@@ -194,7 +171,7 @@ Func<int, int, int> correct = (a, b) => a + b;
 
 - ラムダ式 `(パラメータ) => 式` でメソッドをインラインに書いてデリゲートに渡せる
 - 本体が式 1 つの式ラムダと、ブロックの文ラムダの 2 種類がある
-- `Action<T>` は戻り値なし、`Func<T, TResult>` は戻り値ありの組み込みデリゲート型
+- ラムダ式は `Action` / `Func` の変数に代入でき、パラメータの型は代入先から決まる
 - ラムダ式でイベントを購読できるが、解除が必要な場合は名前付きメソッドを使う
 
 ---
