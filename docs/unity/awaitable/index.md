@@ -611,7 +611,9 @@ Unity の async メソッドでは、`Task` も使えます。しかし、Unity 
 
 - `Awaitable.NextFrameAsync` や `Awaitable.WaitForSecondsAsync` のように、フレームやゲーム時間に合わせて待つメソッドがある
 - `Awaitable` のオブジェクトは、Unity が使い回しています（プール）。そのため、1 つの `Awaitable` を 2 回以上 `await` してはいけません。[ValueTask](/unity-csharp-learning/csharp/value-task/) と同じ制約です
-- `Awaitable` の `await` の後は、メインスレッドで続きが実行されます。そのため、`await` の後でも Unity の API を使えます（[await の前後で実行されるスレッド](/unity-csharp-learning/csharp/await-threads/) を参照）
+- `await` の後の続きを実行するタイミングが違う
+  - `Task` の `await` は、続きを同期コンテキストに渡します（[await の前後で実行されるスレッド](/unity-csharp-learning/csharp/await-threads/) を参照）。Unity はメインスレッドに同期コンテキストを設定しているので、メインスレッドで `await` した `Task` の続きも、メインスレッドで実行されます。ただし、続きが実行されるのは、次のフレームの `Update` のときまで遅れます。また、`ConfigureAwait(false)` を付けると、続きはスレッドプールで実行され、その中ではほとんどの Unity の API を使えなくなります
+  - `Awaitable` の `await` は、待っている処理が完了したその場で、同じフレームのうちに続きを実行します。どのスレッドで続きを実行するかは、`Awaitable.BackgroundThreadAsync` と `Awaitable.MainThreadAsync` を `await` して、明示的に切り替えられます
 
 詳しくは、Unity のマニュアルの [Asynchronous programming with the Awaitable class](https://docs.unity3d.com/Manual/async-awaitable-introduction.html) を参照してください。
 
