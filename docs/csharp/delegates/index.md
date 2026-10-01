@@ -165,6 +165,70 @@ Slime が距離を取りながら様子を見ている
 
 同じ `action("Slime")` という呼び出しでも、事前にどのメソッドを代入したかで動作が変わります。これが、デリゲートが「実行時にメソッドを選べる柔軟性」を持つ理由です。
 
+`isHardMode ? AttackAggressively : MoveCarefully` では、メソッドの名前を条件演算子で選んでいます。メソッドの名前そのものには型がありませんが、代入先が `EnemyAction` 型なので、どちらも `EnemyAction` に変換されます。
+
+### if で呼び分けるのと何が違うのか
+
+この例だけなら、`if (isHardMode) AttackAggressively("Slime"); else MoveCarefully("Slime");` と書いても同じ結果になります。デリゲートが役に立つのは、**メソッドを選ぶ場所と、呼び出す場所が離れている**ときです。
+
+次の例では、敵ごとの行動を `Enemy` クラスのフィールドに入れています。
+
+```csharp
+Enemy slime = new Enemy("Slime", MoveCarefully);
+Enemy dragon = new Enemy("Dragon", AttackAggressively);
+Enemy bat = new Enemy("Bat", FlyAround);
+
+slime.Act();
+dragon.Act();
+bat.Act();
+
+void AttackAggressively(string enemyName)
+{
+    Console.WriteLine($"{enemyName} がプレイヤーに突進して攻撃した");
+}
+
+void MoveCarefully(string enemyName)
+{
+    Console.WriteLine($"{enemyName} が距離を取りながら様子を見ている");
+}
+
+void FlyAround(string enemyName)
+{
+    Console.WriteLine($"{enemyName} が頭上を飛び回っている");
+}
+
+delegate void EnemyAction(string enemyName);
+
+class Enemy
+{
+    private string name;
+    private EnemyAction action;
+
+    public Enemy(string name, EnemyAction action)
+    {
+        this.name = name;
+        this.action = action;
+    }
+
+    public void Act()
+    {
+        action(name);   // どのメソッドが入っているかを Enemy は知らない
+    }
+}
+```
+
+```
+Slime が距離を取りながら様子を見ている
+Dragon がプレイヤーに突進して攻撃した
+Bat が頭上を飛び回っている
+```
+
+`Enemy` の `Act` は、フィールドに入っているメソッドを呼ぶだけで、どんな行動があるのかを知りません。`FlyAround` のように行動を増やしても、`Enemy` クラスは書き換えずに済みます。
+
+デリゲートを使わずに書くと、`Enemy` に行動の種類を表す値を持たせ、`Act` の中の `if` や `switch` で呼び分けることになります。その場合、行動を増やすたびに `Enemy` の `Act` を書き換えなければなりません。
+
+デリゲートを使うと、「どの処理を使うか」を決めるコードと、「処理を呼び出す」コードを分けられます。次のページでは、デリゲートをメソッドの引数として渡し、呼び出す側に処理を選ばせる方法を学びます。
+
 ---
 
 ## 6. ジェネリックなデリゲート型と Action / Func
@@ -282,6 +346,7 @@ delegate void DamageHandler(int damage);
 - デリゲート変数には `new DelegateName(method)` でも `DelegateName d = method;` でも代入できる
 - `?.Invoke()` を使うと、デリゲートが `null` のときでも安全に呼び出せる
 - 代入するメソッドを変えることで、実行時に処理を切り替えられる
+- メソッドを選ぶコードと呼び出すコードを分けられるので、呼び出す側（`Enemy` など）を書き換えずに処理を増やせる
 - デリゲート型にも型パラメータを付けられる。戻り値のないメソッドには `Action`、戻り値のあるメソッドには `Func`（最後の型引数が戻り値の型）が用意されている
 
 ---
