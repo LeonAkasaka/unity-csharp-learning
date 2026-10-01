@@ -36,7 +36,7 @@ permalink: /csharp/delegate-callback/
 
 デリゲート型をメソッドのパラメータとして受け取ると、呼び出し元が「処理が終わったあとに何をするか」を指定できます。
 
-**書式：デリゲートをパラメータとして受け取るメソッド**
+**書式：[デリゲートをパラメータとして受け取るメソッド](https://learn.microsoft.com/dotnet/csharp/programming-guide/delegates/using-delegates)**
 ```
 戻り値型 メソッド名(デリゲート型 パラメーター名)
 ```
@@ -49,27 +49,21 @@ permalink: /csharp/delegate-callback/
 書式では `?` を省略しています。コード例の `Callback?` の `?` は「このパラメータには `null` を渡してもよい」という意味です。
 
 ```csharp
-public delegate void Callback();
+RunTask(OnTaskDone);
 
-public class Program
+void RunTask(Callback? onComplete)
 {
-    public static void Main()
-    {
-        RunTask(OnTaskDone);
-    }
-
-    private static void RunTask(Callback? onComplete)
-    {
-        Console.WriteLine("タスクを実行します。");
-        Console.WriteLine("タスクが終了しました。");
-        onComplete?.Invoke();
-    }
-
-    private static void OnTaskDone()
-    {
-        Console.WriteLine("完了後のコールバックを実行しました。");
-    }
+    Console.WriteLine("タスクを実行します。");
+    Console.WriteLine("タスクが終了しました。");
+    onComplete?.Invoke();
 }
+
+void OnTaskDone()
+{
+    Console.WriteLine("完了後のコールバックを実行しました。");
+}
+
+delegate void Callback();
 ```
 
 ```
@@ -78,7 +72,7 @@ public class Program
 完了後のコールバックを実行しました。
 ```
 
-この例では `Main` から `RunTask(OnTaskDone)` を呼び出し、`RunTask` の中で処理完了後に `onComplete?.Invoke()` を実行しています。
+この例ではトップレベルの文から `RunTask(OnTaskDone)` を呼び出し、`RunTask` の中で処理完了後に `onComplete?.Invoke()` を実行しています。
 
 ---
 
@@ -87,32 +81,26 @@ public class Program
 同じメソッドに異なるコールバックを渡すと、同じ処理でも終了後の動作を変えられます。
 
 ```csharp
-public delegate void OnDamageCalculated(int damage);
+CalculateDamage(20, 5, LogDamage);
+CalculateDamage(20, 5, ShakeScreen);
 
-public class Program
+void CalculateDamage(int baseAtk, int defense, OnDamageCalculated? callback)
 {
-    public static void Main()
-    {
-        CalculateDamage(20, 5, LogDamage);
-        CalculateDamage(20, 5, ShakeScreen);
-    }
-
-    private static void CalculateDamage(int baseAtk, int defense, OnDamageCalculated? callback)
-    {
-        int damage = Math.Max(0, baseAtk - defense); // 0 を下回らないようにダメージを計算
-        callback?.Invoke(damage);
-    }
-
-    private static void LogDamage(int damage)
-    {
-        Console.WriteLine($"ダメージ {damage} をログに記録しました。");
-    }
-
-    private static void ShakeScreen(int damage)
-    {
-        Console.WriteLine($"ダメージ {damage} — 画面をシェイク（プレースホルダー）");
-    }
+    int damage = Math.Max(0, baseAtk - defense); // 0 を下回らないようにダメージを計算
+    callback?.Invoke(damage);
 }
+
+void LogDamage(int damage)
+{
+    Console.WriteLine($"ダメージ {damage} をログに記録しました。");
+}
+
+void ShakeScreen(int damage)
+{
+    Console.WriteLine($"ダメージ {damage} — 画面をシェイク（プレースホルダー）");
+}
+
+delegate void OnDamageCalculated(int damage);
 ```
 
 ```
@@ -169,27 +157,21 @@ callback?.Invoke(damage);
 次のコードの出力結果は何になりますか？
 
 ```csharp
-public delegate void ResultCallback(string result);
+Process("処理A", PrintResult);
+Process("処理B", null);
 
-public class Program
+void Process(string name, ResultCallback? callback)
 {
-    public static void Main()
-    {
-        Process("処理A", PrintResult);
-        Process("処理B", null);
-    }
-
-    private static void Process(string name, ResultCallback? callback)
-    {
-        Console.WriteLine($"{name} を実行中...");
-        callback?.Invoke($"{name} が完了");
-    }
-
-    private static void PrintResult(string result)
-    {
-        Console.WriteLine(result);
-    }
+    Console.WriteLine($"{name} を実行中...");
+    callback?.Invoke($"{name} が完了");
 }
+
+void PrintResult(string result)
+{
+    Console.WriteLine(result);
+}
+
+delegate void ResultCallback(string result);
 ```
 
 ### 問3（応用）
@@ -209,25 +191,19 @@ public class Program
 
 問3の解答：
 ```csharp
-public delegate void ScoreHandler(int score);
+ApplyScore(80, ShowScore);
 
-public class Program
+void ApplyScore(int score, ScoreHandler? onScore)
 {
-    public static void Main()
-    {
-        ApplyScore(80, ShowScore);
-    }
-
-    public static void ApplyScore(int score, ScoreHandler? onScore)
-    {
-        onScore?.Invoke(score);
-    }
-
-    private static void ShowScore(int score)
-    {
-        Console.WriteLine($"スコア: {score}");
-    }
+    onScore?.Invoke(score);
 }
+
+void ShowScore(int score)
+{
+    Console.WriteLine($"スコア: {score}");
+}
+
+delegate void ScoreHandler(int score);
 ```
 
 ```

@@ -25,7 +25,7 @@ permalink: /csharp/local-functions/
 
 ## 1. ローカル関数の構文
 
-**書式：ローカル関数の定義**
+**書式：[ローカル関数の定義](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/local-functions#local-function-syntax)**
 ```
 戻り値型 関数名(パラメータリスト)
 {
@@ -41,18 +41,17 @@ permalink: /csharp/local-functions/
 
 ローカル関数は、それを含むメソッドのスコープ内でのみ呼び出せます。
 
-```csharp
-public class Program
-{
-    public static void Main()
-    {
-        PrintResult(10, 3);
+次の例では、`Calculator.PrintResult` メソッドの中に、ローカル関数 `Add` を定義しています。
 
-        void PrintResult(int a, int b)
-        {
-            int sum = Add(a, b);
-            Console.WriteLine($"{a} + {b} = {sum}");
-        }
+```csharp
+Calculator.PrintResult(10, 3);
+
+static class Calculator
+{
+    public static void PrintResult(int a, int b)
+    {
+        int sum = Add(a, b);
+        Console.WriteLine($"{a} + {b} = {sum}");
 
         int Add(int x, int y) => x + y;   // 式形式のローカル関数
     }
@@ -63,7 +62,11 @@ public class Program
 10 + 3 = 13
 ```
 
-> 💡 **ポイント**: ローカル関数は定義より前の行でも呼び出せます（`PrintResult` は `Add` の定義前に呼ばれていますが問題ありません）。
+`Add` は `PrintResult` の中でしか使えません。`Calculator` のほかのメソッドからも、クラスの外からも呼び出せないので、`PrintResult` のためだけの処理だとわかります。
+
+> 💡 **ポイント**: ローカル関数は定義より前の行でも呼び出せます（`Add` は定義より前の行で呼ばれていますが問題ありません）。
+
+これまでのページで、トップレベルの文と並べて書いてきたメソッド（[デリゲートの基本](/unity-csharp-learning/csharp/delegates/) の `ShowMessage` など）も、実はローカル関数です。トップレベルの文は、コンパイラーが作る `Main` メソッドの中身になるため、そこに書いたメソッドは `Main` のローカル関数になります。以降の例では、トップレベルの文に書いたローカル関数を使います。
 
 ---
 
@@ -72,18 +75,12 @@ public class Program
 ローカル関数は**再帰呼び出し**が得意です。再帰に必要なロジックを外部に公開せずにメソッドの内側に閉じ込めることができます。
 
 ```csharp
-public class Program
-{
-    public static void Main()
-    {
-        Console.WriteLine(Factorial(5));
+Console.WriteLine(Factorial(5));
 
-        int Factorial(int n)
-        {
-            if (n <= 1) return 1;
-            return n * Factorial(n - 1);   // ローカル関数の再帰呼び出し
-        }
-    }
+int Factorial(int n)
+{
+    if (n <= 1) return 1;
+    return n * Factorial(n - 1);   // ローカル関数の再帰呼び出し
 }
 ```
 
@@ -91,7 +88,7 @@ public class Program
 120
 ```
 
-`Factorial` という名前は `Main` の内部だけに存在し、外部からは呼び出せません。補助的な再帰処理を外のクラスメンバーとして公開しなくて済みます。
+`Factorial` という名前は、トップレベルの文（コンパイラーが作る `Main` メソッド）の内部だけに存在し、外部からは呼び出せません。補助的な再帰処理を外のクラスメンバーとして公開しなくて済みます。
 
 ---
 
@@ -100,19 +97,13 @@ public class Program
 ローカル関数もラムダ式と同様に、外側スコープの変数をキャプチャできます。
 
 ```csharp
-public class Program
+int baseScore = 100;
+
+PrintFinalScore(50);
+
+void PrintFinalScore(int bonus)
 {
-    public static void Main()
-    {
-        int baseScore = 100;
-
-        void PrintFinalScore(int bonus)
-        {
-            Console.WriteLine($"最終スコア: {baseScore + bonus}");   // baseScore をキャプチャ
-        }
-
-        PrintFinalScore(50);
-    }
+    Console.WriteLine($"最終スコア: {baseScore + bonus}");   // baseScore をキャプチャ
 }
 ```
 
@@ -126,7 +117,7 @@ public class Program
 
 ローカル関数に `static` を付けると、外側の変数や `this` のキャプチャが禁止されます。ラムダ式の `static` と同じ効果で、意図しないキャプチャをコンパイル時に検出できます。
 
-**書式：static ローカル関数**
+**書式：[static ローカル関数](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/local-functions#local-function-syntax)**
 ```
 static 戻り値型 関数名(パラメータリスト)
 {
@@ -135,21 +126,15 @@ static 戻り値型 関数名(パラメータリスト)
 ```
 
 ```csharp
-public class Program
-{
-    public static void Main()
-    {
-        int multiplier = 3;
+int multiplier = 3;
 
-        // ❌ NG: static ローカル関数で外側の変数を使うとコンパイルエラー
-        // static int BadMultiply(int x) => x * multiplier;   // CS8421
+Console.WriteLine(Multiply(7, multiplier));
 
-        // ✅ OK: 必要な値はパラメータとして受け取る
-        static int Multiply(int x, int factor) => x * factor;
+// ❌ NG: static ローカル関数で外側の変数を使うとコンパイルエラー
+// static int BadMultiply(int x) => x * multiplier;   // CS8421
 
-        Console.WriteLine(Multiply(7, multiplier));
-    }
-}
+// ✅ OK: 必要な値はパラメータとして受け取る
+static int Multiply(int x, int factor) => x * factor;
 ```
 
 ```
@@ -179,20 +164,20 @@ public class Program
 ```csharp
 // ❌ NG: ローカル関数を含むメソッドの外から呼ぼうとする
 // （コンパイルエラー：スコープ外からアクセス不可）
-public class Example
+static class Example
 {
-    public static void Main()
+    public static void Run()
     {
         void Helper() { /* ... */ }
+        Helper();   // ✅ OK: Run の中からは呼び出せる
     }
 
     public static void Other()
     {
-        Helper();   // CS0103：Helper は Main の外からは見えない
+        Helper();   // CS0103：Helper は Run の外からは見えない
     }
 }
 
-// ✅ OK: ローカル関数はそのメソッド内からのみ呼び出す
 ```
 
 ---
@@ -214,18 +199,12 @@ public class Example
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   public class Program
-   {
-       public static void Main()
-       {
-           Console.WriteLine(Sum(4));
+   Console.WriteLine(Sum(4));
 
-           int Sum(int n)
-           {
-               if (n <= 0) return 0;
-               return n + Sum(n - 1);
-           }
-       }
+   int Sum(int n)
+   {
+       if (n <= 0) return 0;
+       return n + Sum(n - 1);
    }
    ```
 

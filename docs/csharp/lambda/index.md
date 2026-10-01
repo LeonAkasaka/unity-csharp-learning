@@ -27,27 +27,21 @@ permalink: /csharp/lambda/
 これまでデリゲートに渡すメソッドは、名前付きのメソッドとして別途定義する必要がありました。ラムダ式を使うと、**メソッドをその場でインラインに書いて**デリゲート変数に代入できます。
 
 ```csharp
-public delegate void Greet(string name);
+// 名前付きメソッドを使う従来の書き方
+Greet greetOld = SayHello;
 
-public class Program
+// ラムダ式を使う書き方
+Greet greetNew = (name) => Console.WriteLine($"こんにちは、{name}！");
+
+greetOld("Alice");
+greetNew("Bob");
+
+void SayHello(string name)
 {
-    public static void Main()
-    {
-        // 名前付きメソッドを使う従来の書き方
-        Greet greetOld = SayHello;
-
-        // ラムダ式を使う書き方
-        Greet greetNew = (name) => Console.WriteLine($"こんにちは、{name}！");
-
-        greetOld("Alice");
-        greetNew("Bob");
-    }
-
-    private static void SayHello(string name)
-    {
-        Console.WriteLine($"こんにちは、{name}！");
-    }
+    Console.WriteLine($"こんにちは、{name}！");
 }
+
+delegate void Greet(string name);
 ```
 
 ```
@@ -59,12 +53,12 @@ public class Program
 
 ## 2. ラムダ式の構文
 
-**書式：式ラムダ（本体が 1 つの式の場合）**
+**書式：[式ラムダ](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/lambda-expressions#expression-lambdas)（本体が 1 つの式の場合）**
 ```
 (パラメータリスト) => 式
 ```
 
-**書式：文ラムダ（本体に文を並べる場合）**
+**書式：[文ラムダ](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/lambda-expressions#statement-lambdas)（本体に文を並べる場合）**
 ```
 (パラメータリスト) =>
 {
@@ -81,27 +75,21 @@ public class Program
 | `{ 文; }` | 文ラムダでは通常のメソッド本体と同じように書く |
 
 ```csharp
-public delegate int Transform(int x);
+// 式ラムダ：本体は x * 2 という式 1 つ
+Transform doubleIt = x => x * 2;
 
-public class Program
+// 文ラムダ：本体はブロック。値は return で返す
+Transform tripleWithLog = (x) =>
 {
-    public static void Main()
-    {
-        // 式ラムダ：本体は x * 2 という式 1 つ
-        Transform doubleIt = x => x * 2;
+    int result = x * 3;
+    Console.WriteLine($"{x} を 3 倍 → {result}");
+    return result;
+};
 
-        // 文ラムダ：本体はブロック。値は return で返す
-        Transform tripleWithLog = (x) =>
-        {
-            int result = x * 3;
-            Console.WriteLine($"{x} を 3 倍 → {result}");
-            return result;
-        };
+Console.WriteLine(doubleIt(5));
+tripleWithLog(4);
 
-        Console.WriteLine(doubleIt(5));
-        tripleWithLog(4);
-    }
-}
+delegate int Transform(int x);
 ```
 
 ```
@@ -115,9 +103,9 @@ public class Program
 
 毎回 `delegate` 型を宣言しなくても、.NET には汎用のデリゲート型が用意されています。
 
-**`Action<T>`** — 戻り値なし（`void`）のデリゲートです。<!-- [公式ドキュメント]() -->
+**`Action<T>`** — 戻り値なし（`void`）のデリゲートです。
 
-**書式：Action\<T\> 型**
+**書式：[Action\<T\> デリゲート](https://learn.microsoft.com/dotnet/api/system.action-1)**
 ```csharp
 Action<T1, T2, ...>
 ```
@@ -128,9 +116,9 @@ Action<T1, T2, ...>
 
 引数がゼロのときは `Action`、引数が 1 つなら `Action<T>` を使います。
 
-**`Func<T, TResult>`** — 戻り値ありのデリゲートです。<!-- [公式ドキュメント]() -->
+**`Func<T, TResult>`** — 戻り値ありのデリゲートです。
 
-**書式：Func\<T, TResult\> 型**
+**書式：[Func\<T, TResult\> デリゲート](https://learn.microsoft.com/dotnet/api/system.func-2)**
 ```csharp
 Func<T1, T2, ..., TResult>
 ```
@@ -141,24 +129,18 @@ Func<T1, T2, ..., TResult>
 | `TResult` | 任意の型 | **最後の型パラメータ**が戻り値の型 |
 
 ```csharp
-public class Program
-{
-    public static void Main()
-    {
-        // Action<string>：string を受け取り void を返す
-        Action<string> print = message => Console.WriteLine(message);
+// Action<string>：string を受け取り void を返す
+Action<string> print = message => Console.WriteLine(message);
 
-        // Func<int, int>：int を受け取り int を返す
-        Func<int, int> square = x => x * x;
+// Func<int, int>：int を受け取り int を返す
+Func<int, int> square = x => x * x;
 
-        // Func<int, int, int>：int を 2 つ受け取り int を返す
-        Func<int, int, int> add = (a, b) => a + b;
+// Func<int, int, int>：int を 2 つ受け取り int を返す
+Func<int, int, int> add = (a, b) => a + b;
 
-        print("Hello from Action!");
-        Console.WriteLine(square(6));
-        Console.WriteLine(add(3, 4));
-    }
-}
+print("Hello from Action!");
+Console.WriteLine(square(6));
+Console.WriteLine(add(3, 4));
 ```
 
 ```
@@ -174,23 +156,17 @@ Hello from Action!
 ラムダ式はイベントの購読にも使えます。名前付きメソッドを用意する必要がなくなるため、短い処理であれば読みやすくなります。
 
 ```csharp
-public class Button
+var btn = new Button();
+
+// ラムダ式でその場に購読処理を書く
+btn.Clicked += () => Console.WriteLine("ボタンがクリックされました");
+
+btn.Click();
+
+class Button
 {
     public event Action? Clicked;
     public void Click() => Clicked?.Invoke();
-}
-
-public class Program
-{
-    public static void Main()
-    {
-        var btn = new Button();
-
-        // ラムダ式でその場に購読処理を書く
-        btn.Clicked += () => Console.WriteLine("ボタンがクリックされました");
-
-        btn.Click();
-    }
 }
 ```
 
@@ -231,14 +207,8 @@ Func<int, int, int> correct = (a, b) => a + b;
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   public class Program
-   {
-       public static void Main()
-       {
-           Func<int, int, string> format = (a, b) => $"{a} + {b} = {a + b}";
-           Console.WriteLine(format(3, 5));
-       }
-   }
+   Func<int, int, string> format = (a, b) => $"{a} + {b} = {a + b}";
+   Console.WriteLine(format(3, 5));
    ```
 
 3. （応用）`List<int>` を受け取り、各要素を 2 乗した合計を返す `Func` デリゲートをラムダ式で書いてください（LINQ は使わず `foreach` で実装してください）。

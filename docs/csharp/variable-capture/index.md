@@ -28,20 +28,14 @@ permalink: /csharp/variable-capture/
 通常のメソッドは、自分のパラメータとローカル変数しか使えません。ラムダ式は、それに加えて**定義された時点で見えていた外側の変数**もそのまま使えます。
 
 ```csharp
-public class Program
-{
-    public static void Main()
-    {
-        string greeting = "こんにちは";
+string greeting = "こんにちは";
 
-        Action<string> greet = name => Console.WriteLine($"{greeting}、{name}！");
+Action<string> greet = name => Console.WriteLine($"{greeting}、{name}！");
 
-        greet("Alice");
+greet("Alice");
 
-        greeting = "おはよう";     // 外側の変数を変更
-        greet("Bob");              // ラムダ式は変更後の値を参照する
-    }
-}
+greeting = "おはよう";     // 外側の変数を変更
+greet("Bob");              // ラムダ式は変更後の値を参照する
 ```
 
 ```
@@ -56,21 +50,15 @@ public class Program
 ## 2. キャプチャはコピーではなく参照
 
 ```csharp
-public class Program
-{
-    public static void Main()
-    {
-        int count = 0;
+int count = 0;
 
-        Action increment = () => count++;
+Action increment = () => count++;
 
-        increment();
-        increment();
-        increment();
+increment();
+increment();
+increment();
 
-        Console.WriteLine(count);   // 外側の count が変更されている
-    }
-}
+Console.WriteLine(count);   // 外側の count が変更されている
 ```
 
 ```
@@ -86,22 +74,16 @@ public class Program
 ループ変数をキャプチャするときに、意図しない動作になりやすい罠があります。
 
 ```csharp
-public class Program
+var actions = new List<Action>();
+
+for (int i = 0; i < 3; i++)
 {
-    public static void Main()
-    {
-        var actions = new List<Action>();
+    actions.Add(() => Console.WriteLine(i));
+}
 
-        for (int i = 0; i < 3; i++)
-        {
-            actions.Add(() => Console.WriteLine(i));
-        }
-
-        foreach (var action in actions)
-        {
-            action();
-        }
-    }
+foreach (var action in actions)
+{
+    action();
 }
 ```
 
@@ -116,23 +98,17 @@ public class Program
 ループごとに値を固定するには、ループ内に新しい変数を作ってキャプチャします。
 
 ```csharp
-public class Program
+var actions = new List<Action>();
+
+for (int i = 0; i < 3; i++)
 {
-    public static void Main()
-    {
-        var actions = new List<Action>();
+    int captured = i;   // ループ毎に新しい変数を作る
+    actions.Add(() => Console.WriteLine(captured));
+}
 
-        for (int i = 0; i < 3; i++)
-        {
-            int captured = i;   // ループ毎に新しい変数を作る
-            actions.Add(() => Console.WriteLine(captured));
-        }
-
-        foreach (var action in actions)
-        {
-            action();
-        }
-    }
+foreach (var action in actions)
+{
+    action();
 }
 ```
 
@@ -152,7 +128,7 @@ public class Program
 
 C# 9 から、ラムダ式に `static` を付けると外側の変数や `this` をキャプチャしようとしたときに**コンパイルエラー**にできます。意図せずキャプチャが発生するのを防ぎたい場面で使います。
 
-**書式：static ラムダ**
+**書式：[static ラムダ](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/lambda-expressions#capture-of-outer-variables-and-variable-scope-in-lambda-expressions)**
 ```
 static (パラメータ) => 式
 ```
@@ -162,21 +138,15 @@ static (パラメータ) => 式
 | `static` | キャプチャを禁止するキーワード |
 
 ```csharp
-public class Program
-{
-    public static void Main()
-    {
-        int multiplier = 3;
+int multiplier = 3;
 
-        // ❌ NG: static ラムダで外側の変数をキャプチャしようとするとコンパイルエラー
-        // Func<int, int> badLambda = static x => x * multiplier;   // CS8820
+// ❌ NG: static ラムダで外側の変数をキャプチャしようとするとコンパイルエラー
+// Func<int, int> badLambda = static x => x * multiplier;   // CS8820
 
-        // ✅ OK: パラメータだけを使う
-        Func<int, int, int> multiply = static (x, factor) => x * factor;
+// ✅ OK: パラメータだけを使う
+Func<int, int, int> multiply = static (x, factor) => x * factor;
 
-        Console.WriteLine(multiply(5, multiplier));
-    }
-}
+Console.WriteLine(multiply(5, multiplier));
 ```
 
 ```
@@ -222,21 +192,15 @@ for (int i = 0; i < 3; i++)
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   public class Program
+   var actions = new List<Action>();
+
+   for (int i = 0; i < 4; i++)
    {
-       public static void Main()
-       {
-           var actions = new List<Action>();
-
-           for (int i = 0; i < 4; i++)
-           {
-               int n = i * 2;
-               actions.Add(() => Console.WriteLine(n));
-           }
-
-           foreach (var a in actions) a();
-       }
+       int n = i * 2;
+       actions.Add(() => Console.WriteLine(n));
    }
+
+   foreach (var a in actions) a();
    ```
 
 3. （応用）上記コードで `int n = i * 2;` の行を削除し、代わりに `() => Console.WriteLine(i * 2)` と書いた場合、出力結果はどう変わりますか？理由も答えてください。

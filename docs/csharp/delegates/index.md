@@ -38,7 +38,7 @@ permalink: /csharp/delegates/
 
 `delegate` キーワードを使うと、「どんな引数を受け取り、どんな戻り値を返すメソッドを入れられるか」を表す型を宣言できます。
 
-**書式：delegate 型の宣言**
+**書式：[delegate 型の宣言](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/reference-types#the-delegate-type)**
 ```
 delegate 戻り値型 型名(パラメータリスト);
 ```
@@ -52,7 +52,7 @@ delegate 戻り値型 型名(パラメータリスト);
 たとえば `string` を受け取って何も返さないメソッドを扱いたいなら、次のように書けます。
 
 ```csharp
-public delegate void MessageHandler(string message);
+delegate void MessageHandler(string message);
 ```
 
 この宣言は、「`string` を 1 つ受け取り、戻り値は `void` のメソッドだけを代入できる型を `MessageHandler` という名前で作る」という意味です。
@@ -67,24 +67,18 @@ public delegate void MessageHandler(string message);
 - `DelegateName d = method;` の形で代入する（これを**メソッドグループ変換**と呼び、コンパイラが自動的に `new` ありの形に変換します）
 
 ```csharp
-public delegate void MessageHandler(string message);
+MessageHandler handlerByConstructor = new MessageHandler(ShowMessage);
+MessageHandler handlerByMethodGroup = ShowMessage;
 
-public class Program
+handlerByConstructor("new で作成した呼び出し");
+handlerByMethodGroup("メソッドグループ変換で作成した呼び出し");
+
+void ShowMessage(string message)
 {
-    public static void Main()
-    {
-        MessageHandler handlerByConstructor = new MessageHandler(ShowMessage);
-        MessageHandler handlerByMethodGroup = ShowMessage;
-
-        handlerByConstructor("new で作成した呼び出し");
-        handlerByMethodGroup("メソッドグループ変換で作成した呼び出し");
-    }
-
-    private static void ShowMessage(string message)
-    {
-        Console.WriteLine(message);
-    }
+    Console.WriteLine(message);
 }
+
+delegate void MessageHandler(string message);
 ```
 
 ```
@@ -100,7 +94,7 @@ new で作成した呼び出し
 
 デリゲート変数は、まだ何も代入していない状態だと `null` になることがあります。この状態でそのまま呼び出すと、実行時エラーになります。
 
-**書式：null 安全なデリゲート呼び出し**
+**書式：[null 条件演算子 ?.](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-)によるデリゲート呼び出し**
 ```
 デリゲート変数?.Invoke(引数);
 ```
@@ -112,25 +106,19 @@ new で作成した呼び出し
 | `Invoke(引数)` | デリゲートが参照しているメソッドを実行する |
 
 ```csharp
-public delegate void MessageHandler(string message);
+MessageHandler? handler = null;
 
-public class Program
+handler?.Invoke("まだ代入されていないので何も起きません");
+
+handler = ShowMessage;
+handler?.Invoke("こちらは安全に呼び出されます");
+
+void ShowMessage(string message)
 {
-    public static void Main()
-    {
-        MessageHandler? handler = null;
-
-        handler?.Invoke("まだ代入されていないので何も起きません");
-
-        handler = ShowMessage;
-        handler?.Invoke("こちらは安全に呼び出されます");
-    }
-
-    private static void ShowMessage(string message)
-    {
-        Console.WriteLine(message);
-    }
+    Console.WriteLine(message);
 }
+
+delegate void MessageHandler(string message);
 ```
 
 ```
@@ -146,33 +134,27 @@ public class Program
 デリゲートの便利さがよくわかるのは、**条件によって代入するメソッドを切り替える**場面です。次の例では、ゲームの難易度によって敵の行動メソッドを変えています。
 
 ```csharp
-public delegate void EnemyAction(string enemyName);
+bool isHardMode = true;
+EnemyAction action = isHardMode ? AttackAggressively : MoveCarefully;
 
-public class Program
+action("Slime");
+
+isHardMode = false;
+action = isHardMode ? AttackAggressively : MoveCarefully;
+
+action("Slime");
+
+void AttackAggressively(string enemyName)
 {
-    public static void Main()
-    {
-        bool isHardMode = true;
-        EnemyAction action = isHardMode ? AttackAggressively : MoveCarefully;
-
-        action("Slime");
-
-        isHardMode = false;
-        action = isHardMode ? AttackAggressively : MoveCarefully;
-
-        action("Slime");
-    }
-
-    private static void AttackAggressively(string enemyName)
-    {
-        Console.WriteLine($"{enemyName} がプレイヤーに突進して攻撃した");
-    }
-
-    private static void MoveCarefully(string enemyName)
-    {
-        Console.WriteLine($"{enemyName} が距離を取りながら様子を見ている");
-    }
+    Console.WriteLine($"{enemyName} がプレイヤーに突進して攻撃した");
 }
+
+void MoveCarefully(string enemyName)
+{
+    Console.WriteLine($"{enemyName} が距離を取りながら様子を見ている");
+}
+
+delegate void EnemyAction(string enemyName);
 ```
 
 ```
@@ -189,28 +171,22 @@ Slime が距離を取りながら様子を見ている
 デリゲートには、**シグネチャが一致するメソッドだけ**を代入できます。引数の型や数、戻り値が違うメソッドは代入できません。
 
 ```csharp
-public delegate void DamageHandler(int damage);
+DamageHandler handler = ShowDamage;
+handler(42);
 
-public class Program
+// ❌ NG: 引数の型が違うので代入できない（CS0123）
+// void ShowDamage(string damage)
+// {
+//     Console.WriteLine(damage);
+// }
+
+// ✅ OK: デリゲート型と同じシグネチャになっている
+void ShowDamage(int damage)
 {
-    public static void Main()
-    {
-        DamageHandler handler = ShowDamage;
-        handler(42);
-    }
-
-    // ❌ NG: 引数の型が違うので代入できない（CS0123）
-    // private static void ShowDamage(string damage)
-    // {
-    //     Console.WriteLine(damage);
-    // }
-
-    // ✅ OK: デリゲート型と同じシグネチャになっている
-    private static void ShowDamage(int damage)
-    {
-        Console.WriteLine(damage);
-    }
+    Console.WriteLine(damage);
 }
+
+delegate void DamageHandler(int damage);
 ```
 
 ```
@@ -239,29 +215,23 @@ public class Program
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   public delegate void TextAction(string text);
+   TextAction? handler = ShowA;
+   handler?.Invoke("Start");
 
-   public class Program
+   handler = ShowB;
+   handler?.Invoke("Next");
+
+   void ShowA(string text)
    {
-       public static void Main()
-       {
-           TextAction? handler = ShowA;
-           handler?.Invoke("Start");
-
-           handler = ShowB;
-           handler?.Invoke("Next");
-       }
-
-       private static void ShowA(string text)
-       {
-           Console.WriteLine($"A:{text}");
-       }
-
-       private static void ShowB(string text)
-       {
-           Console.WriteLine($"B:{text}");
-       }
+       Console.WriteLine($"A:{text}");
    }
+
+   void ShowB(string text)
+   {
+       Console.WriteLine($"B:{text}");
+   }
+
+   delegate void TextAction(string text);
    ```
 
 3. （応用）ゲームの状態に応じて、`HealSmall` と `HealLarge` のどちらかを呼ぶデリゲートを作るにはどう書きますか？
@@ -280,28 +250,22 @@ public class Program
 3. たとえば次のように書けます。
 
    ```csharp
-   public delegate void HealAction(int amount);
+   bool isBossBattle = true;
+   HealAction action = isBossBattle ? HealLarge : HealSmall;
 
-   public class Program
+   action(10);
+
+   void HealSmall(int amount)
    {
-       public static void Main()
-       {
-           bool isBossBattle = true;
-           HealAction action = isBossBattle ? HealLarge : HealSmall;
-
-           action(10);
-       }
-
-       private static void HealSmall(int amount)
-       {
-           Console.WriteLine($"小回復: {amount}");
-       }
-
-       private static void HealLarge(int amount)
-       {
-           Console.WriteLine($"大回復: {amount * 3}");
-       }
+       Console.WriteLine($"小回復: {amount}");
    }
+
+   void HealLarge(int amount)
+   {
+       Console.WriteLine($"大回復: {amount * 3}");
+   }
+
+   delegate void HealAction(int amount);
    ```
 
 </details>

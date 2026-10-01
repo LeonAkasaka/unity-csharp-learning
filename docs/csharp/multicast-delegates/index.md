@@ -25,7 +25,7 @@ permalink: /csharp/multicast-delegates/
 
 ## 1. `+=` でメソッドを追加する
 
-**書式：デリゲートへのメソッド追加**
+**書式：[デリゲートの結合（+= 演算子）](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/addition-operator#delegate-combination)**
 ```
 デリゲート変数 += メソッド名;
 ```
@@ -37,29 +37,23 @@ permalink: /csharp/multicast-delegates/
 | `メソッド名` | 追加するメソッド（シグネチャが一致すること） |
 
 ```csharp
-public delegate void Notify();
+Notify? notify = null;
+notify += SayHello;
+notify += SayGoodbye;
 
-public class Program
+notify?.Invoke();
+
+void SayHello()
 {
-    public static void Main()
-    {
-        Notify? notify = null;
-        notify += SayHello;
-        notify += SayGoodbye;
-
-        notify?.Invoke();
-    }
-
-    private static void SayHello()
-    {
-        Console.WriteLine("こんにちは！");
-    }
-
-    private static void SayGoodbye()
-    {
-        Console.WriteLine("さようなら！");
-    }
+    Console.WriteLine("こんにちは！");
 }
+
+void SayGoodbye()
+{
+    Console.WriteLine("さようなら！");
+}
+
+delegate void Notify();
 ```
 
 ```
@@ -73,7 +67,7 @@ public class Program
 
 ## 2. `-=` でメソッドを解除する
 
-**書式：デリゲートからのメソッド解除**
+**書式：[デリゲートの削除（-= 演算子）](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/subtraction-operator#delegate-removal)**
 ```
 デリゲート変数 -= メソッド名;
 ```
@@ -83,31 +77,25 @@ public class Program
 | `-=` | 登録されているメソッドをデリゲートから取り除く演算子 |
 
 ```csharp
-public delegate void Notify();
+Notify? notify = null;
+notify += SayHello;
+notify += SayGoodbye;
 
-public class Program
+notify -= SayHello;   // SayHello だけ解除
+
+notify?.Invoke();
+
+void SayHello()
 {
-    public static void Main()
-    {
-        Notify? notify = null;
-        notify += SayHello;
-        notify += SayGoodbye;
-
-        notify -= SayHello;   // SayHello だけ解除
-
-        notify?.Invoke();
-    }
-
-    private static void SayHello()
-    {
-        Console.WriteLine("こんにちは！");
-    }
-
-    private static void SayGoodbye()
-    {
-        Console.WriteLine("さようなら！");
-    }
+    Console.WriteLine("こんにちは！");
 }
+
+void SayGoodbye()
+{
+    Console.WriteLine("さようなら！");
+}
+
+delegate void Notify();
 ```
 
 ```
@@ -123,22 +111,16 @@ public class Program
 複数のメソッドが登録されたデリゲートに戻り値がある場合、**最後に登録したメソッドの戻り値だけ**が返ります。
 
 ```csharp
-public delegate int Calculate(int x);
+Calculate calc = Double;
+calc += Triple;
 
-public class Program
-{
-    public static void Main()
-    {
-        Calculate calc = Double;
-        calc += Triple;
+int result = calc(5);
+Console.WriteLine(result);  // Triple(5) = 15 だけが返る
 
-        int result = calc(5);
-        Console.WriteLine(result);  // Triple(5) = 15 だけが返る
-    }
+int Double(int x) => x * 2;   // 10 が返るが捨てられる
+int Triple(int x) => x * 3;   // 15 が返る
 
-    private static int Double(int x) => x * 2;   // 10 が返るが捨てられる
-    private static int Triple(int x) => x * 3;   // 15 が返る
-}
+delegate int Calculate(int x);
 ```
 
 ```
@@ -153,9 +135,9 @@ public class Program
 
 `GetInvocationList()` は、デリゲートに登録されているメソッド一覧を配列で返します。これを使うと、各メソッドの戻り値を個別に受け取れます。
 
-**`Delegate.GetInvocationList`** — デリゲートに登録されている全メソッドを `Delegate[]` として返します。<!-- [公式ドキュメント]() -->
+**`Delegate.GetInvocationList`** — デリゲートに登録されている全メソッドを `Delegate[]` として返します。
 
-**書式：Delegate.GetInvocationList メソッド**
+**書式：[Delegate.GetInvocationList メソッド](https://learn.microsoft.com/dotnet/api/system.delegate.getinvocationlist)**
 ```csharp
 Delegate[] GetInvocationList();
 ```
@@ -166,25 +148,19 @@ Delegate[] GetInvocationList();
 | **戻り値** | `Delegate[]` | 登録されているメソッドを順番に並べた配列 |
 
 ```csharp
-public delegate int Calculate(int x);
+Calculate calc = Double;
+calc += Triple;
 
-public class Program
+foreach (Calculate c in calc.GetInvocationList())
 {
-    public static void Main()
-    {
-        Calculate calc = Double;
-        calc += Triple;
-
-        foreach (Calculate c in calc.GetInvocationList())
-        {
-            int result = c(5);
-            Console.WriteLine(result);
-        }
-    }
-
-    private static int Double(int x) => x * 2;
-    private static int Triple(int x) => x * 3;
+    int result = c(5);
+    Console.WriteLine(result);
 }
+
+int Double(int x) => x * 2;
+int Triple(int x) => x * 3;
+
+delegate int Calculate(int x);
 ```
 
 ```
@@ -201,31 +177,25 @@ public class Program
 メソッドを追加するつもりで `+=` ではなく `=` と書くと、それまでに登録したメソッドがすべて置き換えられます。コンパイルエラーにも警告にもならないため、気づきにくいミスです。
 
 ```csharp
-public delegate void Notify();
+Notify? notify = null;
+notify += SayHello;
 
-public class Program
+// ❌ NG: = で代入すると、SayHello の登録が消える
+notify = SayGoodbye;
+
+notify?.Invoke();
+
+void SayHello()
 {
-    public static void Main()
-    {
-        Notify? notify = null;
-        notify += SayHello;
-
-        // ❌ NG: = で代入すると、SayHello の登録が消える
-        notify = SayGoodbye;
-
-        notify?.Invoke();
-    }
-
-    private static void SayHello()
-    {
-        Console.WriteLine("こんにちは！");
-    }
-
-    private static void SayGoodbye()
-    {
-        Console.WriteLine("さようなら！");
-    }
+    Console.WriteLine("こんにちは！");
 }
+
+void SayGoodbye()
+{
+    Console.WriteLine("さようなら！");
+}
+
+delegate void Notify();
 ```
 
 ```
@@ -253,21 +223,15 @@ public class Program
 2. 次のコードの出力結果は何になりますか？
 
    ```csharp
-   public delegate void Log(string msg);
+   Log? log = PrintA;
+   log += PrintB;
+   log -= PrintA;
+   log?.Invoke("test");
 
-   public class Program
-   {
-       public static void Main()
-       {
-           Log? log = PrintA;
-           log += PrintB;
-           log -= PrintA;
-           log?.Invoke("test");
-       }
+   void PrintA(string msg) => Console.WriteLine($"A:{msg}");
+   void PrintB(string msg) => Console.WriteLine($"B:{msg}");
 
-       private static void PrintA(string msg) => Console.WriteLine($"A:{msg}");
-       private static void PrintB(string msg) => Console.WriteLine($"B:{msg}");
-   }
+   delegate void Log(string msg);
    ```
 
 3. （応用）戻り値 `int` を持つデリゲートに複数のメソッドを登録し、全メソッドの戻り値の合計を求めるにはどう書きますか？
@@ -285,26 +249,20 @@ public class Program
 3. `GetInvocationList()` で個別に呼び出して合計します。
 
    ```csharp
-   public delegate int Calculate(int x);
+   Calculate calc = Double;
+   calc += Triple;
 
-   public class Program
+   int total = 0;
+   foreach (Calculate c in calc.GetInvocationList())
    {
-       public static void Main()
-       {
-           Calculate calc = Double;
-           calc += Triple;
-
-           int total = 0;
-           foreach (Calculate c in calc.GetInvocationList())
-           {
-               total += c(5);
-           }
-           Console.WriteLine(total);
-       }
-
-       private static int Double(int x) => x * 2;
-       private static int Triple(int x) => x * 3;
+       total += c(5);
    }
+   Console.WriteLine(total);
+
+   int Double(int x) => x * 2;
+   int Triple(int x) => x * 3;
+
+   delegate int Calculate(int x);
    ```
 
    ```
