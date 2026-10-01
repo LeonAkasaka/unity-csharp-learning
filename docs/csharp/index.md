@@ -153,7 +153,7 @@ C# プログラミングをゼロから学びます。
 | 63 | [デリゲートの基本](/unity-csharp-learning/csharp/delegates/) | `delegate` 型の宣言・インスタンス化・呼び出し・実行時のメソッド切り替え・ジェネリックなデリゲート型・`Action` / `Func` |
 | 64 | [デリゲートの変数渡しとコールバック](/unity-csharp-learning/csharp/delegate-callback/) | デリゲートをパラメータとして渡す・処理の一部を渡して使い回す・途中経過や完了を知らせる・疎結合 |
 | 65 | [マルチキャストデリゲート](/unity-csharp-learning/csharp/multicast-delegates/) | 複数の相手に知らせる・`+=` / `-=` による登録と解除・`+=` は新しいデリゲートを作る・戻り値と `GetInvocationList()`・途中の例外 |
-| 66 | [イベント](/unity-csharp-learning/csharp/events/) | `event` キーワード・発行者/購読者パターン・`EventHandler` 標準パターン |
+| 66 | [イベント](/unity-csharp-learning/csharp/events/) | `event` キーワード・発行者/購読者パターン・購読の解除・`EventHandler` 標準パターンと `sender` / `EventArgs`・`add` / `remove` |
 | 67 | [ラムダ式](/unity-csharp-learning/csharp/lambda/) | `=>` 構文・式ラムダと文ラムダ・`Action` / `Func` への代入とパラメータの型の推論・イベントの購読 |
 | 68 | [変数キャプチャ](/unity-csharp-learning/csharp/variable-capture/) | 外側の変数のキャプチャ（値のコピーではなく変数の共有）・コンパイラーが作るクラスへの書き換えと変数の寿命・ループ内の罠・`static` ラムダ |
 | 69 | [ローカル関数](/unity-csharp-learning/csharp/local-functions/) | メソッド内メソッド・再帰との相性・`static` ローカル関数・ラムダ式との使い分け |

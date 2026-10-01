@@ -14,7 +14,8 @@ permalink: /csharp/events/
 
 - `event` キーワードでイベントを宣言できる
 - 発行者（Publisher）と購読者（Subscriber）の役割を説明できる
-- `EventHandler` / `EventHandler<TEventArgs>` の標準パターンを使える
+- 購読を解除しないと何が起きるかを説明できる
+- `EventHandler` / `EventHandler<TEventArgs>` の標準パターンを使え、`sender` と `EventArgs` を使う理由を説明できる
 - `event` とデリゲートの違いを説明できる
 
 ## 前提知識
@@ -98,6 +99,8 @@ class Button
 クリック！
 ```
 
+このように、`event` を付けてフィールドと同じ形で宣言したイベントを、**フィールドライクイベント**（field-like event）と呼びます。
+
 ---
 
 ## 3. 発行者と購読者
@@ -153,9 +156,126 @@ class HUD
 スコア表示を更新: 150
 ```
 
+`ScoreManager` は、`HUD` のことを何も知りません。スコアが変わったら `ScoreChanged` を発火するだけで、誰が受け取って何をするのかは、購読者が決めます。効果音を鳴らすクラスやセーブするクラスを追加しても、`ScoreManager` を書き換えずに、`+=` で購読させるだけで済みます。
+
 ---
 
-## 4. `EventHandler` 標準パターン
+## 4. 購読を解除する
+
+インスタンスメソッドを `+=` で登録すると、デリゲートは「どのメソッドか」に加えて「どのオブジェクトのメソッドか」も覚えます。つまり、発行者のイベントは、購読者のオブジェクトを参照し続けます。
+
+そのため、購読者を使い終わっても、購読を解除しなければ、通知を受け取り続けます。次の例では、スコアを表示するポップアップを使い終わったつもりで、変数 `popup` に `null` を代入しています。
+
+```csharp
+var manager = new ScoreManager();
+ScorePopup? popup = new ScorePopup();
+popup.Show(manager);
+
+manager.AddScore(100);
+
+popup = null;   // ポップアップはもう使わないつもり
+manager.AddScore(50);
+
+delegate void ScoreChangedHandler(int newScore);
+
+class ScoreManager
+{
+    private int _score;
+
+    public event ScoreChangedHandler? ScoreChanged;
+
+    public void AddScore(int value)
+    {
+        _score += value;
+        ScoreChanged?.Invoke(_score);
+    }
+}
+
+class ScorePopup
+{
+    public void Show(ScoreManager manager)
+    {
+        manager.ScoreChanged += OnScoreChanged;
+    }
+
+    private void OnScoreChanged(int newScore)
+    {
+        Console.WriteLine($"ポップアップ: {newScore} 点");
+    }
+}
+```
+
+```
+ポップアップ: 100 点
+ポップアップ: 150 点
+```
+
+`popup` を `null` にしても、2 回目の `AddScore` でポップアップの表示が実行されています。`ScorePopup` のオブジェクトは、`manager` の `ScoreChanged` から参照されているからです。
+
+```mermaid
+flowchart LR
+    V["変数 popup<br>（null）"]
+    M["ScoreManager"] --> E["ScoreChanged<br>（デリゲート）"]
+    E --> P["ScorePopup の<br>オブジェクト"]
+```
+
+参照が残っているので、このオブジェクトは [ガベージコレクション](/unity-csharp-learning/csharp/garbage-collection/) でも回収されません。発行者が長く使われるオブジェクトで、購読者が次々に作られる場合、解除し忘れた購読者が溜まり続け、メモリも処理時間も無駄になります。
+
+購読者を使い終わるときは、`-=` で購読を解除します。
+
+```csharp
+var manager = new ScoreManager();
+var popup = new ScorePopup();
+popup.Show(manager);
+
+manager.AddScore(100);
+
+popup.Hide(manager);   // 購読を解除する
+manager.AddScore(50);
+
+delegate void ScoreChangedHandler(int newScore);
+
+class ScoreManager
+{
+    private int _score;
+
+    public event ScoreChangedHandler? ScoreChanged;
+
+    public void AddScore(int value)
+    {
+        _score += value;
+        ScoreChanged?.Invoke(_score);
+    }
+}
+
+class ScorePopup
+{
+    public void Show(ScoreManager manager)
+    {
+        manager.ScoreChanged += OnScoreChanged;
+    }
+
+    public void Hide(ScoreManager manager)
+    {
+        manager.ScoreChanged -= OnScoreChanged;
+    }
+
+    private void OnScoreChanged(int newScore)
+    {
+        Console.WriteLine($"ポップアップ: {newScore} 点");
+    }
+}
+```
+
+```
+ポップアップ: 100 点
+```
+
+`+=` で購読したら、使い終わるときに `-=` で解除する、と組にして書くのが基本です。
+
+---
+
+## 5. `EventHandler` 標準パターン
 
 .NET には `EventHandler` と `EventHandler<TEventArgs>` という組み込みのデリゲート型があります。自前でデリゲート型を宣言せずにイベントを定義できます。
 
@@ -183,14 +303,24 @@ public delegate void EventHandler<TEventArgs>(object? sender, TEventArgs e);
 | `sender` | `object?` | イベントを発行したオブジェクト |
 | `e` | `TEventArgs` | イベントに付随するデータ |
 
-イベントデータを渡すには、`EventArgs` を継承したクラスを作ります。
+自分でデリゲート型を宣言できるのに、なぜ .NET のイベントはこの形にそろえるのでしょうか。理由は 2 つあります。
+
+- **誰が発行したかがわかる**：`sender` で発行者を受け取れるので、1 つのメソッドで複数の発行者のイベントを購読しても、どれから届いたのかを区別できる
+- **データを増やしても購読者を書き換えずに済む**：イベントのデータは `EventArgs` を継承したクラスにまとめる。あとで渡す情報を増やすときは、そのクラスにプロパティを追加するだけで、デリゲート型のシグネチャは変わらない。そのため、既存の購読者のメソッドはそのまま使える
+
+また、イベントの戻り値は `void` にします。[マルチキャストデリゲート](/unity-csharp-learning/csharp/multicast-delegates/) で学んだように、複数の購読者がいると、戻り値は最後のメソッドのものしか受け取れないからです。
+
+イベントデータを渡すには、`EventArgs` を継承したクラスを作ります。次の例では、2 体の敵のイベントを、1 つの `BattleLog` が購読し、`sender` でどちらの敵かを区別しています。
 
 ```csharp
-var enemy = new Enemy();
+var slime = new Enemy("Slime");
+var dragon = new Enemy("Dragon");
 var log = new BattleLog();
-log.Subscribe(enemy);
+log.Subscribe(slime);
+log.Subscribe(dragon);
 
-enemy.TakeDamage(30);
+slime.TakeDamage(30);
+dragon.TakeDamage(80);
 
 // イベントデータクラス（EventArgs を継承）
 class DamageEventArgs : EventArgs
@@ -202,12 +332,16 @@ class DamageEventArgs : EventArgs
 // 発行者
 class Enemy
 {
+    public string Name { get; }
+
     public event EventHandler<DamageEventArgs>? Damaged;
+
+    public Enemy(string name) { Name = name; }
 
     public void TakeDamage(int amount)
     {
-        Console.WriteLine($"敵が {amount} ダメージを受けた");
-        Damaged?.Invoke(this, new DamageEventArgs(amount));
+        Console.WriteLine($"{Name} が {amount} ダメージを受けた");
+        Damaged?.Invoke(this, new DamageEventArgs(amount));   // sender に自分自身を渡す
     }
 }
 
@@ -221,21 +355,28 @@ class BattleLog
 
     private void OnDamaged(object? sender, DamageEventArgs e)
     {
-        Console.WriteLine($"ログ: ダメージ量 {e.Amount} を記録");
+        if (sender is Enemy enemy)   // どの敵から届いたかを sender で調べる
+        {
+            Console.WriteLine($"ログ: {enemy.Name} にダメージ {e.Amount}");
+        }
     }
 }
 ```
 
 ```
-敵が 30 ダメージを受けた
-ログ: ダメージ量 30 を記録
+Slime が 30 ダメージを受けた
+ログ: Slime にダメージ 30
+Dragon が 80 ダメージを受けた
+ログ: Dragon にダメージ 80
 ```
+
+`sender` の型は `object?` なので、発行者のメンバーを使うには、[型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) で学んだ `is` で型を調べます。
 
 ---
 
-## 5. `add` / `remove` アクセサー
+## 6. `add` / `remove` アクセサー
 
-通常の `event` 宣言（フィールドライクイベント）では、`+=` / `-=` の動作はコンパイラが自動生成します。これを**自分で制御したい**場合は、`add` / `remove` アクセサーを明示的に定義できます。プロパティの `get` / `set` に相当するしくみです。
+フィールドライクイベントでは、コンパイラーが、デリゲートを入れる `private` なフィールドと、`+=` / `-=` で呼ばれる処理を自動生成します。クラスの外から `+=` / `-=` しか使えないのは、外に公開されているのがこの処理だけだからです。これを**自分で制御したい**場合は、`add` / `remove` アクセサーを明示的に定義できます。プロパティの `get` / `set` に相当するしくみです。
 
 **書式：[add](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/add) / [remove](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/remove) アクセサーつきイベント**
 ```
@@ -291,7 +432,7 @@ class Button
 ハンドラを解除しました
 ```
 
-> 💡 **ポイント**: ほとんどの場合、フィールドライクイベント（`public event Action Clicked;`）で十分です。`add` / `remove` を明示的に書くのは、登録時にログを出したい・弱参照で管理したい・スレッドセーフな実装が必要といった特殊な要件がある場合に限られます。
+> 💡 **ポイント**: ほとんどの場合、フィールドライクイベント（`public event Action Clicked;`）で十分です。`add` / `remove` を明示的に書くのは、登録時にログを出したい、登録されたデリゲートを別のオブジェクトに預けたい、といった特殊な要件がある場合に限られます。
 
 ---
 
@@ -310,8 +451,10 @@ btn.Clicked += OnClick;
 ## まとめ
 
 - `event` キーワードを付けると、クラス外からの `=` 上書きと直接呼び出しが禁止される
-- 発行者がイベントを宣言して発火し、購読者が `+=` で受け取る（発行者/購読者パターン）
-- `EventHandler<TEventArgs>` を使うと自前のデリゲート型を定義せずにイベントを実装できる
+- 発行者がイベントを宣言して発火し、購読者が `+=` で受け取る（発行者/購読者パターン）。発行者は購読者を知らずに済む
+- 発行者は購読者のオブジェクトを参照し続けるので、使い終わった購読者は `-=` で解除する
+- `EventHandler<TEventArgs>` を使うと自前のデリゲート型を定義せずにイベントを実装できる。`sender` で発行者を区別でき、データは `EventArgs` の派生クラスにまとめるので、あとから増やしても購読者を書き換えずに済む
+- `add` / `remove` アクセサーで、`+=` / `-=` されたときの処理を自分で書ける
 
 ---
 
