@@ -169,7 +169,7 @@ public class Program
         int multiplier = 3;
 
         // ❌ NG: static ラムダで外側の変数をキャプチャしようとするとコンパイルエラー
-        // Func<int, int> badLambda = static x => x * multiplier;
+        // Func<int, int> badLambda = static x => x * multiplier;   // CS8820
 
         // ✅ OK: パラメータだけを使う
         Func<int, int, int> multiply = static (x, factor) => x * factor;
@@ -255,7 +255,7 @@ for (int i = 0; i < 3; i++)
 
    各イテレーションで `n` という新しい変数が作られるため、それぞれ `0, 2, 4, 6` がキャプチャされます。
 
-3. 全て `8` が出力されます（`i` の最終値 `4` に対し `4 * 2 = 8`）。ループ終了後に `i` は `4` になっており、3 つのラムダが同じ `i` を参照しているためです。
+3. 全て `8` が出力されます（`i` の最終値 `4` に対し `4 * 2 = 8`）。ループ終了後に `i` は `4` になっており、4 つのラムダが同じ `i` を参照しているためです。
 
 </details>
 

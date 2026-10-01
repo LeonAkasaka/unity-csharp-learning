@@ -44,17 +44,26 @@ public class Program
         var btn = new Button();
         btn.Clicked += OnClick;
 
+        // ❌ クリックされていないのに、クラス外から直接呼び出せてしまう
+        btn.Clicked?.Invoke();
+
         // ❌ クラス外から = で全登録を上書きできてしまう
         btn.Clicked = null;
 
-        btn.Click();   // 何も呼ばれない
+        btn.Click();   // 登録が消えたので、何も呼ばれない
     }
 
     private static void OnClick() => Console.WriteLine("クリック！");
 }
 ```
 
-`event` を使うとこの上書きと直接呼び出しをクラス外から禁止できます。
+```
+クリック！
+```
+
+表示された `クリック！` は、`btn.Click()` ではなく、クラスの外から `btn.Clicked?.Invoke()` で直接呼び出した結果です。そのあとの `btn.Click()` では、`= null` で登録が消えているため、何も表示されません。
+
+「クリックされたこと」を知らせるのは `Button` の役目のはずです。ところが、デリゲートをそのまま公開すると、外のコードがクリックを偽装したり、ほかの購読者の登録を消したりできてしまいます。`event` を使うと、この直接呼び出しと上書きをクラス外から禁止できます。
 
 ---
 
@@ -168,7 +177,7 @@ public class Program
 
 .NET には `EventHandler` と `EventHandler<TEventArgs>` という組み込みのデリゲート型があります。自前でデリゲート型を宣言せずにイベントを定義できます。
 
-**`EventHandler`** — 引数なしのイベント用デリゲート型です。<!-- [公式ドキュメント]() -->
+**`EventHandler`** — イベントのデータを持たないイベント用のデリゲート型です（`sender` と `e` の 2 つのパラメータは持ちます）。<!-- [公式ドキュメント]() -->
 
 **書式：EventHandler デリゲート**
 ```csharp
@@ -319,7 +328,7 @@ public class Program
 ## よくあるミス
 
 ```csharp
-// ❌ NG: クラス外から event を = で上書きしようとするとコンパイルエラー
+// ❌ NG: クラス外から event を = で上書きしようとするとコンパイルエラー（CS0070）
 btn.Clicked = OnClick;
 
 // ✅ OK: += で購読する
@@ -344,16 +353,20 @@ btn.Clicked += OnClick;
 2. 次のコードでコンパイルエラーになるのはどの行ですか？理由も答えてください。
 
    ```csharp
+   var c = new Counter();
+   c.Incremented += ShowMessage;   // A
+   c.Incremented = null;           // B
+   c.Incremented?.Invoke();        // C
+
+   void ShowMessage() => Console.WriteLine("増えた");
+
+   public delegate void Notify();
+
    public class Counter
    {
-       public event Action? Incremented;
+       public event Notify? Incremented;
        public void Increment() => Incremented?.Invoke();
    }
-
-   var c = new Counter();
-   c.Incremented += () => Console.WriteLine("増えた");   // A
-   c.Incremented = null;                                  // B
-   c.Incremented?.Invoke();                               // C
    ```
 
 3. （応用）`string` 型のメッセージをイベントデータとして渡す `MessageEventArgs` クラスと、それを使う `event EventHandler<MessageEventArgs>? MessageSent` を持つクラスを定義してください。
@@ -363,7 +376,7 @@ btn.Clicked += OnClick;
 
 1. ① `event` を付けると `=` による上書きがクラス外から禁止される。② `event` を付けると `Invoke()` の直接呼び出しがクラス外から禁止される。
 
-2. B 行（`c.Incremented = null;`）と C 行（`c.Incremented?.Invoke();`）がコンパイルエラーになります。クラス外から `=` 代入と `Invoke()` は許可されないためです。
+2. B 行（`c.Incremented = null;`）と C 行（`c.Incremented?.Invoke();`）がコンパイルエラー（CS0070）になります。クラス外から `=` 代入と `Invoke()` は許可されないためです。A 行の `+=` は、クラス外からも使えます。
 
 3. ```csharp
    public class MessageEventArgs : EventArgs

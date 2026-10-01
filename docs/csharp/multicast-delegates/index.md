@@ -198,17 +198,41 @@ public class Program
 
 ## よくあるミス
 
-```csharp
-// ❌ NG: null のデリゲートに += で追加後、?.Invoke() を使わずに呼び出す
-Notify? notify = null;
-notify += SayHello;
-notify();           // コンパイルエラー（nullable なので直接呼び出し不可）
+メソッドを追加するつもりで `+=` ではなく `=` と書くと、それまでに登録したメソッドがすべて置き換えられます。コンパイルエラーにも警告にもならないため、気づきにくいミスです。
 
-// ✅ OK: ?.Invoke() を使う
-notify?.Invoke();
+```csharp
+public delegate void Notify();
+
+public class Program
+{
+    public static void Main()
+    {
+        Notify? notify = null;
+        notify += SayHello;
+
+        // ❌ NG: = で代入すると、SayHello の登録が消える
+        notify = SayGoodbye;
+
+        notify?.Invoke();
+    }
+
+    private static void SayHello()
+    {
+        Console.WriteLine("こんにちは！");
+    }
+
+    private static void SayGoodbye()
+    {
+        Console.WriteLine("さようなら！");
+    }
+}
 ```
 
-> 💡 **ポイント**: `null` だったデリゲートに `+=` でメソッドを追加すると、内部的に新しいデリゲートインスタンスが生成されます。変数は `null` ではなくなりますが、`?.Invoke()` を使う習慣をつけると安全です。
+```
+さようなら！
+```
+
+`SayHello` も呼び出したいなら、`notify += SayGoodbye;` と書きます。2 つ目以降の登録には `+=` を使いましょう。
 
 ---
 
@@ -261,12 +285,30 @@ notify?.Invoke();
 3. `GetInvocationList()` で個別に呼び出して合計します。
 
    ```csharp
-   int total = 0;
-   foreach (Calculate c in calc.GetInvocationList())
+   public delegate int Calculate(int x);
+
+   public class Program
    {
-       total += c(5);
+       public static void Main()
+       {
+           Calculate calc = Double;
+           calc += Triple;
+
+           int total = 0;
+           foreach (Calculate c in calc.GetInvocationList())
+           {
+               total += c(5);
+           }
+           Console.WriteLine(total);
+       }
+
+       private static int Double(int x) => x * 2;
+       private static int Triple(int x) => x * 3;
    }
-   Console.WriteLine(total);
+   ```
+
+   ```
+   25
    ```
 
 </details>

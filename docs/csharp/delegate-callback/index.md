@@ -138,10 +138,10 @@ public class Program
 
 ## よくあるミス
 
-渡されたデリゲートをそのまま `callback(damage)` や `callback.Invoke(damage)` と呼び出してしまうと、`null` のときに実行時エラーになります。
+渡されたデリゲートをそのまま `callback(damage)` や `callback.Invoke(damage)` と呼び出してしまうと、`null` のときに実行時エラー（`NullReferenceException`）になります。パラメータの型が `OnDamageCalculated?` なら、コンパイル時にも警告（CS8602）が出ます。警告を見逃さないようにしましょう。
 
 ```csharp
-// ❌ NG: null の可能性があるデリゲートをそのまま呼び出している
+// ❌ NG: null の可能性があるデリゲートをそのまま呼び出している（警告 CS8602）
 callback(damage);
 
 // ✅ OK: ?.Invoke() で null チェックをしてから呼び出す
@@ -211,10 +211,27 @@ public class Program
 ```csharp
 public delegate void ScoreHandler(int score);
 
-public static void ApplyScore(int score, ScoreHandler? onScore)
+public class Program
 {
-    onScore?.Invoke(score);
+    public static void Main()
+    {
+        ApplyScore(80, ShowScore);
+    }
+
+    public static void ApplyScore(int score, ScoreHandler? onScore)
+    {
+        onScore?.Invoke(score);
+    }
+
+    private static void ShowScore(int score)
+    {
+        Console.WriteLine($"スコア: {score}");
+    }
 }
+```
+
+```
+スコア: 80
 ```
 
 </details>
