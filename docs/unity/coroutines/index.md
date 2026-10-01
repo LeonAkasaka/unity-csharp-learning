@@ -6,387 +6,631 @@ permalink: /unity/coroutines/
 
 # コルーチンの基本
 
-`Update` メソッドは毎フレーム処理を書くための基本的な仕組みですが、「少し動かす → 1秒待つ → 別の動きをする」のように**順番のある処理**を書くと、状態管理が複雑になりがちです。このページでは、Unity のコルーチンを使って、時間をまたぐ処理を手続き的に書く方法を学びます。
+**コルーチン**（coroutine）は、途中で中断して、次のフレームや指定した秒数の後に続きから再開できる処理です。`Update` で書くと状態やタイマーのフィールドが必要になる「赤を 3 秒 → 青を 2 秒 → 点滅を 1 秒」のような順番のある処理を、上から下へ順に書けます。このページでは、[チュートリアル: 信号機](/unity-csharp-learning/unity/traffic-light/) の点滅する信号機を、コルーチンで書き直します。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
-- `Update` だけで時間差のある処理を書くと状態管理が必要になる理由を説明できる
-- `yield return null` が次のフレームまで待つ合図であることを理解できる
-- `StartCoroutine` でコルーチンを開始できる
-- `WaitForSeconds` などの標準的な待機方法を説明できる
+- `Update` だけで順番のある処理を書くと、状態やタイマーのフィールドが増える理由を説明できる
+- `IEnumerator` を返すメソッドを書き、`StartCoroutine` でコルーチンとして開始できる
+- `yield return null` で次のフレームまで、`WaitForSeconds` で指定した秒数だけ待てる
+- コルーチンが `Start` や `Update` に対してどの順序で実行されるかを説明できる
 
 ## 前提知識
 
 - [Update メソッドと連続実行](/unity-csharp-learning/unity/update-basics/) を読んでいること
 - [Time クラスと時間制御](/unity-csharp-learning/unity/time-basics/) を読んでいること
-- [線形補間アニメーション（Lerp）](/unity-csharp-learning/unity/lerp-animation/) を読んでいること
+- [チュートリアル: 信号機](/unity-csharp-learning/unity/traffic-light/) の課題 3 まで読んでいること
+- [イテレーターと yield return](/unity-csharp-learning/csharp/iterators/) を読んでいると、コルーチンの仕組みを理解しやすくなります
 
 ---
 
-## 1. なぜコルーチンが必要なのか
+## 1. Update で書いた点滅を振り返る
 
-たとえば、オブジェクトに次のような演出をさせたいとします。
-
-1. 2秒かけて右へ移動する
-2. 1秒待つ
-3. 2秒かけて元の位置へ戻る
-4. 完了メッセージを表示する
-
-`Update` で毎フレーム処理を書く場合、今どの段階なのかをフィールドに保存しておく必要があります。
+[チュートリアル: 信号機](/unity-csharp-learning/unity/traffic-light/) の課題 3 では、赤と青を 3 秒ずつ切り替え、青の残り 1 秒で点滅させました。解答のスクリプトは次のとおりです。
 
 ```csharp
 using UnityEngine;
 
-public class UpdateSequenceSample : MonoBehaviour
+public class Signal : MonoBehaviour
 {
-    private int _state = 0;       // 0=右へ移動, 1=待つ, 2=戻る, 3=完了
+    private int _state = 0;
     private float _timer = 0f;
-    private Vector3 _startPos;
-    private Vector3 _endPos;
+    private float _redDuration = 3f;
+    private float _blueDuration = 3f;
+    private float _blinkTimer = 0f;
+    private bool _isBlinkOn = true;
+    private Renderer _renderer;
 
     private void Start()
     {
-        _startPos = transform.position;
-        _endPos = _startPos + new Vector3(3f, 0f, 0f);
+        _renderer = GetComponent<Renderer>();
+        TransitionTo(_state);
     }
 
     private void Update()
     {
         _timer += Time.deltaTime;
 
-        if (_state == 0)
+        switch (_state)
         {
-            float t = Mathf.Clamp01(_timer / 2f);
-            transform.position = Vector3.Lerp(_startPos, _endPos, t);
-
-            if (t >= 1f)
-            {
-                _state = 1;
-                _timer = 0f;
-            }
-        }
-        else if (_state == 1)
-        {
-            if (_timer >= 1f)
-            {
-                _state = 2;
-                _timer = 0f;
-            }
-        }
-        else if (_state == 2)
-        {
-            float t = Mathf.Clamp01(_timer / 2f);
-            transform.position = Vector3.Lerp(_endPos, _startPos, t);
-
-            if (t >= 1f)
-            {
-                _state = 3;
-                Debug.Log("完了");
-            }
+            case 0:  UpdateRed();  break;
+            case 1: UpdateBlue(); break;
         }
     }
-}
-```
 
-このコードは動きます。しかし、処理が増えるほど `_state` の種類が増え、`if` の分岐も増えます。「右へ動かす」「待つ」「戻る」という流れを読みたいだけなのに、タイマーのリセットや状態番号の切り替えに意識を取られます。
-
-コルーチンを使うと、同じ流れを次のように上から下へ書けます。
-
-```csharp
-private IEnumerator MoveSequence()
-{
-    yield return MoveTo(_startPos, _endPos, 2f);
-    yield return new WaitForSeconds(1f);
-    yield return MoveTo(_endPos, _startPos, 2f);
-    Debug.Log("完了");
-}
-```
-
-> 💡 **ポイント**: コルーチンは「時間をまたぐ処理の続きを Unity に覚えておいてもらう」仕組みです。`Update` で自分で管理していた状態を、コルーチンの実行位置として表現できます。
-
----
-
-## 2. Unity が IEnumerator を進める
-
-コルーチンは `IEnumerator` を返すメソッドとして書きます。
-
-```csharp
-using System.Collections;
-using UnityEngine;
-
-public class CountFramesSample : MonoBehaviour
-{
-    private IEnumerator CountFrames()
+    private void UpdateRed()
     {
-        Debug.Log("1フレーム目");
-        yield return null;
+        if (_timer >= _redDuration)
+            TransitionTo(1); // 青に遷移
+    }
 
-        Debug.Log("2フレーム目");
-        yield return null;
+    private void UpdateBlue()
+    {
+        // 残り 1 秒で点滅
+        if (_timer >= _blueDuration - 1f)
+        {
+            _blinkTimer += Time.deltaTime;
+            if (_blinkTimer >= 0.25f)
+            {
+                _blinkTimer -= 0.25f;
+                _isBlinkOn = !_isBlinkOn;
+                _renderer.material.color = _isBlinkOn ? Color.blue : Color.gray;
+            }
+        }
 
-        Debug.Log("3フレーム目");
+        if (_timer >= _blueDuration)
+            TransitionTo(0); // 赤に遷移
+    }
+
+    private void TransitionTo(int next) // 状態遷移（リセット）
+    {
+        _timer = 0f;
+        _blinkTimer = 0f;
+        _isBlinkOn = true;
+        _state = next;
+        _renderer.material.color = next == 0 ? Color.red : Color.blue;
     }
 }
 ```
 
-`yield return null` は「次のフレームまで待つ」という合図です。Unity はこの `IEnumerator` を持っておき、次のフレームになったら続きを進めます。
+このスクリプトは正しく動きます。しかし、やりたいことは「赤を 3 秒 → 青を 2 秒 → 点滅を 1 秒 → 最初に戻る」という順番だけなのに、コードからはその順番が読み取りにくくなっています。
 
-`IEnumerator` や `yield return` の仕組みそのものを詳しく知りたい場合は、[補足: IEnumerator と yield return](/unity-csharp-learning/unity/ienumerator-yield/) を参照してください。このページでは、Unity がそれをフレーム待機や時間待ちに使う部分へ集中します。
+`Update` は毎フレーム最初から呼ばれ、前のフレームでどこまで進んだかを覚えていません。そのため、進み具合をすべてフィールドに保存しておく必要があります。
 
-`yield return` で止まるのは、アプリ全体でも、クラス全体でもありません。**止まるのは、そのコルーチンの続きだけ**です。他の `Update` や他のコンポーネントの処理は通常どおり動き続けます。
+| フィールド | 覚えておくこと |
+|---|---|
+| `_state` | 今、赤と青のどちらの段階にいるか |
+| `_timer` | その段階に入ってから何秒たったか |
+| `_blinkTimer` | 点滅の切り替えから何秒たったか |
+| `_isBlinkOn` | 点滅の今の色が青か灰色か |
+
+段階が変わるたびに、これらを `TransitionTo` でリセットする必要もあります。黄色の段階を加えたり、点滅の回数を変えたりするたびに、フィールドと `if` が増えていきます。
+
+コルーチンを使うと、「どこまで進んだか」をフィールドではなく、**メソッドの中で実行している位置**として Unity に覚えておいてもらえます。
 
 ---
 
-## 3. StartCoroutine なしで簡易コルーチンを作る
+## 2. シーンを準備する
 
-Unity の `StartCoroutine` を使う前に、自分で `IEnumerator` を毎フレーム進める簡単な仕組みを作ってみましょう。
+1. メニューバーの **File → New Scene** で新しいシーンを作成する
+2. **GameObject → 3D Object → Sphere** で球体を追加し、名前を `Signal` に変更する
+3. `Signal` を選択し、Inspector ビューの **Add Component → New script** から `CoroutineSignal` という名前のスクリプトを作成してアタッチする
+
+球体の位置は、作成されたときの (0, 0, 0) のままでかまいません。このページでは、`CoroutineSignal` スクリプトを書き換えながら進めます。
+
+---
+
+## 3. コルーチンを書いて開始する
+
+`CoroutineSignal` スクリプトを次のように書き換えます。
 
 ```csharp
 using System.Collections;
 using UnityEngine;
 
-public class SimpleCoroutineRunner : MonoBehaviour
+public class CoroutineSignal : MonoBehaviour
 {
-    private IEnumerator _routine;
-
     private void Start()
     {
-        _routine = SampleRoutine();
+        StartCoroutine(CountFrames());
     }
 
-    private void Update()
+    private IEnumerator CountFrames()
     {
-        if (_routine == null) return;
-
-        bool hasNext = _routine.MoveNext();
-        if (!hasNext)
-        {
-            _routine = null;
-        }
-    }
-
-    private IEnumerator SampleRoutine()
-    {
-        Debug.Log("開始");
+        Debug.Log($"{Time.frameCount} フレーム目: 1 回目");
         yield return null;
 
-        Debug.Log("1フレーム待った");
+        Debug.Log($"{Time.frameCount} フレーム目: 2 回目");
         yield return null;
 
-        Debug.Log("さらに1フレーム待った");
+        Debug.Log($"{Time.frameCount} フレーム目: 3 回目");
     }
 }
 ```
 
-この例では、`Update` が毎フレーム `_routine.MoveNext()` を呼んでいます。`yield return null` に到達するとそこで止まり、次の `Update` でまた続きから進みます。
+Play ボタンを押すと、Console に次のように表示されます。`Time.frameCount` は、ゲームを開始してから何フレーム目かを表すプロパティです。
 
-ただし、この簡易版は `yield return null` のように「次の `MoveNext` まで待つ」動きだけを見せるためのものです。`yield return new WaitForSeconds(1f)` のような待機時間の処理や、`yield return` で別のコルーチンを返す処理には対応していません。
+```
+1 フレーム目: 1 回目
+2 フレーム目: 2 回目
+3 フレーム目: 3 回目
+```
 
-> 💡 **ポイント**: Unity の `StartCoroutine` は、このような `IEnumerator` を Unity 側で管理してくれる仕組みです。実際の開発では自分で `_routine.MoveNext()` を呼ぶのではなく、`StartCoroutine` を使います。
+3 つの `Debug.Log` が、1 フレームに 1 つずつ実行されました。
 
----
+### コルーチンにするメソッド
 
-## 4. StartCoroutine の基本
+コルーチンにするメソッドは、戻り値の型を `IEnumerator` にして、中に `yield return` を書きます。`IEnumerator` は `System.Collections` 名前空間にあるので、`using System.Collections;` を追加します。
 
-Unity でコルーチンを実行するには、`StartCoroutine` を使います。
+`yield return` は、そこでメソッドの実行を中断する文です。`yield return null;` と書くと、コルーチンは**次のフレームまで**中断し、次のフレームで `yield return` の次の行から再開します。
 
-**`MonoBehaviour.StartCoroutine`** — `IEnumerator` を返すメソッドをコルーチンとして開始します。
+`yield return` を含むメソッドは、C# では**イテレーター**と呼ばれます。イテレーターは、呼び出すたびに少しずつ先へ進められるメソッドです（詳しくは [イテレーターと yield return](/unity-csharp-learning/csharp/iterators/) を参照）。Unity は、このしくみを使って、コルーチンをフレームごとに少しずつ進めます。
+
+### StartCoroutine でコルーチンを開始する
+
+**`MonoBehaviour.StartCoroutine()`** — `IEnumerator` を返すメソッドを、コルーチンとして開始します。
 
 **書式：[MonoBehaviour.StartCoroutine メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html)**
 ```csharp
 public Coroutine StartCoroutine(IEnumerator routine);
 ```
 
-| パラメータ | 型 | 説明 |
-|---|---|---|
-| `routine` | `IEnumerator` | 実行したいコルーチン |
+| パラメータ | 説明 |
+|---|---|
+| `routine` | コルーチンとして実行する `IEnumerator`。コルーチンにするメソッドを呼び出した結果を渡す |
+
+`StartCoroutine(CountFrames())` は、`CountFrames()` を呼び出して得た `IEnumerator` を Unity に渡します。Unity はそれを預かり、`yield return` で中断するたびに、再開するタイミングを見計らって続きを実行します。
+
+> 💡 **ポイント**: `yield return` で中断するのは、そのコルーチンだけです。ゲーム全体が止まるわけではありません。コルーチンが中断している間も、`Update` やほかのスクリプトは通常どおり実行されます。
+
+---
+
+## 4. コルーチンが実行される順序
+
+コルーチンが `Start` や `Update` に対していつ実行されるのかを確かめます。`CoroutineSignal` スクリプトを次のように書き換えます。`Start` の始めと終わり、`Update` にも `Debug.Log` を追加しています。
 
 ```csharp
 using System.Collections;
 using UnityEngine;
 
-public class CoroutineStartSample : MonoBehaviour
+public class CoroutineSignal : MonoBehaviour
 {
     private void Start()
     {
-        StartCoroutine(MoveAndWait());
+        Debug.Log($"{Time.frameCount} フレーム目: Start の始め");
+        StartCoroutine(CountFrames());
+        Debug.Log($"{Time.frameCount} フレーム目: Start の終わり");
     }
 
-    private IEnumerator MoveAndWait()
+    private void Update()
     {
-        Debug.Log("開始");
+        if (Time.frameCount <= 3)
+        {
+            Debug.Log($"{Time.frameCount} フレーム目: Update");
+        }
+    }
+
+    private IEnumerator CountFrames()
+    {
+        Debug.Log($"{Time.frameCount} フレーム目: 1 回目");
         yield return null;
 
-        Debug.Log("次のフレーム");
-        yield return new WaitForSeconds(1f);
+        Debug.Log($"{Time.frameCount} フレーム目: 2 回目");
+        yield return null;
 
-        Debug.Log("1秒後");
+        Debug.Log($"{Time.frameCount} フレーム目: 3 回目");
     }
 }
 ```
 
-`StartCoroutine(MoveAndWait())` と書くことで、Unity が `MoveAndWait` の続きをフレームごとに管理します。
+`Update` の `Debug.Log` は、Console が埋まらないように 3 フレーム目までに限っています。Play ボタンを押すと、Console に次のように表示されます。
+
+```
+1 フレーム目: Start の始め
+1 フレーム目: 1 回目
+1 フレーム目: Start の終わり
+1 フレーム目: Update
+2 フレーム目: Update
+2 フレーム目: 2 回目
+3 フレーム目: Update
+3 フレーム目: 3 回目
+```
+
+この出力から、2 つのことがわかります。
+
+- **`StartCoroutine` を呼んだ時点で、最初の `yield return` までが実行される。** 「1 回目」は「Start の終わり」より前に表示されています。`StartCoroutine` は、コルーチンを最初の `yield return` まで実行してから戻ります。
+- **`yield return null` で中断したコルーチンは、次のフレームの `Update` の後で再開する。** 2 フレーム目と 3 フレーム目では、「Update」の後に、コルーチンの続きが表示されています。
+
+順序を図にすると、次のようになります。
+
+```mermaid
+sequenceDiagram
+    participant U as Unity
+    participant S as CoroutineSignal
+    participant C as CountFrames
+    Note over U,C: 1 フレーム目
+    U->>S: Start()
+    S->>C: StartCoroutine(CountFrames())
+    C-->>S: 「1 回目」を出力し、yield return null で中断
+    S->>S: 「Start の終わり」を出力
+    U->>S: Update()
+    Note over U,C: 2 フレーム目
+    U->>S: Update()
+    U->>C: 続きから再開
+    C-->>U: 「2 回目」を出力し、yield return null で中断
+    Note over U,C: 3 フレーム目
+    U->>S: Update()
+    U->>C: 続きから再開
+    C-->>U: 「3 回目」を出力し、メソッドの終わりでコルーチンが終了
+```
 
 ---
 
-## 5. 標準の Wait 系クラス
+## 5. WaitForSeconds で秒数を待つ
 
-コルーチンでは、`yield return` に何を返すかによって待ち方が変わります。
+`yield return null` は 1 フレームだけ待ちます。信号機のように秒数で待ちたいときは、`yield return` に `WaitForSeconds` のオブジェクトを渡します。
 
-| 書き方 | 待ち方 |
+**`WaitForSeconds`** — `yield return` に渡すと、指定した秒数（ゲーム時間）だけコルーチンを中断します。
+
+**書式：[WaitForSeconds コンストラクター](https://docs.unity3d.com/ScriptReference/WaitForSeconds-ctor.html)**
+```csharp
+public WaitForSeconds(float seconds);
+```
+
+| パラメータ | 説明 |
 |---|---|
-| `yield return null;` | 次のフレームまで待つ |
-| `yield return new WaitForSeconds(1f);` | ゲーム時間で1秒待つ |
-| `yield return new WaitForSecondsRealtime(1f);` | 現実時間で1秒待つ |
-| `yield return new WaitForEndOfFrame();` | そのフレームの描画処理の終わりまで待つ |
-| `yield return new WaitUntil(() => 条件);` | 条件が `true` になるまで待つ |
-| `yield return new WaitWhile(() => 条件);` | 条件が `true` の間待つ |
-| `yield return new WaitForFixedUpdate();` | 次の FixedUpdate まで待つ（物理演算フレームに合わせる） |
+| `seconds` | 中断する秒数 |
 
-`WaitForSeconds` はゲーム時間を使うため、`Time.timeScale` の影響を受けます。たとえば `Time.timeScale = 0` でゲームをポーズしている間は、`WaitForSeconds` の待ち時間も進みません。ポーズ中も現実時間で待ちたい場合は `WaitForSecondsRealtime` を使います。
-
----
-
-## 6. Lerp とコルーチンを組み合わせる
-
-最後に、最初に出てきた「右へ移動 → 待つ → 戻る」を `StartCoroutine` で書いてみます。
+`CoroutineSignal` スクリプトを次のように書き換えます。球体を赤にして、3 秒後に青にします。
 
 ```csharp
 using System.Collections;
 using UnityEngine;
 
-public class CoroutineMoveSample : MonoBehaviour
+public class CoroutineSignal : MonoBehaviour
 {
-    private Vector3 _startPos;
-    private Vector3 _endPos;
+    private Renderer _renderer;
 
     private void Start()
     {
-        _startPos = transform.position;
-        _endPos = _startPos + new Vector3(3f, 0f, 0f);
-
-        StartCoroutine(MoveSequence());
+        _renderer = GetComponent<Renderer>();
+        StartCoroutine(ChangeColor());
     }
 
-    private IEnumerator MoveSequence()
+    private IEnumerator ChangeColor()
     {
-        yield return MoveTo(_startPos, _endPos, 2f);
-        yield return new WaitForSeconds(1f);
-        yield return MoveTo(_endPos, _startPos, 2f);
+        SetColor(Color.red, "赤");
+        yield return new WaitForSeconds(3f);
 
-        Debug.Log("完了");
+        SetColor(Color.blue, "青");
     }
 
-    private IEnumerator MoveTo(Vector3 from, Vector3 to, float duration)
+    private void SetColor(Color color, string label)
     {
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / duration);
-            transform.position = Vector3.Lerp(from, to, t);
-
-            yield return null;
-        }
-
-        transform.position = to;
+        _renderer.material.color = color;
+        Debug.Log($"{Time.time:F2} 秒: {label}");
     }
 }
 ```
 
-`MoveSequence` では、「移動する」「待つ」「戻る」という流れをそのまま上から下へ読めます。`MoveTo` の中では `while` で毎フレーム少しずつ移動し、最後に `yield return null` で次のフレームまで待っています。
+`SetColor` メソッドは、球体の色を変えて、そのときの `Time.time`（ゲーム開始からの秒数）と色の名前を Console に出力します。Play ボタンを押すと、球体が赤になり、約 3 秒後に青に変わります。Console には次のように表示されます。秒数の小数部分は、フレームレートによって変わります。
 
-ここで `yield return MoveTo(...)` と書くと、`MoveTo` のコルーチンが終わるまで `MoveSequence` の続きは待機します。`yield return` に `IEnumerator` を渡すと、Unity はその `IEnumerator` を内部でコルーチンとして実行し、完了してから呼び出し元の続きを進めます。
+```
+0.00 秒: 赤
+3.02 秒: 青
+```
+
+青になる時刻が 3.00 秒ちょうどではないのは、コルーチンの再開がフレーム単位だからです。`WaitForSeconds` で中断したコルーチンは、3 秒たった後の最初のフレームで再開します。
+
+`WaitForSeconds` が待つのはゲーム時間なので、[Time クラスと時間制御](/unity-csharp-learning/unity/time-basics/) で学んだ `Time.timeScale` の影響を受けます。`Time.timeScale` を `0` にしてゲームを一時停止している間は、待ち時間も進みません。一時停止中も現実の時間で待ちたいときは、[WaitForSecondsRealtime](https://docs.unity3d.com/ScriptReference/WaitForSecondsRealtime.html) を使います。
 
 ---
 
-## コルーチンの停止
+## 6. 信号機をコルーチンで書き直す
 
-開始したコルーチンを途中で止めたい場合は `StopCoroutine` を使います。`StartCoroutine` の戻り値を `Coroutine` 型で受け取っておくと、後から停止できます。
+`yield return null` と `WaitForSeconds` を使って、1 節の点滅する信号機を書き直します。`CoroutineSignal` スクリプトを次のように書き換えます。
 
 ```csharp
-private Coroutine _routine;
+using System.Collections;
+using UnityEngine;
 
-private void Start()
+public class CoroutineSignal : MonoBehaviour
 {
-    _routine = StartCoroutine(MoveAndWait());
-}
+    [SerializeField] private float _redDuration = 3f;
+    [SerializeField] private float _blueDuration = 3f;
 
-private void Stop()
-{
-    StopCoroutine(_routine);
+    private Renderer _renderer;
+
+    private void Start()
+    {
+        _renderer = GetComponent<Renderer>();
+        StartCoroutine(RunSignal());
+    }
+
+    private IEnumerator RunSignal()
+    {
+        while (true)
+        {
+            SetColor(Color.red, "赤");
+            yield return new WaitForSeconds(_redDuration);
+
+            SetColor(Color.blue, "青");
+            yield return new WaitForSeconds(_blueDuration - 1f);
+
+            // 青の残り 1 秒で、0.25 秒ごとに灰色と青を切り替える
+            for (int i = 0; i < 2; i++)
+            {
+                SetColor(Color.gray, "灰");
+                yield return new WaitForSeconds(0.25f);
+
+                SetColor(Color.blue, "青");
+                yield return new WaitForSeconds(0.25f);
+            }
+        }
+    }
+
+    private void SetColor(Color color, string label)
+    {
+        _renderer.material.color = color;
+        Debug.Log($"{Time.time:F2} 秒: {label}");
+    }
 }
 ```
 
-入門段階ではまず「開始する」「待つ」「順番に進める」ことを優先して理解しましょう。停止やスキップの細かい制御は、実践的なチュートリアルで扱います。
+`RunSignal` を上から読むと、「赤にして 3 秒待つ → 青にして 2 秒待つ → 灰色と青を 0.25 秒ずつ 2 回繰り返す → 最初に戻る」という順番が、そのまま書かれています。
+
+`while (true)` は終わらないループですが、ループの中に `yield return` があるので、ゲームは止まりません。`yield return` のたびにコルーチンが中断し、Unity はその間にほかの処理やフレームの描画を進めます。
+
+1 節の `Update` 版で使っていたフィールドは、次のものに置き換わりました。
+
+| `Update` 版 | コルーチン版 |
+|---|---|
+| `_state`（どの段階か） | `RunSignal` の中で、今実行している位置 |
+| `_timer`（段階に入ってからの秒数） | `WaitForSeconds` |
+| `_blinkTimer`、`_isBlinkOn`（点滅の状態） | `for` 文の `i` と、順に並べた 2 つの `SetColor` |
+| `TransitionTo` でのリセット | 不要。次の段階は次の行に書く |
+
+`for` 文の変数 `i` は、フィールドではなくローカル変数です。コルーチンが中断している間も、ローカル変数の値は保たれます。
+
+---
+
+## 動作確認
+
+1. **File → New Scene** で新しいシーンを作成する
+2. **GameObject → 3D Object → Sphere** で球体を追加し、名前を `Signal` に変更する
+3. `Signal` に `CoroutineSignal` スクリプトを作成してアタッチし、6 節のコードに書き換える
+4. Play ボタンを押す
+
+Game ビューで、球体が次の順に色を変え、これを繰り返すことを確認してください。
+
+1. 赤（3 秒）
+2. 青（2 秒）
+3. 灰色と青を 0.25 秒ずつ交互に 2 回（1 秒）
+
+Console には次のように表示されます。これは実行結果の例です。秒数の小数部分は、フレームレートによって変わります。コルーチンの再開はフレーム単位なので、繰り返すうちに少しずつ遅れていきます。
+
+```
+0.00 秒: 赤
+3.02 秒: 青
+5.04 秒: 灰
+5.30 秒: 青
+5.56 秒: 灰
+5.82 秒: 青
+6.08 秒: 赤
+```
 
 ---
 
 ## よくあるミス
 
-`StartCoroutine` を呼ばずにメソッドを直接呼ぶと、コルーチンとして動きません。
+### StartCoroutine を付けずに呼び出す
+
+コルーチンにするメソッドを、普通のメソッドのように呼び出しても、何も実行されません。
 
 ```csharp
-// ❌ NG: メソッドを呼んでいるだけで、コルーチンとして開始していない
-MoveAndWait();
+// ❌ NG: IEnumerator が作られるだけで、Console に何も表示されない
+CountFrames();
 
-// ✅ OK: Unity にコルーチンとして管理してもらう
-StartCoroutine(MoveAndWait());
+// ✅ OK: Unity にコルーチンとして渡す
+StartCoroutine(CountFrames());
 ```
 
-`MoveAndWait()` を呼ぶだけでは、`IEnumerator` オブジェクトが作られるだけです。Unity はその `IEnumerator` を管理しないため、コルーチンとしては進みません。
+`yield return` を含むメソッドは、呼び出しても中身を実行せず、`IEnumerator` のオブジェクトを返すだけです。中身を実行するのは、`IEnumerator` の `MoveNext` メソッドが呼ばれたときです。`StartCoroutine` に渡すと、Unity が `MoveNext` を呼んで進めてくれます。
 
-`while` ループの中に `yield return null` を書き忘れると、ループが1フレームで走り切ります。
+### yield return のないループを書く
+
+`while (true)` のループの中で `yield return` を通らないと、コルーチンは中断しません。ループが同じフレームの中で回り続け、Unity Editor が応答しなくなります。
 
 ```csharp
-// ❌ NG: yield return null がないため、while が1フレームで走り切る
-while (elapsed < duration)
+// ❌ NG: yield return がないので、ループが終わらず Unity Editor が固まる
+while (true)
 {
-    elapsed += Time.deltaTime;
-    transform.position = Vector3.Lerp(from, to, elapsed / duration);
-}
-
-// ✅ OK: 毎フレーム少しずつ進める
-while (elapsed < duration)
-{
-    elapsed += Time.deltaTime;
-    transform.position = Vector3.Lerp(from, to, elapsed / duration);
-    yield return null;
+    SetColor(Color.red, "赤");
+    SetColor(Color.blue, "青");
 }
 ```
 
-`yield return null` を忘れると、`while` は同じフレームの中で最後まで実行されます。アニメーションが一瞬で終わったり、長いループで Unity が固まったりする原因になります。
+ループで時間をかけたい処理には、ループの中に必ず `yield return` を書きます。`if` の中だけに `yield return` を書いた場合も、条件を満たさない間は同じことが起きます。
+
+### Update の中で StartCoroutine を呼ぶ
+
+`StartCoroutine` は、呼ぶたびに新しいコルーチンを開始します。`Update` の中で呼ぶと、毎フレーム新しいコルーチンが増えていきます。
+
+```csharp
+using System.Collections;
+using UnityEngine;
+
+public class CoroutineSignal : MonoBehaviour
+{
+    private void Update()
+    {
+        // ❌ NG: 毎フレーム、新しいコルーチンを開始してしまう
+        StartCoroutine(CountFrames());
+    }
+
+    private IEnumerator CountFrames()
+    {
+        Debug.Log($"{Time.frameCount} フレーム目: 1 回目");
+        yield return null;
+
+        Debug.Log($"{Time.frameCount} フレーム目: 2 回目");
+        yield return null;
+
+        Debug.Log($"{Time.frameCount} フレーム目: 3 回目");
+    }
+}
+```
+
+Console には、1 フレームに複数の行が表示されます。3 フレーム目以降は、3 つのコルーチンが同時に進んでいます。
+
+```
+1 フレーム目: 1 回目
+2 フレーム目: 1 回目
+2 フレーム目: 2 回目
+3 フレーム目: 1 回目
+3 フレーム目: 2 回目
+3 フレーム目: 3 回目
+```
+
+コルーチンは、`Start` や、ボタンが押されたときなど、開始したいときに 1 回だけ `StartCoroutine` を呼びます。
+
+---
+
+## ワンポイントアドバイス
+
+### Start メソッドをコルーチンにする
+
+`Start` メソッドは、戻り値の型を `IEnumerator` にすると、それ自体がコルーチンになります。`StartCoroutine` を呼ばなくても、Unity がコルーチンとして開始します。
+
+```csharp
+using System.Collections;
+using UnityEngine;
+
+public class CoroutineSignal : MonoBehaviour
+{
+    private IEnumerator Start()
+    {
+        Debug.Log($"{Time.time:F2} 秒: Start の始め");
+        yield return new WaitForSeconds(1f);
+
+        Debug.Log($"{Time.time:F2} 秒: 1 秒後");
+    }
+}
+```
+
+Console には次のように表示されます。これは実行結果の例です。秒数の小数部分は、フレームレートによって変わります。
+
+```
+0.00 秒: Start の始め
+1.02 秒: 1 秒後
+```
+
+ゲームの開始時に、少し待ってから何かをしたいときに便利です。
 
 ---
 
 ## まとめ
 
-- `Update` で順番のある処理を書くと、状態番号やタイマーの管理が増えやすい
-- `yield return null` は次のフレームまで待つ合図である
-- `StartCoroutine` は `IEnumerator` を Unity 側で管理し、フレームや時間をまたいで続きを実行する
-- `WaitForSeconds` などの Wait 系クラスで待ち方を指定できる
+- `Update` で順番のある処理を書くと、どの段階か、何秒たったかをフィールドに保存し、段階が変わるたびにリセットする必要がある
+- コルーチンは、`IEnumerator` を返し、`yield return` を含むメソッドとして書き、`StartCoroutine` で開始する
+- `yield return null` は次のフレームまで、`yield return new WaitForSeconds(秒数)` は指定した秒数だけ、そのコルーチンを中断する
+- `StartCoroutine` を呼ぶと最初の `yield return` まで実行され、中断したコルーチンはフレームの `Update` の後で再開する
+- 中断している間も、ローカル変数の値と実行している位置は保たれる
 
 ---
 
 ## 理解度チェック
 
-以下の問いに答えられるか確認しましょう。
+1. 1 節の `Update` 版の信号機で、`_blinkTimer` と `_isBlinkOn` のフィールドが必要だったのはなぜですか？
+2. `CoroutineSignal` スクリプトを次のように書き換えて Play ボタンを押すと、Console にどの順で表示されますか？
 
-1. `Update` だけで「移動 → 待機 → 移動」のような処理を書くと、どのようなフィールド管理が必要になりますか？
-2. `yield return null` は Unity のコルーチンでどのような意味を持ちますか？
-3. `StartCoroutine(MyRoutine());` と `MyRoutine();` の違いを説明してください。
-4. `WaitForSeconds` と `WaitForSecondsRealtime` の違いを説明してください。
+   ```csharp
+   using System.Collections;
+   using UnityEngine;
+
+   public class CoroutineSignal : MonoBehaviour
+   {
+       private void Start()
+       {
+           Debug.Log("A");
+           StartCoroutine(Routine());
+           Debug.Log("B");
+       }
+
+       private IEnumerator Routine()
+       {
+           Debug.Log("C");
+           yield return null;
+           Debug.Log("D");
+       }
+   }
+   ```
+
+3. `StartCoroutine(RunSignal());` と `RunSignal();` の違いを説明してください。
+4. （応用）6 節の信号機に、青の点滅の後で黄色を 1 秒表示する段階を加えてください。黄色の秒数は Inspector から変更できるようにします。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. 今どの段階かを表す `_state`、経過時間を表す `_timer`、開始位置や終了位置などをフィールドとして管理する必要がある。
-2. そのコルーチンの続きの実行を次のフレームまで待つ。
-3. `StartCoroutine(MyRoutine())` は Unity にコルーチンとして管理してもらう。`MyRoutine()` だけでは `IEnumerator` が作られるだけで、自動的には進まない。
-4. `WaitForSeconds` は `Time.timeScale` の影響を受けるゲーム時間で待つ。`WaitForSecondsRealtime` は `Time.timeScale` の影響を受けない現実時間で待つ。
+1. `Update` は毎フレーム最初から呼ばれ、前のフレームでどこまで進んだかを覚えていないためです。点滅の切り替えから何秒たったか、今の色が青か灰色かをフィールドに保存しておかないと、次のフレームで点滅を続けられません。
+2. `A`、`C`、`B`、`D` の順に表示されます。`StartCoroutine` を呼んだ時点で最初の `yield return` まで実行されるので `C` が `B` より先に表示され、`D` は次のフレームで表示されます。
+3. `StartCoroutine(RunSignal())` は、`RunSignal()` が返す `IEnumerator` を Unity に渡し、コルーチンとして進めてもらいます。`RunSignal()` だけでは `IEnumerator` のオブジェクトが作られるだけで、メソッドの中身は 1 行も実行されません。
+4. `_yellowDuration` フィールドを追加し、`for` 文の後ろに黄色の段階を書きます。
+
+   ```csharp
+   using System.Collections;
+   using UnityEngine;
+
+   public class CoroutineSignal : MonoBehaviour
+   {
+       [SerializeField] private float _redDuration = 3f;
+       [SerializeField] private float _blueDuration = 3f;
+       [SerializeField] private float _yellowDuration = 1f;
+
+       private Renderer _renderer;
+
+       private void Start()
+       {
+           _renderer = GetComponent<Renderer>();
+           StartCoroutine(RunSignal());
+       }
+
+       private IEnumerator RunSignal()
+       {
+           while (true)
+           {
+               SetColor(Color.red, "赤");
+               yield return new WaitForSeconds(_redDuration);
+
+               SetColor(Color.blue, "青");
+               yield return new WaitForSeconds(_blueDuration - 1f);
+
+               // 青の残り 1 秒で、0.25 秒ごとに灰色と青を切り替える
+               for (int i = 0; i < 2; i++)
+               {
+                   SetColor(Color.gray, "灰");
+                   yield return new WaitForSeconds(0.25f);
+
+                   SetColor(Color.blue, "青");
+                   yield return new WaitForSeconds(0.25f);
+               }
+
+               SetColor(Color.yellow, "黄");
+               yield return new WaitForSeconds(_yellowDuration);
+           }
+       }
+
+       private void SetColor(Color color, string label)
+       {
+           _renderer.material.color = color;
+           Debug.Log($"{Time.time:F2} 秒: {label}");
+       }
+   }
+   ```
+
+   `Update` 版では、段階を表す番号と、段階ごとの秒数の選び方と色の選び方を、それぞれ変更する必要がありました。コルーチン版では、段階を加える位置に 2 行を書き足すだけです。
 
 </details>
 
@@ -394,4 +638,4 @@ while (elapsed < duration)
 
 ## 次のステップ
 
-今後追加する「イベント・コールバックと Unity」では、処理の完了や入力を別の処理へ通知する方法を学びます。
+[補足: IEnumerator と yield return](/unity-csharp-learning/unity/ienumerator-yield/) では、`yield return` を含むメソッドが `IEnumerator` になる仕組みと、Unity がそれをフレームごとに進める仕組みを学びます。
