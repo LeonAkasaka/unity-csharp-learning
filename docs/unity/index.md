@@ -51,6 +51,7 @@ Unity エディターの使い方と、C# スクリプトを使ったゲーム�
 | 23.1 | [補足: IEnumerator と yield return](./ienumerator-yield/) | コルーチンの土台になる列挙処理と yield 文法を学ぶ |
 | 24 | [コルーチンの制御](./coroutine-control/) | 条件を待つ・別のコルーチンの終わりを待つ・コルーチンを止める・二重に開始しない |
 | 25 | [コルーチンでは書きにくいこと](./coroutine-limits/) | 結果を返せない・例外が呼び出し元に伝わらない・`yield return` を `try` / `catch` で囲めない・`Task` と `async` / `await` との対応 |
+| 26 | [Awaitable と async / await](./awaitable/) | `Awaitable.NextFrameAsync` / `WaitForSecondsAsync`・`Awaitable<T>` で結果を返す・`try` / `catch`・`CancellationToken` と `finally`・`destroyCancellationToken`・`async void` にするメソッド |
 
 ## 前提知識
 

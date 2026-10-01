@@ -389,7 +389,7 @@ error CS0103: The name 'StartCoroutine' does not exist in the current context
 
 コルーチンも `async` / `await` も、「待っている間に処理を止めず、続きを後から実行する」という点は同じです。どちらも、待っている間にスレッドを 1 つ占有することはありません。違うのは、`async` / `await` では、結果の受け渡しと例外を、普通のメソッドと同じように `return` と `try` / `catch` で書けることです。
 
-Unity には、`async` / `await` で、フレームや秒数を待つための [Awaitable](https://docs.unity3d.com/ScriptReference/Awaitable.html) という型が用意されています。
+Unity には、`async` / `await` で、フレームや秒数を待つための [Awaitable](https://docs.unity3d.com/ScriptReference/Awaitable.html) という型が用意されています。[Awaitable と async / await](/unity-csharp-learning/unity/awaitable/) で、押しボタン式の信号機を `Awaitable` で書き直します。
 
 ---
 
@@ -612,4 +612,4 @@ Parameter name: count
 
 ## 次のステップ
 
-[async と await](/unity-csharp-learning/csharp/async-await/) では、結果を `return` で返し、例外を `try` / `catch` で受け取りながら、待つ処理を上から順に書く方法を学びます。
+[Awaitable と async / await](/unity-csharp-learning/unity/awaitable/) では、押しボタン式の信号機を Unity の `Awaitable` で書き直し、結果を `return` で返し、例外を `try` / `catch` で受け取り、`CancellationToken` で止める方法を学びます。

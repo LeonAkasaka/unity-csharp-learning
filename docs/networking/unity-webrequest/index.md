@@ -23,6 +23,7 @@ permalink: /networking/unity-webrequest/
 - [Debug.Log でスクリプトの実行を確認する](/unity-csharp-learning/unity/debug-log/) を読んでいること
 - [コルーチンの基本](/unity-csharp-learning/unity/coroutines/) を読んでいること
 - [async と await](/unity-csharp-learning/csharp/async-await/) を読んでいること
+- [Awaitable と async / await](/unity-csharp-learning/unity/awaitable/) を読んでいること
 
 ---
 
