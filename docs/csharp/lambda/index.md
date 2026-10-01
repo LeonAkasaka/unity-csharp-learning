@@ -15,6 +15,8 @@ permalink: /csharp/lambda/
 - `=>` を使ったラムダ式の構文を書ける
 - 式ラムダと文ラムダの違いを説明できる
 - ラムダ式を `Action` / `Func` の変数に代入できる
+- ラムダ式をメソッドの引数として、その場に書いて渡せる
+- ラムダ式で購読したイベントを解除する方法を説明できる
 
 ## 前提知識
 
@@ -128,7 +130,63 @@ Hello from Action!
 
 ---
 
-## 4. イベントとラムダ式
+## 4. ラムダ式をメソッドの引数として渡す
+
+ラムダ式が最も役立つのは、メソッドの引数としてデリゲートを渡す場面です。[デリゲートの変数渡しとコールバック](/unity-csharp-learning/csharp/delegate-callback/) では、点数を数える条件を `IsPassed` や `IsPerfect` という名前付きのメソッドにして、`Count` に渡しました。ラムダ式を使うと、条件を呼び出しの場所に直接書けます。
+
+```csharp
+int[] scores = { 45, 100, 72, 60, 100, 38 };
+
+Console.WriteLine($"合格: {Count(scores, score => score >= 60)} 人");
+Console.WriteLine($"満点: {Count(scores, score => score == 100)} 人");
+Console.WriteLine($"追試: {Count(scores, score => score < 40)} 人");
+
+int Count(int[] values, Func<int, bool> condition)
+{
+    int count = 0;
+    foreach (int value in values)
+    {
+        if (condition(value))
+        {
+            count++;
+        }
+    }
+    return count;
+}
+```
+
+```
+合格: 4 人
+満点: 2 人
+追試: 1 人
+```
+
+1 回しか使わない条件のために、名前を考えてメソッドを宣言する必要がなくなります。また、何を数えているのかが、呼び出しの場所を見るだけでわかります。`score` の型を書いていないのは、`Count` のパラメータが `Func<int, bool>` なので、`score` が `int` だとコンパイラーが決められるからです。
+
+.NET の標準ライブラリにも、デリゲートを受け取るメソッドがたくさんあります。たとえば、[List\<T\>](/unity-csharp-learning/csharp/list/) の `Sort` メソッドには、2 つの要素の比べ方をデリゲートで渡せます。比べ方は、1 つ目を前にするなら負の数、後ろにするなら正の数、同じなら 0 を返すメソッドで表します。
+
+```csharp
+var names = new List<string> { "Slime", "Dragon", "Bat", "Skeleton" };
+
+// 文字数が少ない順に並べる
+names.Sort((a, b) => a.Length - b.Length);
+Console.WriteLine(string.Join(", ", names));
+
+// 文字数が多い順に並べる
+names.Sort((a, b) => b.Length - a.Length);
+Console.WriteLine(string.Join(", ", names));
+```
+
+```
+Bat, Slime, Dragon, Skeleton
+Skeleton, Dragon, Slime, Bat
+```
+
+並べ替えの手順は `Sort` が担当し、比べ方だけをラムダ式で渡しています。このように、処理の一部をラムダ式で渡す書き方は、[LINQ の基本](/unity-csharp-learning/csharp/linq-basics/) で学ぶ LINQ でも中心になります。
+
+---
+
+## 5. イベントとラムダ式
 
 ラムダ式はイベントの購読にも使えます。名前付きメソッドを用意する必要がなくなるため、短い処理であれば読みやすくなります。
 
@@ -151,7 +209,34 @@ class Button
 ボタンがクリックされました
 ```
 
-> 💡 **ポイント**: ラムダ式でイベントを購読した場合、同じラムダ式を `-=` で解除することはできません（別のインスタンスとして扱われるため）。解除が必要な場合は名前付きメソッドを使いましょう。
+ただし、ラムダ式で購読したイベントは、同じラムダ式を書いて `-=` しても解除できません。同じ内容を書いても、ラムダ式を書くたびに別のメソッドとして扱われるからです。[イベント](/unity-csharp-learning/csharp/events/) で学んだように、使い終わった購読者は解除する必要があります。解除が必要なときは、ラムダ式を変数に入れておき、その変数で `+=` と `-=` をします。
+
+```csharp
+var btn = new Button();
+
+// ❌ 同じ内容のラムダ式を書いても、解除できない
+btn.Clicked += () => Console.WriteLine("ラムダ式 A");
+btn.Clicked -= () => Console.WriteLine("ラムダ式 A");
+
+// ✅ 変数に入れておけば、同じデリゲートで解除できる
+Action handler = () => Console.WriteLine("ラムダ式 B");
+btn.Clicked += handler;
+btn.Clicked -= handler;
+
+btn.Click();
+
+class Button
+{
+    public event Action? Clicked;
+    public void Click() => Clicked?.Invoke();
+}
+```
+
+```
+ラムダ式 A
+```
+
+解除できなかった `ラムダ式 A` だけが表示され、解除した `ラムダ式 B` は表示されません。名前付きのメソッドで購読しても、同じように解除できます。
 
 ---
 
@@ -172,7 +257,8 @@ Func<int, int, int> correct = (a, b) => a + b;
 - ラムダ式 `(パラメータ) => 式` でメソッドをインラインに書いてデリゲートに渡せる
 - 本体が式 1 つの式ラムダと、ブロックの文ラムダの 2 種類がある
 - ラムダ式は `Action` / `Func` の変数に代入でき、パラメータの型は代入先から決まる
-- ラムダ式でイベントを購読できるが、解除が必要な場合は名前付きメソッドを使う
+- ラムダ式は、メソッドの引数（`Count` の条件や `Sort` の比べ方）としてその場に書いて渡すと、名前付きのメソッドを宣言せずに済む
+- ラムダ式でイベントを購読できる。解除が必要なときは、ラムダ式を変数に入れておくか、名前付きのメソッドを使う
 
 ---
 
@@ -199,7 +285,9 @@ Func<int, int, int> correct = (a, b) => a + b;
    3 + 5 = 8
    ```
 
-3. ```csharp
+3. 呼び出して確かめるコードも含めると、次のように書けます。
+
+   ```csharp
    Func<List<int>, int> sumOfSquares = list =>
    {
        int total = 0;
@@ -209,6 +297,12 @@ Func<int, int, int> correct = (a, b) => a + b;
        }
        return total;
    };
+
+   Console.WriteLine(sumOfSquares(new List<int> { 1, 2, 3 }));
+   ```
+
+   ```
+   14
    ```
 
 </details>
