@@ -638,4 +638,6 @@ Console には次のように表示されます。これは実行結果の例で
 
 ## 次のステップ
 
-[補足: IEnumerator と yield return](/unity-csharp-learning/unity/ienumerator-yield/) では、`yield return` を含むメソッドが `IEnumerator` になる仕組みと、Unity がそれをフレームごとに進める仕組みを学びます。
+[コルーチンの制御](/unity-csharp-learning/unity/coroutine-control/) では、ボタンが押されるまで待つ押しボタン式の信号機を作りながら、条件を満たすまで待つ方法と、動いているコルーチンを止める方法を学びます。
+
+`yield return` を含むメソッドが `IEnumerator` になる仕組みと、Unity がそれをフレームごとに進める仕組みは、[補足: IEnumerator と yield return](/unity-csharp-learning/unity/ienumerator-yield/) で学べます。
