@@ -600,4 +600,4 @@ StopCoroutine(_signalRoutine);
 
 ## 次のステップ
 
-コルーチンでは、処理の結果を呼び出し元に返したり、失敗を `try` / `catch` で受け取ったりすることができません。C# の [async と await](/unity-csharp-learning/csharp/async-await/) では、結果を受け取ったり、例外を `try` / `catch` で受け取ったりしながら、待つ処理を上から順に書けます。
+[コルーチンでは書きにくいこと](/unity-csharp-learning/unity/coroutine-limits/) では、押しボタン式の信号機に機能を加えながら、コルーチンでは結果を返したり失敗を `try` / `catch` で受け取ったりできないことを確かめ、C# の `Task` と `async` / `await` との対応を整理します。
