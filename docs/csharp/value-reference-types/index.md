@@ -15,12 +15,14 @@ C# の型は、**値型**（value type）と **参照型**（reference type）�
 - 値型と参照型で、代入したときにコピーされるものの違いを説明できる
 - 参照型の変数をメソッドに渡したとき、呼び出し元に影響する操作としない操作を区別できる
 - `null` と既定値が、値型と参照型でどう違うかを説明できる
+- `default` で既定値を書き、ジェネリックメソッドで型パラメータの既定値を返せる
 
 ## 前提知識
 
 - [クラスとフィールド](/unity-csharp-learning/csharp/classes/) を読んでいること
 - [Array クラスと配列の性質（補足）](/unity-csharp-learning/csharp/array-class/) を読んでいること
 - [ref / out / in パラメータ](/unity-csharp-learning/csharp/ref-out-in/) を読んでいること
+- [ジェネリックメソッド](/unity-csharp-learning/csharp/generic-methods/) を読んでいること
 
 ---
 
@@ -180,6 +182,11 @@ False
 
 フィールドや配列の要素は、値を代入しなくても **既定値** で初期化されます。既定値は、[default 演算子](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/default) で調べられます。
 
+**書式：[default 演算子](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/default#default-operator)**
+```
+default(型)
+```
+
 ```csharp
 Console.WriteLine(default(int));
 Console.WriteLine(default(bool));
@@ -201,6 +208,119 @@ True
 ```
 
 値型の既定値は、`0` や `false` のように、すべてのビットが 0 の値です。参照型の既定値は `null` です。`Box` の配列を作っただけでは、要素は `null` で、`Box` のオブジェクトはまだ 1 つもありません。
+
+### 型を省略した default
+
+C# 7.1 以降では、型を省略して `default` だけを書けます。これを **default リテラル** といいます。型は、代入先の変数の型や、渡す先のパラメータの型から決まります。
+
+**書式：[default リテラル](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/default#default-literal)**
+```
+default
+```
+
+```csharp
+int count = default;
+string? name = default;
+Console.WriteLine(count);
+Console.WriteLine(name == null);
+
+Print(default);
+Console.WriteLine(GetScore());
+Show();
+Show(5);
+
+void Print(int n)
+{
+    Console.WriteLine($"Print: {n}");
+}
+
+int GetScore()
+{
+    return default;
+}
+
+void Show(int n = default)
+{
+    Console.WriteLine($"Show: {n}");
+}
+```
+
+```
+0
+True
+Print: 0
+0
+Show: 0
+Show: 5
+```
+
+| 書いた場所 | 型を決めるもの |
+|---|---|
+| `int count = default;` | 変数の型 `int` |
+| `Print(default)` | `Print` のパラメータの型 `int` |
+| `return default;` | `GetScore` の戻り値の型 `int` |
+| `int n = default`（[省略可能パラメータ](/unity-csharp-learning/csharp/optional-named-params/) の既定値） | パラメータの型 `int` |
+
+省略可能パラメータの既定値には、定数しか書けません。`default` は書けるので、構造体のパラメータを省略可能にしたいときに使います。
+
+型を決めるものがない場所では、`default` だけは書けません。
+
+```csharp
+// ❌ NG: var では、default の型が決まらない
+// var x = default;  // CS8716
+```
+
+### ジェネリクスと default(T)
+
+`default` が特に役に立つのは、[ジェネリックメソッド](/unity-csharp-learning/csharp/generic-methods/) の中です。配列の指定した位置の要素を返し、位置が範囲外なら「値がない」ことを表す値を返すメソッドを考えます。型パラメータ `T` が何の型になるかは、呼び出す側が決めます。そのため、`T` の値として `null` や `0` を書くことはできません。
+
+```csharp
+// ❌ NG: T が int のような値型なら、null は入れられない
+// T Get<T>()
+// {
+//     return null;  // CS0403
+// }
+
+// ❌ NG: T が string なら、0 は入れられない
+// T Get<T>()
+// {
+//     return 0;  // CS0029
+// }
+```
+
+`default(T)`、または型を省略した `default` なら、`T` がどの型でも、その型の既定値になります。CS0403 のエラーメッセージも、`default(T)` を使うよう勧めています。
+
+```csharp
+int[] numbers = { 10, 20, 30 };
+string[] names = { "Alice", "Bob" };
+
+Console.WriteLine(GetOrDefault(numbers, 1));
+Console.WriteLine(GetOrDefault(numbers, 5));
+Console.WriteLine(GetOrDefault(names, 0));
+Console.WriteLine(GetOrDefault(names, 5) == null);
+
+T? GetOrDefault<T>(T[] array, int index)
+{
+    if (index < 0 || index >= array.Length)
+    {
+        return default;
+    }
+    return array[index];
+}
+```
+
+```
+20
+0
+Alice
+True
+```
+
+範囲外の位置を指定すると、`T` が `int` のときは `0`、`string` のときは `null` が返っています。
+
+戻り値の型を `T?` にしているのは、`T` が `string` のような参照型のとき、`null` を返すことがあるからです。`T` のままにすると、コンパイラーが警告 CS8603 を出します（この `?` の意味は [null 許容参照型](/unity-csharp-learning/csharp/nullable-reference-types/) で説明します）。制約のない型パラメータに付けた `?` は、`T` が値型のときには何も変えません。`T` が `int` なら戻り値の型は `int` のままなので、範囲外のときは `null` ではなく `0` が返ります。
+
+`Dictionary<TKey, TValue>` の `TryGetValue` が、キーが見つからないときに `out` パラメータに入れる「`TValue` の既定値」も、`default(TValue)` と同じ値です。
 
 ---
 
@@ -272,6 +392,8 @@ class Box
 - 代入や値渡しでコピーされるのは、値型では値、参照型では参照。参照をコピーした変数どうしは、同じオブジェクトを指す
 - クラスの `==` は同じオブジェクトかどうかを比べる。`string` は中身を比べるように定義されている
 - 参照型の変数には `null` を入れられるが、値型の変数には入れられない。既定値は、値型ではすべてのビットが 0 の値、参照型では `null`
+- `default(型)` で既定値を書ける。型が決まる場所では、型を省略して `default` だけを書ける（default リテラル）
+- ジェネリックメソッドでは、`T` がどの型でも、`default` でその型の既定値を返せる
 - 値型の値は、変数やフィールドがある場所に直接入る。`new` で作ったオブジェクトはヒープに置かれる
 
 ---
@@ -304,6 +426,22 @@ class Box
    ```
 
 3. 「値型の値は必ずスタックに置かれる」という説明が正確でない理由を説明してください。
+4. 次のコードを実行すると何が出力されますか？
+
+   ```csharp
+   Console.WriteLine(First(new double[0]));
+   Console.WriteLine(First(new bool[] { true }));
+   Console.WriteLine(First(new string[0]) == null);
+
+   T? First<T>(T[] array)
+   {
+       if (array.Length == 0)
+       {
+           return default;
+       }
+       return array[0];
+   }
+   ```
 
 <details markdown="1">
 <summary>解答を見る</summary>
@@ -311,6 +449,13 @@ class Box
 1. 値型では値そのものがコピーされ、コピー先を書き換えてもコピー元は変わりません。参照型ではオブジェクトへの参照がコピーされ、コピー元とコピー先は同じオブジェクトを指します。
 2. `5, 6` が出力されます。`n` は `x` のコピーなので `x` は変わりません。`b.Value++` は `a` と同じオブジェクトを書き換えるので `a.Value` は `6` になります。その後の `b = new Box()` は `b` が指す先を変えるだけで、`a` には影響しません。
 3. クラスのフィールドにある値型の値は、オブジェクトの一部としてヒープに置かれるからです。値型の値は、変数やフィールドがある場所に直接入ります。
+4. 次のように出力されます。要素のない `double` の配列では `double` の既定値 `0`、要素のある `bool` の配列では最初の要素 `true`、要素のない `string` の配列では `string` の既定値 `null` が返ります。
+
+   ```
+   0
+   True
+   True
+   ```
 
 </details>
 

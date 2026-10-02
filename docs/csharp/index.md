@@ -119,7 +119,7 @@ C# プログラミングをゼロから学びます。
 
 | # | トピック | 概要 |
 |---|---|---|
-| 46 | [値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) | 代入・値渡しでコピーされるもの・`==` の意味・`null` と既定値・スタックとヒープ |
+| 46 | [値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) | 代入・値渡しでコピーされるもの・`==` の意味・`null` と既定値・`default` 演算子と default リテラル・ジェネリクスと `default(T)`・スタックとヒープ |
 | 47 | [ガベージコレクション](/unity-csharp-learning/csharp/garbage-collection/) | 到達できないオブジェクトの回収・回収のタイミングは決まらない・世代・メモリ以外のリソース |
 | 47.1 | [ファイナライザー（補足）](/unity-csharp-learning/csharp/finalizers/) | `~クラス名()` の書き方とコンストラクターとの違い・`GC.WaitForPendingFinalizers`・呼ばれるタイミングは決まらずプログラムの終了時にも呼ばれない・回収が 1 回遅れる・後片付けには使えない |
 | 48 | [構造体](/unity-csharp-learning/csharp/structs/) | `struct` の定義・値のコピー・クラスとの使い分け・プロパティが返す構造体の罠（CS1612） |
