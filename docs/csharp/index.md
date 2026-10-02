@@ -53,10 +53,10 @@ C# プログラミングをゼロから学びます。
 |---|---|---|
 | 12 | [クラスとフィールド](/unity-csharp-learning/csharp/classes/) | クラスの定義・インスタンスの作成・フィールドと初期値 |
 | 12.1 | [オブジェクト初期化子（補足）](/unity-csharp-learning/csharp/object-initializers/) | `new クラス名 { フィールド名 = 値 }`・作った後の代入への置き換え・初期値の上書き・`new()` との組み合わせ・匿名型との違い |
-| 13 | [メソッド](/unity-csharp-learning/csharp/methods/) | メソッドの定義・パラメータ・戻り値・オーバーロード |
+| 13 | [メソッド](/unity-csharp-learning/csharp/methods/) | メソッドの定義・パラメータ・戻り値・式形式（`=>`）・オーバーロード |
 | 14 | [コンストラクター](/unity-csharp-learning/csharp/constructors/) | `new` 時の自動初期化・既定のコンストラクター・`: this(...)` による別のコンストラクターの呼び出し・`this` |
 | 15 | [アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) | `public` / `private` によるカプセル化 |
-| 16 | [プロパティ](/unity-csharp-learning/csharp/properties/) | `get` / `set` アクセサー・自動実装・読み取り専用プロパティ |
+| 16 | [プロパティ](/unity-csharp-learning/csharp/properties/) | `get` / `set` アクセサー・自動実装・読み取り専用プロパティ・式形式のプロパティと `{ get; } =` との違い |
 | 16.1 | [init と required（補足）](/unity-csharp-learning/csharp/init-required/) | オブジェクト初期化子の入れ忘れと書き換え・`init` アクセサー・`required` 修飾子（CS9035）・コンストラクターとの使い分け・`[SetsRequiredMembers]` |
 | 17 | [インデクサ](/unity-csharp-learning/csharp/indexers/) | `this[]` で配列のようにアクセスできるクラスの定義 |
 

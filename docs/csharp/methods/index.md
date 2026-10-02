@@ -16,6 +16,7 @@ permalink: /csharp/methods/
 - メソッドを呼び出すと、処理が実行されて呼び出し元に戻る流れを説明できる
 - パラメータで、メソッドに値を渡せる
 - 戻り値で、メソッドの結果を受け取れる
+- 本体が式 1 つのメソッドを、式形式（`=>`）で書ける
 - シグネチャとオーバーロードを説明できる
 
 ## 前提知識
@@ -337,7 +338,66 @@ class Player
 
 ---
 
-## 5. シグネチャとオーバーロード
+## 5. 式形式のメソッド
+
+4 節の `IsAlive` や `GetStatus` のように、本体が `return 式;` の 1 行だけのメソッドは、`{ }` と `return` を省略して、`=>` の後に式だけを書けます。これを **式形式のメンバー**（expression-bodied member）といいます。C# 6 以降で使えます。
+
+**書式：[式形式のメソッド](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/lambda-operator#expression-body-definition)**
+```
+アクセス修飾子 戻り値の型 メソッド名(パラメータ) => 式;
+```
+
+| 書き方 | 同じ意味のブロックの書き方 |
+|---|---|
+| `public bool IsAlive() => Hp > 0;` | `public bool IsAlive() { return Hp > 0; }` |
+| `public void Greet() => Console.WriteLine("こんにちは");` | `public void Greet() { Console.WriteLine("こんにちは"); }` |
+
+戻り値のあるメソッドでは、式の値が戻り値になります。`void` のメソッドでは、式を 1 つ実行するだけです。
+
+1 節〜4 節の `Greet`・`IsAlive`・`GetStatus` を、式形式で書きます。
+
+```csharp
+Player p = new Player();
+p.Name = "Alice";
+p.Hp = 100;
+
+p.Greet();
+Console.WriteLine(p.GetStatus());
+Console.WriteLine($"生存中={p.IsAlive()}");
+
+class Player
+{
+    public string Name = "";
+    public int Hp;
+
+    public void Greet() => Console.WriteLine($"こんにちは、{Name}です！");
+
+    public bool IsAlive() => Hp > 0;
+
+    public string GetStatus() => $"{Name}: HP={Hp}";
+}
+```
+
+```
+こんにちは、Aliceです！
+Alice: HP=100
+生存中=True
+```
+
+`=>` の後に書けるのは、式 1 つだけです。`if` 文や `return` 文のような文は書けません。文を書く必要があるメソッドや、処理が 2 行以上になるメソッドは、これまでどおり `{ }` で書きます。
+
+```csharp
+// ❌ NG: => の後に return 文は書けない
+// public int F() => return 1;  // CS1525
+```
+
+式形式とブロックのどちらで書いても、メソッドの動きは同じです。本体が短い式 1 つのときに、読みやすいほうを選びます。
+
+> 💡 **ポイント**: 同じ `=>` の記号は、[switch 式](/unity-csharp-learning/csharp/switch-expressions/) や [ラムダ式](/unity-csharp-learning/csharp/lambda/) でも使いますが、それぞれ別の文法です。どれも「`=>` の右側が結果（本体）」という点は共通しています。式形式は、メソッドのほかに、[プロパティ](/unity-csharp-learning/csharp/properties/) やコンストラクターなどのメンバーにも使えます。
+
+---
+
+## 6. シグネチャとオーバーロード
 
 メソッドの名前と、パラメータの型の並びをあわせたものを、**シグネチャ**（signature）といいます。
 
@@ -423,6 +483,7 @@ Alice が 20 ダメージ（クリティカル=True）。残り HP=70
 - パラメータで、メソッドに値を受け取る。呼び出すときに渡す値を引数という
 - 戻り値の型を書き、`return` で結果を返す。何も返さないメソッドの戻り値の型は `void`
 - `return` を実行すると、メソッドはそこで終わる
+- 本体が式 1 つのメソッドは、`=> 式;` の式形式で書ける。戻り値のあるメソッドでは、式の値が戻り値になる
 - シグネチャは、メソッド名とパラメータの型の並び。シグネチャが違えば、同じ名前のメソッドを複数定義できる（オーバーロード）
 
 ---
