@@ -22,6 +22,7 @@ permalink: /csharp/ienumerable/
 - [Queue\<T\>・Stack\<T\>・HashSet\<T\>（補足）](/unity-csharp-learning/csharp/other-collections/) を読んでいること
 - [インターフェイスの明示的実装](/unity-csharp-learning/csharp/explicit-interface/) を読んでいること
 - [ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) を読んでいること
+- [入れ子の型](/unity-csharp-learning/csharp/nested-types/) を読んでいること
 
 ---
 
@@ -113,7 +114,7 @@ sequenceDiagram
 
 自分で作ったクラスも、`IEnumerable<T>` を実装すれば `foreach` で回せます。ここでは、指定した数から 1 までを逆順に取り出す `Countdown` クラスを作ります。`new Countdown(3)` を `foreach` で回すと、`3`・`2`・`1` が取り出されます。
 
-`IEnumerable<T>` を実装するクラス（`Countdown`）と、取り出し役として `IEnumerator<T>` を実装するクラス（`CountdownEnumerator`）の 2 つが必要です。
+`IEnumerable<T>` を実装するクラス（`Countdown`）と、取り出し役として `IEnumerator<T>` を実装するクラスの 2 つが必要です。取り出し役は、`Countdown` の `GetEnumerator` からしか作りません。そこで、[入れ子の型](/unity-csharp-learning/csharp/nested-types/) で学んだように、`Countdown` の中の `private` なクラス `Enumerator` にして、外から隠します。`GetEnumerator` の戻り値の型はインターフェイスの `IEnumerator<int>` なので、`Enumerator` が `private` でも、`public` な `GetEnumerator` から返せます。.NET の `List<T>` の取り出し役も、`List<T>.Enumerator` という入れ子の型です。
 
 ```csharp
 using System.Collections;
@@ -135,53 +136,53 @@ class Countdown : IEnumerable<int>
 
     public IEnumerator<int> GetEnumerator()
     {
-        return new CountdownEnumerator(_from);
+        return new Enumerator(_from);
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
-}
 
-class CountdownEnumerator : IEnumerator<int>
-{
-    private int _from;
-    private int _current;
-
-    public CountdownEnumerator(int from)
+    private class Enumerator : IEnumerator<int>
     {
-        _from = from;
-        _current = from + 1;
-    }
+        private int _from;
+        private int _current;
 
-    public int Current
-    {
-        get { return _current; }
-    }
-
-    object IEnumerator.Current
-    {
-        get { return Current; }
-    }
-
-    public bool MoveNext()
-    {
-        if (_current <= 1)
+        public Enumerator(int from)
         {
-            return false;
+            _from = from;
+            _current = from + 1;
         }
-        _current--;
-        return true;
-    }
 
-    public void Reset()
-    {
-        _current = _from + 1;
-    }
+        public int Current
+        {
+            get { return _current; }
+        }
 
-    public void Dispose()
-    {
+        object IEnumerator.Current
+        {
+            get { return Current; }
+        }
+
+        public bool MoveNext()
+        {
+            if (_current <= 1)
+            {
+                return false;
+            }
+            _current--;
+            return true;
+        }
+
+        public void Reset()
+        {
+            _current = _from + 1;
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }
 ```
@@ -192,7 +193,7 @@ class CountdownEnumerator : IEnumerator<int>
 1
 ```
 
-`CountdownEnumerator` は、今指している数を `_current` フィールドで覚えています。作られた直後は、最初の要素の手前を表すために `from + 1` にしておきます。`MoveNext` が呼ばれるたびに `_current` を 1 減らし、`1` を過ぎたら `false` を返します。
+`Enumerator` は、今指している数を `_current` フィールドで覚えています。作られた直後は、最初の要素の手前を表すために `from + 1` にしておきます。`MoveNext` が呼ばれるたびに `_current` を 1 減らし、`1` を過ぎたら `false` を返します。
 
 実装しなければならないメンバーは、`GetEnumerator`・`Current`・`MoveNext` のほかにもあります。
 
@@ -231,6 +232,7 @@ classDiagram
     IEnumerable <|-- IEnumerableT
     IEnumerator <|-- IEnumeratorT
     IDisposable <|-- IEnumeratorT
+    class CountdownEnumerator["Countdown.Enumerator"]
     IEnumerableT <|.. Countdown
     IEnumeratorT <|.. CountdownEnumerator
 ```
@@ -239,9 +241,9 @@ classDiagram
 
 ## 4. 取り出し役を毎回作る理由
 
-`Countdown` の `GetEnumerator` は、呼ばれるたびに新しい `CountdownEnumerator` を作って返しています。どこまで取り出したかは、`Countdown` ではなく取り出し役が覚えているので、同じ `Countdown` を同時に何か所から回しても、互いに影響しません。
+`Countdown` の `GetEnumerator` は、呼ばれるたびに新しい `Enumerator` を作って返しています。どこまで取り出したかは、`Countdown` ではなく取り出し役が覚えているので、同じ `Countdown` を同時に何か所から回しても、互いに影響しません。
 
-次のコードは、同じ `countdown` を二重の `foreach` で回します。`Countdown` クラスと `CountdownEnumerator` クラスは、前のコード例と同じものを使います。
+次のコードは、同じ `countdown` を二重の `foreach` で回します。`Countdown` クラスは、前のコード例と同じものです。
 
 ```csharp
 using System.Collections;
@@ -255,7 +257,66 @@ foreach (int a in countdown)
     }
 }
 
-// Countdown クラスと CountdownEnumerator クラスは前のコード例と同じ
+class Countdown : IEnumerable<int>
+{
+    private int _from;
+
+    public Countdown(int from)
+    {
+        _from = from;
+    }
+
+    public IEnumerator<int> GetEnumerator()
+    {
+        return new Enumerator(_from);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    private class Enumerator : IEnumerator<int>
+    {
+        private int _from;
+        private int _current;
+
+        public Enumerator(int from)
+        {
+            _from = from;
+            _current = from + 1;
+        }
+
+        public int Current
+        {
+            get { return _current; }
+        }
+
+        object IEnumerator.Current
+        {
+            get { return Current; }
+        }
+
+        public bool MoveNext()
+        {
+            if (_current <= 1)
+            {
+                return false;
+            }
+            _current--;
+            return true;
+        }
+
+        public void Reset()
+        {
+            _current = _from + 1;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+}
 ```
 
 ```
@@ -295,18 +356,81 @@ foreach (int a in countdown)
 ## 理解度チェック
 
 1. `foreach` 文で回したいクラスは、どのインターフェイスを実装しますか？
-2. 次のコードを実行すると何が出力されますか？`Countdown` クラスと `CountdownEnumerator` クラスは、このページの 3 節と同じものとします。
+2. 次のコードを実行すると何が出力されますか？`Countdown` クラスは、このページの 3 節と同じものです。
 
    ```csharp
+   using System.Collections;
+
    int total = 0;
    foreach (int n in new Countdown(4))
    {
        total += n;
    }
    Console.WriteLine(total);
+
+   class Countdown : IEnumerable<int>
+   {
+       private int _from;
+
+       public Countdown(int from)
+       {
+           _from = from;
+       }
+
+       public IEnumerator<int> GetEnumerator()
+       {
+           return new Enumerator(_from);
+       }
+
+       IEnumerator IEnumerable.GetEnumerator()
+       {
+           return GetEnumerator();
+       }
+
+       private class Enumerator : IEnumerator<int>
+       {
+           private int _from;
+           private int _current;
+
+           public Enumerator(int from)
+           {
+               _from = from;
+               _current = from + 1;
+           }
+
+           public int Current
+           {
+               get { return _current; }
+           }
+
+           object IEnumerator.Current
+           {
+               get { return Current; }
+           }
+
+           public bool MoveNext()
+           {
+               if (_current <= 1)
+               {
+                   return false;
+               }
+               _current--;
+               return true;
+           }
+
+           public void Reset()
+           {
+               _current = _from + 1;
+           }
+
+           public void Dispose()
+           {
+           }
+       }
+   }
    ```
 
-3. `Countdown` の `GetEnumerator` が、新しい `CountdownEnumerator` を作らず、フィールドに 1 つだけ持っている取り出し役を毎回返すようにすると、二重の `foreach` ではどのような問題が起きますか？
+3. `Countdown` の `GetEnumerator` が、新しい `Enumerator` を作らず、フィールドに 1 つだけ持っている取り出し役を毎回返すようにすると、二重の `foreach` ではどのような問題が起きますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
