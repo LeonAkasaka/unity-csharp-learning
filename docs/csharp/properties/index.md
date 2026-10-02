@@ -16,6 +16,7 @@ permalink: /csharp/properties/
 - `set` アクセサーで値を調べてから、フィールドに保存できる
 - 自動実装プロパティ（`{ get; set; }`）を使える
 - 読み取り専用のプロパティの 2 つの書き方の違いを説明できる
+- 式形式（`=>`）で、計算して返すプロパティやアクセサーを書ける
 
 ## 前提知識
 
@@ -244,7 +245,79 @@ class Player
 
 ---
 
-## 5. プロパティを使ったクラスの例
+## 5. 式形式のプロパティ
+
+[メソッド](/unity-csharp-learning/csharp/methods/) で学んだ式形式（`=>`）は、プロパティにも使えます。
+
+### 読み取り専用のプロパティを式形式で書く
+
+ほかの値から計算して返すだけの読み取り専用のプロパティは、`=> 式;` で書けます。`get` を書く必要はありません。
+
+**書式：[式形式のプロパティ](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/lambda-operator#expression-body-definition)（読み取り専用）**
+```
+アクセス修飾子 型 プロパティ名 => 式;
+```
+
+これは、`{ get { return 式; } }` と同じ意味です。
+
+```csharp
+Weapon w = new Weapon();
+w.BaseAttack = 10;
+w.Bonus = 5;
+Console.WriteLine(w.Attack);
+
+w.Bonus = 20;
+Console.WriteLine(w.Attack);
+
+class Weapon
+{
+    public int BaseAttack { get; set; }
+    public int Bonus { get; set; }
+
+    public int Attack => BaseAttack + Bonus;
+}
+```
+
+```
+15
+30
+```
+
+`Attack` を読み取るたびに、`BaseAttack + Bonus` が計算されます。`Bonus` を変えた後は、新しい値で計算された `30` が返ります。
+
+### get / set アクセサーを式形式で書く
+
+`get` と `set` のアクセサーも、それぞれ `=> 式;` で書けます（C# 7 以降）。2 節の `Hp` プロパティを、[条件演算子](/unity-csharp-learning/csharp/conditional-operator/) を使って式形式で書きます。
+
+```csharp
+Player p = new Player();
+p.Hp = 100;
+Console.WriteLine(p.Hp);
+p.Hp = -50;
+Console.WriteLine(p.Hp);
+
+class Player
+{
+    private int _hp;
+
+    public int Hp
+    {
+        get => _hp;
+        set => _hp = value < 0 ? 0 : value;
+    }
+}
+```
+
+```
+100
+0
+```
+
+`get => _hp;` は `get { return _hp; }` と、`set => _hp = ...;` は `set { _hp = ...; }` と同じ意味です。
+
+---
+
+## 6. プロパティを使ったクラスの例
 
 ここまでの書き方を組み合わせた `Player` クラスです。
 
@@ -319,6 +392,38 @@ Alice がレベル 2 になった！ HP=120/120
 
 ## よくあるミス
 
+### => と { get; } = を取り違える
+
+`=> 式;` と `{ get; } = 式;` は見た目が似ていますが、意味が違います。
+
+| 書き方 | 式が評価されるとき |
+|---|---|
+| `public int[] Scores => new int[3];` | プロパティを読み取るたびに評価される |
+| `public int[] Scores { get; } = new int[3];` | インスタンスを作るときに 1 回だけ評価され、その値が保存される |
+
+```csharp
+Team team = new Team();
+team.ScoresByArrow[0] = 100;
+team.ScoresByInit[0] = 100;
+Console.WriteLine(team.ScoresByArrow[0]);
+Console.WriteLine(team.ScoresByInit[0]);
+
+class Team
+{
+    public int[] ScoresByArrow => new int[3];
+    public int[] ScoresByInit { get; } = new int[3];
+}
+```
+
+```
+0
+100
+```
+
+`ScoresByArrow` は、読み取るたびに新しい配列を作って返します。`team.ScoresByArrow[0] = 100;` で書き込んだ配列と、次の行で読み取った配列は別の配列なので、`100` は残っていません。`ScoresByInit` は、インスタンスを作るときに作った配列を返し続けるので、書き込んだ `100` が読み取れます。
+
+値を保存しておきたいときは `{ get; } =` を、ほかの値から毎回計算したいときは `=>` を使います。
+
 ### get や set の中で、プロパティ自身を使う
 
 ```csharp
@@ -377,6 +482,7 @@ class Player
 - `set` アクセサーで値を調べると、範囲外の値が保存されるのを防げる
 - 値を調べる必要がなければ、自動実装プロパティ `{ get; set; }` を使う
 - `{ get; }` はコンストラクターでだけ、`{ get; private set; }` はクラスの中からだけ、値を入れられる
+- `=> 式;` の式形式のプロパティは、読み取るたびに式を計算する。`{ get; } = 式;` は、作るときに 1 回だけ計算した値を保存する
 - `get` や `set` の中では、プロパティ自身ではなくバッキングフィールドを読み書きする
 
 ---
