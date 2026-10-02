@@ -383,7 +383,19 @@ class Player
 Alice (Lv.3)
 ```
 
-`new Player { Name = "Alice", Level = 3 }` の `{ }` の部分を、[オブジェクト初期化子](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/object-and-collection-initializers) といいます。インスタンスを作った後に `p.Name = "Bob";` と書くと、コンパイルエラーになります。
+`new Player { Name = "Alice", Level = 3 }` の `{ }` の部分は、[オブジェクト初期化子（補足）](/unity-csharp-learning/csharp/object-initializers/) で学んだオブジェクト初期化子です。オブジェクト初期化子では、フィールドと同じように、`set` または `init` を持つプロパティにも値を入れられます。`init` のプロパティは、インスタンスを作った後に `p.Name = "Bob";` と書くと、コンパイルエラーになります。
+
+`set` も `init` もないプロパティには、オブジェクト初期化子でも値を入れられません。
+
+```csharp
+// ❌ NG: { get; } のプロパティには、オブジェクト初期化子でも値を入れられない（CS0200）
+// Enemy e = new Enemy { Name = "Slime" };
+//
+// class Enemy
+// {
+//     public string Name { get; } = "";
+// }
+```
 
 ---
 

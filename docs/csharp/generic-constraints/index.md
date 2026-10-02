@@ -22,7 +22,8 @@ permalink: /csharp/generic-constraints/
 
 - [ジェネリックメソッド](/unity-csharp-learning/csharp/generic-methods/) を読んでいること
 - [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) を読んでいること
-- [プロパティ](/unity-csharp-learning/csharp/properties/) を読んでいること（オブジェクト初期化子を使います）
+- [プロパティ](/unity-csharp-learning/csharp/properties/) を読んでいること
+- [オブジェクト初期化子（補足）](/unity-csharp-learning/csharp/object-initializers/) を読んでいること
 
 ---
 

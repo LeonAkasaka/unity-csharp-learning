@@ -52,6 +52,7 @@ C# プログラミングをゼロから学びます。
 | # | トピック | 概要 |
 |---|---|---|
 | 12 | [クラスとフィールド](/unity-csharp-learning/csharp/classes/) | クラスの定義・インスタンスの作成・フィールドと初期値 |
+| 12.1 | [オブジェクト初期化子（補足）](/unity-csharp-learning/csharp/object-initializers/) | `new クラス名 { フィールド名 = 値 }`・作った後の代入への置き換え・初期値の上書き・`new()` との組み合わせ・匿名型との違い |
 | 13 | [メソッド](/unity-csharp-learning/csharp/methods/) | メソッドの定義・パラメータ・戻り値・オーバーロード |
 | 14 | [コンストラクター](/unity-csharp-learning/csharp/constructors/) | `new` 時の自動初期化・既定のコンストラクター・`this` |
 | 15 | [アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) | `public` / `private` によるカプセル化 |

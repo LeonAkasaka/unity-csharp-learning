@@ -361,4 +361,4 @@ class Player
 
 ## 次のステップ
 
-[メソッド](/unity-csharp-learning/csharp/methods/) では、クラスに処理を持たせ、名前を付けて呼び出す方法を学びます。
+[オブジェクト初期化子（補足）](/unity-csharp-learning/csharp/object-initializers/) では、インスタンスを作る式の中で、フィールドにまとめて値を入れる書き方を学びます。
