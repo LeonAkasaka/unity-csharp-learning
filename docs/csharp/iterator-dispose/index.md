@@ -314,4 +314,4 @@ Numbers の finally
 
 ## 次のステップ
 
-[スレッドの基本](/unity-csharp-learning/csharp/threads/) では、複数の処理を同時に進めるためのスレッドを学びます。
+[Dispose パターン（補足）](/unity-csharp-learning/csharp/dispose-pattern/) では、`Dispose` の呼び忘れに備えてファイナライザーを組み合わせる、`Dispose(bool)` と `GC.SuppressFinalize` を使った書き方を学びます。

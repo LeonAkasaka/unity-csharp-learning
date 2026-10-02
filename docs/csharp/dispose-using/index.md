@@ -336,6 +336,8 @@ ObjectDisposedException: A
 
 2 回目の `Dispose` は何もせずに戻るので、`a.Dispose` は 1 回だけ表示されています。`Dispose` した後の `M` では、`ObjectDisposedException` が投げられます。`IDisposable` を実装した .NET のクラスの多くも、`Dispose` した後に使うと `ObjectDisposedException` を投げます。
 
+ここで作った `Dispose` は、呼び出し元が呼ぶことを前提にしています。呼び忘れたときに備えて、[ファイナライザー（補足）](/unity-csharp-learning/csharp/finalizers/) を組み合わせる書き方は、[Dispose パターン（補足）](/unity-csharp-learning/csharp/dispose-pattern/) で学びます。
+
 ---
 
 ## ワンポイントアドバイス

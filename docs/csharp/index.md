@@ -119,6 +119,7 @@ C# プログラミングをゼロから学びます。
 |---|---|---|
 | 45 | [値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) | 代入・値渡しでコピーされるもの・`==` の意味・`null` と既定値・スタックとヒープ |
 | 46 | [ガベージコレクション](/unity-csharp-learning/csharp/garbage-collection/) | 到達できないオブジェクトの回収・回収のタイミングは決まらない・世代・メモリ以外のリソース |
+| 46.1 | [ファイナライザー（補足）](/unity-csharp-learning/csharp/finalizers/) | `~クラス名()` の書き方とコンストラクターとの違い・`GC.WaitForPendingFinalizers`・呼ばれるタイミングは決まらずプログラムの終了時にも呼ばれない・回収が 1 回遅れる・後片付けには使えない |
 | 47 | [構造体](/unity-csharp-learning/csharp/structs/) | `struct` の定義・値のコピー・クラスとの使い分け・プロパティが返す構造体の罠（CS1612） |
 | 48 | [構造体の制約](/unity-csharp-learning/csharp/struct-constraints/) | 継承できない・`System.ValueType`・インターフェイスの実装・コンストラクターと既定値・`readonly struct` |
 | 49 | [ボクシングとアンボクシング](/unity-csharp-learning/csharp/boxing/) | `object` やインターフェイスへの変換でヒープにコピー・アンボクシングの型・ジェネリクスで避ける |
@@ -178,6 +179,7 @@ C# プログラミングをゼロから学びます。
 | 76 | [例外を投げる](/unity-csharp-learning/csharp/throwing-exceptions/) | `throw`・呼び出し元への伝わり方とスタックトレース・`throw;` による再スロー・独自の例外クラスと `InnerException` |
 | 77 | [IDisposable と using](/unity-csharp-learning/csharp/dispose-using/) | `Dispose` が必要な理由・`IDisposable` の実装・`using` 文と `try` / `finally`・`using` 宣言と解放の順序 |
 | 77.1 | [イテレーターの後片付け（補足）](/unity-csharp-learning/csharp/iterator-dispose/) | `foreach` の `try` / `finally` と `Dispose`・`break` したときのイテレーターの `finally`・イテレーターの中の `using` |
+| 77.2 | [Dispose パターン（補足）](/unity-csharp-learning/csharp/dispose-pattern/) | アンマネージドリソース・ファイナライザーで呼び忘れに備える・`GC.SuppressFinalize`・`Dispose(bool disposing)` で後片付けの範囲を分ける・派生クラスでのオーバーライド・`SafeHandle` |
 
 ### C# スレッド
 
