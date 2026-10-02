@@ -133,7 +133,7 @@ struct Point : IDescribable
 
 C# 10 以降では、構造体にも、パラメータのないコンストラクターを書けます。ただし、次の場合は、そのコンストラクターは呼ばれません。
 
-- `default` で既定値を作るとき
+- `default` で既定値を作るとき（[値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) の 5 節）
 - 配列を作ったときの要素
 
 これらの場合、すべてのフィールドが 0（参照型のフィールドは `null`）の値になります。
