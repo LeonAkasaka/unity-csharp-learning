@@ -15,6 +15,7 @@ permalink: /csharp/constructors/
 - コンストラクターを定義し、インスタンスを作るときにフィールドを初期化できる
 - コンストラクターと通常のメソッドの違いを説明できる
 - パラメータのないコンストラクターが自動的に用意される条件を説明できる
+- `: this(...)` で別のコンストラクターを呼び出し、初期化の処理を 1 か所にまとめられる
 
 ## 前提知識
 
@@ -162,6 +163,110 @@ Alice: HP=80
 
 ---
 
+## 4. 別のコンストラクターを呼び出す
+
+前の節の 2 つのコンストラクターは、どちらも `Name` と `Hp` に代入しています。初期化の処理が増えると、同じ処理を両方に書くことになります。たとえば、HP が 1 より小さければ 1 に直す処理を加えると、次のようになります。
+
+```csharp
+Player p1 = new Player();
+Player p2 = new Player("Alice", -10);
+
+Console.WriteLine($"{p1.Name}: HP={p1.Hp}");
+Console.WriteLine($"{p2.Name}: HP={p2.Hp}");
+
+class Player
+{
+    public string Name;
+    public int Hp;
+
+    public Player()
+    {
+        Name = "名無し";
+        Hp = 100;
+        if (Hp < 1)
+        {
+            Hp = 1;
+        }
+    }
+
+    public Player(string name, int hp)
+    {
+        Name = name;
+        Hp = hp;
+        if (Hp < 1)
+        {
+            Hp = 1;
+        }
+    }
+}
+```
+
+```
+名無し: HP=100
+Alice: HP=1
+```
+
+同じ処理が 2 か所にあると、片方だけを直して、もう片方を直し忘れることがあります。
+
+コンストラクターの `( )` の後に `: this(引数)` と書くと、同じクラスの別のコンストラクターを呼び出せます。これを **コンストラクター初期化子**（constructor initializer）といいます。パラメータのないコンストラクターから、`this("名無し", 100)` で 2 つのパラメータのあるコンストラクターを呼び出せば、初期化の処理を 1 か所にまとめられます。
+
+**書式：[別のコンストラクターの呼び出し](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/using-constructors)**
+```
+public クラス名(パラメータ) : this(引数)
+{
+    // 呼び出したコンストラクターの後に行う処理
+}
+```
+
+| 要素 | 説明 |
+|---|---|
+| `this(引数)` | 同じクラスのコンストラクターのうち、引数に合うものを呼び出す |
+
+呼び出される順序がわかるように、それぞれのコンストラクターの本体でメッセージを表示します。
+
+```csharp
+Player p1 = new Player();
+Console.WriteLine($"{p1.Name}: HP={p1.Hp}");
+Player p2 = new Player("Alice", -10);
+Console.WriteLine($"{p2.Name}: HP={p2.Hp}");
+
+class Player
+{
+    public string Name;
+    public int Hp;
+
+    public Player() : this("名無し", 100)
+    {
+        Console.WriteLine("Player() の本体");
+    }
+
+    public Player(string name, int hp)
+    {
+        Console.WriteLine("Player(string, int) の本体");
+        Name = name;
+        Hp = hp;
+        if (Hp < 1)
+        {
+            Hp = 1;
+        }
+    }
+}
+```
+
+```
+Player(string, int) の本体
+Player() の本体
+名無し: HP=100
+Player(string, int) の本体
+Alice: HP=1
+```
+
+`new Player()` では、`: this("名無し", 100)` で呼び出したコンストラクターの本体が先に実行され、その後に `Player()` の本体が実行されます。HP を直す処理は、`Player(string, int)` の 1 か所だけに書けばよくなりました。
+
+`this(...)` で、自分自身を呼び出すことはできません（CS0516）。
+
+---
+
 ## よくあるミス
 
 ### コンストラクターに戻り値の型を書く
@@ -236,6 +341,7 @@ class Item
 - コンストラクターを 1 つも定義していないクラスには、パラメータのない既定のコンストラクターが自動的に用意される
 - コンストラクターを 1 つでも定義すると、既定のコンストラクターは用意されない
 - コンストラクターも、パラメータの違うものを複数定義できる
+- `: this(引数)` で同じクラスの別のコンストラクターを呼び出せる。呼び出したコンストラクターの本体が先に実行される
 
 ---
 

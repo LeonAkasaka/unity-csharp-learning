@@ -111,7 +111,7 @@ X = 1, Y = 2
 
 ### プロパティは書き換えられない
 
-位置指定の構文で作られるプロパティは、[プロパティ](/unity-csharp-learning/csharp/properties/) で学んだ `init` アクセサーを持つので、作った後に代入するとコンパイルエラーになります。
+位置指定の構文で作られるプロパティは、[init と required（補足）](/unity-csharp-learning/csharp/init-required/) で学んだ `init` アクセサーを持つので、作った後に代入するとコンパイルエラーになります。
 
 ```csharp
 // ❌ NG: record のプロパティは init 専用なので代入できない（CS8852）
@@ -345,4 +345,4 @@ record も、クラスと同じように継承できます（`record Student(str
 
 ## 次のステップ
 
-[列挙型](/unity-csharp-learning/csharp/enums/) では、関連する定数に名前を付けてまとめる `enum` を学びます。
+[プライマリコンストラクター（補足）](/unity-csharp-learning/csharp/primary-constructors/) では、record の位置指定の構文と同じ書き方で、クラスにコンストラクターを書く方法と、record との違いを学びます。

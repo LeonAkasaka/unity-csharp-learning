@@ -235,7 +235,7 @@ Player p = new() { Name = "Alice", Hp = 100 };
 オブジェクト初期化子は、この後に学ぶ機能とも組み合わせられます。
 
 - [コンストラクター](/unity-csharp-learning/csharp/constructors/) に引数を渡したうえで、オブジェクト初期化子を書ける。コンストラクターが実行された後に、オブジェクト初期化子の代入が実行される
-- [プロパティ](/unity-csharp-learning/csharp/properties/) にも、フィールドと同じように値を入れられる
+- [プロパティ](/unity-csharp-learning/csharp/properties/) にも、フィールドと同じように値を入れられる。作るときにだけ値を入れられるプロパティや、値を入れることを必須にするプロパティは、[init と required（補足）](/unity-csharp-learning/csharp/init-required/) で学ぶ
 
 それぞれのページで、組み合わせ方を紹介します。
 
