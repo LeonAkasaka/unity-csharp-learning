@@ -54,9 +54,10 @@ C# プログラミングをゼロから学びます。
 | 12 | [クラスとフィールド](/unity-csharp-learning/csharp/classes/) | クラスの定義・インスタンスの作成・フィールドと初期値 |
 | 12.1 | [オブジェクト初期化子（補足）](/unity-csharp-learning/csharp/object-initializers/) | `new クラス名 { フィールド名 = 値 }`・作った後の代入への置き換え・初期値の上書き・`new()` との組み合わせ・匿名型との違い |
 | 13 | [メソッド](/unity-csharp-learning/csharp/methods/) | メソッドの定義・パラメータ・戻り値・オーバーロード |
-| 14 | [コンストラクター](/unity-csharp-learning/csharp/constructors/) | `new` 時の自動初期化・既定のコンストラクター・`this` |
+| 14 | [コンストラクター](/unity-csharp-learning/csharp/constructors/) | `new` 時の自動初期化・既定のコンストラクター・`: this(...)` による別のコンストラクターの呼び出し・`this` |
 | 15 | [アクセス修飾子](/unity-csharp-learning/csharp/access-modifiers/) | `public` / `private` によるカプセル化 |
 | 16 | [プロパティ](/unity-csharp-learning/csharp/properties/) | `get` / `set` アクセサー・自動実装・読み取り専用プロパティ |
+| 16.1 | [init と required（補足）](/unity-csharp-learning/csharp/init-required/) | オブジェクト初期化子の入れ忘れと書き換え・`init` アクセサー・`required` 修飾子（CS9035）・コンストラクターとの使い分け・`[SetsRequiredMembers]` |
 | 17 | [インデクサ](/unity-csharp-learning/csharp/indexers/) | `this[]` で配列のようにアクセスできるクラスの定義 |
 
 ### C# メソッドの応用文法
@@ -128,6 +129,7 @@ C# プログラミングをゼロから学びます。
 | 51 | [null 許容参照型](/unity-csharp-learning/csharp/nullable-reference-types/) | `string` と `string?`・主な警告（CS8600 / CS8602 / CS8603 / CS8604 / CS8618）・`string?` は別の型を作らない・フロー解析・`?.` と `!`・フィールドの初期化・`<Nullable>` と `#nullable` |
 | 52 | [タプル](/unity-csharp-learning/csharp/tuples/) | 複数の値を返す・要素の名前・分解と `_`・正体は `ValueTuple` 構造体（名前はコンパイル時だけ）・`System.Tuple` との違い |
 | 53 | [record](/unity-csharp-learning/csharp/records/) | 位置指定の構文とコンパイラーが作るメンバー・中身で比べる `==`・`Dictionary` / `HashSet` での利用・`with` 式・`record struct` |
+| 53.1 | [プライマリコンストラクター（補足）](/unity-csharp-learning/csharp/primary-constructors/) | `class クラス名(パラメータ)`・パラメータはクラス全体で使え値が保存される・record と違いプロパティを作らない・値が 2 か所に保存される問題（CS9124）・`: this(...)` による追加のコンストラクター（CS8862）・継承 |
 | 54 | [列挙型](/unity-csharp-learning/csharp/enums/) | `enum` の定義・整数との変換・定義されていない値・`Enum.TryParse`・`[Flags]` |
 
 ### C# パターンマッチング

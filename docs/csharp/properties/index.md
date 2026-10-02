@@ -364,38 +364,9 @@ class Player
 
 ## ワンポイントアドバイス
 
-### init アクセサー（C# 9 以降）
+### 作るときにだけ値を入れられるプロパティ
 
-`set` の代わりに [init](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/init) と書くと、コンストラクターのほか、インスタンスを作る式の中でだけ値を入れられるプロパティになります。
-
-```csharp
-Player p = new Player { Name = "Alice", Level = 3 };
-Console.WriteLine($"{p.Name} (Lv.{p.Level})");
-
-class Player
-{
-    public string Name { get; init; } = "";
-    public int Level { get; init; } = 1;
-}
-```
-
-```
-Alice (Lv.3)
-```
-
-`new Player { Name = "Alice", Level = 3 }` の `{ }` の部分は、[オブジェクト初期化子（補足）](/unity-csharp-learning/csharp/object-initializers/) で学んだオブジェクト初期化子です。オブジェクト初期化子では、フィールドと同じように、`set` または `init` を持つプロパティにも値を入れられます。`init` のプロパティは、インスタンスを作った後に `p.Name = "Bob";` と書くと、コンパイルエラーになります。
-
-`set` も `init` もないプロパティには、オブジェクト初期化子でも値を入れられません。
-
-```csharp
-// ❌ NG: { get; } のプロパティには、オブジェクト初期化子でも値を入れられない（CS0200）
-// Enemy e = new Enemy { Name = "Slime" };
-//
-// class Enemy
-// {
-//     public string Name { get; } = "";
-// }
-```
+`{ get; }` のプロパティには、コンストラクター（と初期値）でしか値を入れられません。`set` の代わりに `init` と書くと、[オブジェクト初期化子（補足）](/unity-csharp-learning/csharp/object-initializers/) でも値を入れられ、作った後は変えられないプロパティになります。さらに `required` を付けると、オブジェクト初期化子で値を入れることを必須にできます。どちらも [init と required（補足）](/unity-csharp-learning/csharp/init-required/) で学びます。
 
 ---
 
@@ -471,4 +442,4 @@ Alice (Lv.3)
 
 ## 次のステップ
 
-[インデクサ](/unity-csharp-learning/csharp/indexers/) では、自分で作ったクラスに、配列のように `[]` で要素を読み書きする機能を持たせる方法を学びます。
+[init と required（補足）](/unity-csharp-learning/csharp/init-required/) では、インスタンスを作るときにだけ値を入れられる `init` アクセサーと、値を入れることを必須にする `required` 修飾子を学びます。
