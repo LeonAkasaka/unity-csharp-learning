@@ -13,6 +13,7 @@ permalink: /csharp/operator-overloading/
 このページを読み終えると、以下のことができるようになります。
 
 - 自分で作ったクラスに `+` などの演算子を定義できる
+- `implicit` と `explicit` を使い分けて、自分で作ったクラスの型変換を定義できる
 - `a + b` が、演算子を定義したメソッドの呼び出しに変換されることを説明できる
 - `==` と `!=` のように、ペアで定義しなければならない演算子があることを説明できる
 
@@ -20,6 +21,7 @@ permalink: /csharp/operator-overloading/
 
 - [オーバーロード解決](/unity-csharp-learning/csharp/overload-resolution/) を読んでいること
 - [プロパティ](/unity-csharp-learning/csharp/properties/) を読んでいること
+- [プリミティブ型と型変換](/unity-csharp-learning/csharp/primitive-types/) で、暗黙的な型変換とキャストを学んだこと
 
 ---
 
@@ -199,6 +201,108 @@ True
 
 演算子は、「`+` なら足し算のような意味」のように、元の演算子から想像できる動作にします。予想と違う動作をする演算子は、コードを読む人を混乱させます。
 
+このほか、`operator` キーワードでは、型変換も定義できます。次の節で学びます。
+
+---
+
+## 6. 型変換を定義する
+
+[プリミティブ型と型変換](/unity-csharp-learning/csharp/primitive-types/) で学んだように、`int` から `double` へは暗黙的に変換でき、`double` から `int` へはキャストで明示的に変換します。自分で作ったクラスにも、同じような型変換を定義できます。これを **ユーザー定義の型変換**（user-defined conversion）といいます。
+
+**書式：[ユーザー定義の型変換](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/user-defined-conversion-operators)**
+```
+public static implicit operator 変換先の型(変換元の型 値)
+{
+    // 変換先の型の値を返す
+}
+
+public static explicit operator 変換先の型(変換元の型 値)
+{
+    // 変換先の型の値を返す
+}
+```
+
+| 要素 | 説明 |
+|---|---|
+| `public static` | 演算子と同じく、必ず両方を付ける |
+| `implicit` | 暗黙的な変換を定義する。キャストを書かなくても変換される |
+| `explicit` | 明示的な変換を定義する。`(変換先の型)式` とキャストを書いたときだけ変換される |
+| `operator 変換先の型` | 変換した結果の型。戻り値の型は、これとは別に書かない |
+| `変換元の型 値` | 変換する値を受け取るパラメータ |
+
+`変換先の型` と `変換元の型` は、どちらか一方を、定義しているクラスの型にします。どちらも定義しているクラス以外の型にすると、コンパイルエラー（CS0556）になります。
+
+次の `Fraction` クラスは、分数を表します。`int` からの変換を `implicit` で、`double` への変換を `explicit` で定義しています。
+
+```csharp
+Fraction a = 3;
+Console.WriteLine($"{a.Numerator}/{a.Denominator}");
+
+Fraction half = new Fraction(1, 2);
+Fraction b = half + 1;
+Console.WriteLine($"{b.Numerator}/{b.Denominator}");
+
+Fraction third = new Fraction(1, 3);
+double d = (double)third;
+Console.WriteLine(d);
+
+class Fraction
+{
+    public int Numerator { get; }
+    public int Denominator { get; }
+
+    public Fraction(int numerator, int denominator)
+    {
+        Numerator = numerator;
+        Denominator = denominator;
+    }
+
+    public static Fraction operator +(Fraction a, Fraction b)
+    {
+        return new Fraction(
+            a.Numerator * b.Denominator + b.Numerator * a.Denominator,
+            a.Denominator * b.Denominator);
+    }
+
+    public static implicit operator Fraction(int value)
+    {
+        return new Fraction(value, 1);
+    }
+
+    public static explicit operator double(Fraction f)
+    {
+        return (double)f.Numerator / f.Denominator;
+    }
+}
+```
+
+```
+3/1
+3/2
+0.3333333333333333
+```
+
+`Fraction a = 3;` では、`int` の `3` が、定義した変換で `3/1` の `Fraction` になります。`half + 1` では、`operator +` のパラメータは 2 つとも `Fraction` なので、`1` が暗黙的に `Fraction` に変換されてから足されます。[オーバーロード解決](/unity-csharp-learning/csharp/overload-resolution/) で学んだように、暗黙的な変換は、引数をパラメータの型に合わせるときにも使われます。
+
+`double` への変換では、`Numerator` を `double` にしてから割っています。`int` どうしの割り算では、小数点以下が切り捨てられるからです。
+
+`implicit` と `explicit` は、組み込み型と同じ基準で選びます。
+
+| 変換 | 選ぶキーワード | `Fraction` の例 |
+|---|---|---|
+| 情報が失われず、失敗しない | `implicit` | `int` の値は、分母が `1` の分数として、そのまま表せる |
+| 情報が失われる可能性がある | `explicit` | `1/3` は、`double` では正確に表せず、`0.3333333333333333` のように途中で丸められる |
+
+`explicit` で定義した変換は、キャストを書かないと使えません。
+
+```csharp
+// ❌ NG: Fraction から double への変換は explicit
+// Fraction third = new Fraction(1, 3);
+// double d = third;  // CS0266
+```
+
+`a + b` と同じように、型変換も、定義したメソッドの呼び出しに変換されます。IL でのメソッド名は、`implicit` が `op_Implicit`、`explicit` が `op_Explicit` です。
+
 ---
 
 ## よくあるミス
@@ -231,6 +335,28 @@ True
 // }
 ```
 
+### 同じ変換を implicit と explicit の両方で定義する
+
+同じ変換元と変換先の組み合わせには、`implicit` と `explicit` のどちらか一方しか定義できません。暗黙的な変換を定義すれば、キャストを書いても変換できます。
+
+```csharp
+// ❌ NG: A から int への変換が 2 つある
+// class A
+// {
+//     public int Value;
+//
+//     public static implicit operator int(A a)
+//     {
+//         return a.Value;
+//     }
+//
+//     public static explicit operator int(A a)  // CS0557
+//     {
+//         return a.Value;
+//     }
+// }
+```
+
 ---
 
 ## まとめ
@@ -240,6 +366,7 @@ True
 - `a + b` は、定義した演算子のメソッドの呼び出しに変換される
 - `==` と `!=`、`<` と `>`、`<=` と `>=` は、ペアで定義する
 - `==` と `!=` を定義するときは、`Equals` と `GetHashCode` もオーバーライドする
+- `public static implicit operator 変換先の型(変換元の型 値)` で暗黙的な変換を、`explicit` で明示的な変換を定義する。情報が失われず失敗しない変換だけを `implicit` にする
 
 ---
 
@@ -271,6 +398,45 @@ True
 
 2. 1 の `Money` クラスに、金額を整数倍する `*` 演算子（`Money * int`）を追加してください。
 3. `<` だけを定義して `>` を定義しないと、どうなりますか？
+4. 次のコードを実行すると何が出力されますか？
+
+   ```csharp
+   Fraction f = 2;
+   Fraction g = f + new Fraction(1, 4);
+   Console.WriteLine($"{g.Numerator}/{g.Denominator}");
+   Console.WriteLine((double)g);
+
+   class Fraction
+   {
+       public int Numerator { get; }
+       public int Denominator { get; }
+
+       public Fraction(int numerator, int denominator)
+       {
+           Numerator = numerator;
+           Denominator = denominator;
+       }
+
+       public static Fraction operator +(Fraction a, Fraction b)
+       {
+           return new Fraction(
+               a.Numerator * b.Denominator + b.Numerator * a.Denominator,
+               a.Denominator * b.Denominator);
+       }
+
+       public static implicit operator Fraction(int value)
+       {
+           return new Fraction(value, 1);
+       }
+
+       public static explicit operator double(Fraction f)
+       {
+           return (double)f.Numerator / f.Denominator;
+       }
+   }
+   ```
+
+5. 1 の `Money` クラスに、`Money` から `int`（金額）への変換を定義します。`implicit` と `explicit` のどちらにしますか？ 理由も答えてください。
 
 <details markdown="1">
 <summary>解答を見る</summary>
@@ -305,6 +471,39 @@ True
    `900` が表示されます。パラメータの型は、左辺と右辺で違っていてもかまいません。
 
 3. コンパイルエラー（CS0216）になります。`<` と `>` は、ペアで定義する必要があります。
+
+4. 次のように出力されます。`Fraction f = 2;` で `2` が `2/1` に変換されます。`f + new Fraction(1, 4)` は (2 × 4 + 1 × 1) / (1 × 4) で `9/4` になり、`(double)g` で `2.25` に変換されます。
+
+   ```
+   9/4
+   2.25
+   ```
+
+5. `implicit` にします。`Amount` は `int` なので、`int` に変換しても情報が失われず、変換に失敗することもないからです。
+
+   ```csharp
+   Money price = new Money(300);
+   int a = price;
+   int b = (int)price;
+   Console.WriteLine(a + b);
+
+   class Money
+   {
+       public int Amount { get; }
+
+       public Money(int amount)
+       {
+           Amount = amount;
+       }
+
+       public static implicit operator int(Money m)
+       {
+           return m.Amount;
+       }
+   }
+   ```
+
+   `600` が表示されます。`implicit` で定義した変換は、`(int)price` のようにキャストを書いても使えます。
 
 </details>
 
