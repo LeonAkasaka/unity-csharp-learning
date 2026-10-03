@@ -21,7 +21,7 @@ permalink: /csharp/dotnet-overview/
 一方、私たちが書く C# は人間が読み書きしやすいように設計された言語です。このような言語を**高水準言語**と呼びます。
 
 ```csharp
-Debug.Log("Hello, Unity!");
+Console.WriteLine("Hello, World!");
 ```
 
 この C# のコードをそのままコンピューターは実行できません。機械語に変換する処理が必要です。この変換処理を**コンパイル（compile）**、変換を行うプログラムを**コンパイラー（compiler）**と呼びます。
