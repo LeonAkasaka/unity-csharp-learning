@@ -83,6 +83,8 @@ Dave 65
 
 `OrderBy` は、キーが同じ要素（`Bob` と `Dave` の 65 点）の順番を、元の並びのまま保ちます。2 つ目の例では、点数の降順に並べた後、同じ点数の中を名前の昇順に並べています。
 
+`OrderBy` は、取り出したキーどうしを、キーの型の `IComparable<T>` で比べます。`int` や `string` のキーはそのまま並べ替えられます。自分で作ったクラスをキーにするときは、[比較の仕組み](/unity-csharp-learning/csharp/comparison/) で学んだように、そのクラスに `IComparable<T>` を実装するか、`IComparer<TKey>` を受け取るオーバーロードで比べ方を渡します。
+
 `OrderBy` も遅延実行です。元の配列は並べ替えられず、並べ替えた順に要素を取り出す `IEnumerable<T>` が返されます。
 
 ---
