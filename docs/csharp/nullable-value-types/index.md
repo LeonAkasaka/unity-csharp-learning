@@ -60,20 +60,16 @@ True
 
 ```csharp
 int? score = null;
-
-try
-{
-    Console.WriteLine(score.Value);
-}
-catch (InvalidOperationException e)
-{
-    Console.WriteLine(e.GetType().Name);
-}
+Console.WriteLine(score.Value);
 ```
 
+実行すると、次のように表示されてプログラムが終了します（例外の後に続く行は省略）。
+
 ```
-InvalidOperationException
+Unhandled exception. System.InvalidOperationException: Nullable object must have a value.
 ```
+
+「null 許容のオブジェクトには値がなければならない」という意味のメッセージです。例外については、[例外の基本](/unity-csharp-learning/csharp/exceptions/) で学びます。
 
 ---
 
