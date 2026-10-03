@@ -67,30 +67,33 @@ Console.WriteLine(n);
 10
 ```
 
-アンボクシングでは、ボクシングしたときと **同じ型** を指定する必要があります。`int` をボクシングしたボックスを、`long` として取り出すことはできません。`int` から `long` への暗黙的な変換はできますが、アンボクシングではその変換は行われず、[InvalidCastException](https://learn.microsoft.com/dotnet/api/system.invalidcastexception) が発生します。
+アンボクシングでは、ボクシングしたときと **同じ型** を指定する必要があります。`int` をボクシングしたボックスを、`long` として取り出すことはできません。`int` から `long` への暗黙的な変換はできますが、アンボクシングではその変換は行われず、実行したときに [InvalidCastException](https://learn.microsoft.com/dotnet/api/system.invalidcastexception) という例外が発生して、プログラムが止まります。
 
 ```csharp
 object o = 10;
+long wrong = (long)o;
+Console.WriteLine(wrong);
+```
 
-try
-{
-    long wrong = (long)o;
-}
-catch (InvalidCastException e)
-{
-    Console.WriteLine(e.GetType().Name);
-}
+実行すると、次のように表示されてプログラムが終了します（例外の後に続く行は省略）。
 
+```
+Unhandled exception. System.InvalidCastException: Unable to cast object of type 'System.Int32' to type 'System.Int64'.
+```
+
+ボックスの中身は `int`（`System.Int32`）なので、`long`（`System.Int64`）としては取り出せない、というメッセージです。例外については、[例外の基本](/unity-csharp-learning/csharp/exceptions/) で学びます。
+
+`long` として取り出したいときは、`(int)o` でいったん `int` として取り出してから、`long` に変換します。
+
+```csharp
+object o = 10;
 long right = (int)o;
 Console.WriteLine(right);
 ```
 
 ```
-InvalidCastException
 10
 ```
-
-`long` として取り出したいときは、`(int)o` でいったん `int` として取り出してから、`long` に変換します。
 
 ---
 
