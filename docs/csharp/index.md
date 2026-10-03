@@ -162,7 +162,7 @@ C# プログラミングをゼロから学びます。
 | 68 | [ラムダ式](/unity-csharp-learning/csharp/lambda/) | `=>` 構文・式ラムダと文ラムダ・`Action` / `Func` への代入とパラメータの型の推論・メソッドの引数として渡す（`Sort` など）・イベントの購読と解除 |
 | 69 | [変数キャプチャ](/unity-csharp-learning/csharp/variable-capture/) | 外側の変数のキャプチャ（値のコピーではなく変数の共有）・コンパイラーが作るクラスへの書き換えと変数の寿命・ループ内の罠・`static` ラムダ |
 | 70 | [ローカル関数](/unity-csharp-learning/csharp/local-functions/) | メソッド内メソッド・再帰との相性・`static` ローカル関数・ラムダ式との使い分け |
-| 71 | [比較の仕組み](/unity-csharp-learning/csharp/comparison/) | 自作クラスは `Sort()` できない・`IComparable<T>` と `CompareTo` の約束・比べ方を受け取るメソッドを作る・`IComparer<T>` と `Comparison<T>`・`Func<T, T, int>` にしない理由・`List<T>.Sort` と `Comparer<T>.Create`・複数の基準・引き算で比べるミス |
+| 71 | [比較の仕組み](/unity-csharp-learning/csharp/comparison/) | 文字列の節番号は正しく並ばない・自作クラスは `Sort()` できない・`IComparable<T>` と `CompareTo` の約束・複数の基準・自然な順序が決まらない型・比べ方を受け取るメソッドを作る・`IComparer<T>` と `Comparison<T>`・`Func<T, T, int>` にしない理由・`List<T>.Sort` と `Comparer<T>.Create`・引き算で比べるミス |
 
 ### C# LINQ
 

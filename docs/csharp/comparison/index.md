@@ -26,29 +26,46 @@ permalink: /csharp/comparison/
 
 ---
 
-## 1. 自分で作ったクラスは並べ替えられない
+## 1. 節番号を並べ替える
 
-`List<int>` や `List<string>` は、[List\<T\>.Sort メソッド](https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1.sort) を引数なしで呼び出すだけで、小さい順に並べ替えられます。ところが、自分で作った `Enemy` クラスの `List<Enemy>` で同じことをすると、例外が発生します。
+本や文書の「1.2」「1.10」のような節番号を、小さい順に並べ替えることを考えます。
+
+`List<string>` は、[List\<T\>.Sort メソッド](https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1.sort) を引数なしで呼び出すだけで並べ替えられます。しかし、節番号を文字列のまま並べ替えると、期待した順になりません。
 
 ```csharp
-var enemies = new List<Enemy>
+var sections = new List<string> { "1.10", "2.1", "1.2", "1.9" };
+sections.Sort();
+Console.WriteLine(string.Join(", ", sections));
+```
+
+```
+1.10, 1.2, 1.9, 2.1
+```
+
+文字列は、先頭から 1 文字ずつ比べられます。`"1.10"` と `"1.2"` では、3 文字目の `'1'` と `'2'` を比べた時点で、`"1.10"` が前と決まります。`10` と `2` という数として比べてはくれません。
+
+そこで、章（`Chapter`）と節（`Section`）を数として持つ `SectionNumber` クラスを作ります。ところが、`List<SectionNumber>` を `Sort()` で並べ替えようとすると、例外が発生します。
+
+```csharp
+var sections = new List<SectionNumber>
 {
-    new Enemy("Slime", 3),
-    new Enemy("Dragon", 30),
-    new Enemy("Bat", 5),
+    new SectionNumber(1, 10),
+    new SectionNumber(2, 1),
+    new SectionNumber(1, 2),
+    new SectionNumber(1, 9),
 };
 
-enemies.Sort();
+sections.Sort();
 
-class Enemy
+class SectionNumber
 {
-    public string Name { get; }
-    public int Level { get; }
+    public int Chapter { get; }
+    public int Section { get; }
 
-    public Enemy(string name, int level)
+    public SectionNumber(int chapter, int section)
     {
-        Name = name;
-        Level = level;
+        Chapter = chapter;
+        Section = section;
     }
 }
 ```
@@ -62,7 +79,7 @@ Unhandled exception. System.InvalidOperationException: Failed to compare two ele
 
 「2 つの要素を比べられなかった」「少なくとも一方が `IComparable` を実装していなければならない」という意味のメッセージです。例外については、[例外の基本](/unity-csharp-learning/csharp/exceptions/) で学びます。
 
-`Sort` は、並べ替えの手順を知っています。しかし、`Enemy` どうしのどちらを前にするのか（名前の順か、レベルの順か）は知りません。引数なしの `Sort` は、比べ方を要素の型自身に尋ねます。`Enemy` は比べ方を持っていないので、比べられませんでした。
+`Sort` は、並べ替えの手順を知っています。しかし、`SectionNumber` どうしのどちらを前にするのかは知りません。引数なしの `Sort` は、比べ方を要素の型自身に尋ねます。`SectionNumber` は比べ方を持っていないので、比べられませんでした。
 
 ---
 
@@ -85,42 +102,53 @@ int CompareTo(T? other);
 
 `-1` や `1` である必要はありません。符号だけに意味があります。
 
-次の `Enemy` は、レベルの低い順を既定の順序にしています。
+節番号は、まず章で比べ、章が同じなら節で比べます。
 
 ```csharp
-Enemy slime = new Enemy("Slime", 3);
-Enemy dragon = new Enemy("Dragon", 30);
-Enemy bat = new Enemy("Bat", 5);
+SectionNumber s1 = new SectionNumber(1, 9);
+SectionNumber s2 = new SectionNumber(1, 10);
 
-var enemies = new List<Enemy> { slime, dragon, bat };
-enemies.Sort();
-Console.WriteLine(string.Join(", ", enemies));
-
-Console.WriteLine(Util.Max(slime, bat));
-
-class Enemy : IComparable<Enemy>
+var sections = new List<SectionNumber>
 {
-    public string Name { get; }
-    public int Level { get; }
+    s2,
+    new SectionNumber(2, 1),
+    new SectionNumber(1, 2),
+    s1,
+};
+sections.Sort();
+Console.WriteLine(string.Join(", ", sections));
 
-    public Enemy(string name, int level)
+Console.WriteLine(Util.Max(s1, s2));
+
+class SectionNumber : IComparable<SectionNumber>
+{
+    public int Chapter { get; }
+    public int Section { get; }
+
+    public SectionNumber(int chapter, int section)
     {
-        Name = name;
-        Level = level;
+        Chapter = chapter;
+        Section = section;
     }
 
-    public int CompareTo(Enemy? other)
+    public int CompareTo(SectionNumber? other)
     {
         if (other is null)
         {
             return 1;
         }
-        return Level.CompareTo(other.Level);
+
+        int result = Chapter.CompareTo(other.Chapter);
+        if (result != 0)
+        {
+            return result;
+        }
+        return Section.CompareTo(other.Section);
     }
 
     public override string ToString()
     {
-        return $"{Name} Lv{Level}";
+        return $"{Chapter}.{Section}";
     }
 }
 
@@ -134,19 +162,51 @@ static class Util
 ```
 
 ```
-Slime Lv3, Bat Lv5, Dragon Lv30
-Bat Lv5
+1.2, 1.9, 1.10, 2.1
+1.10
 ```
 
-`CompareTo` では、比べたい `Level` どうしの比較を、`int` の `CompareTo` に任せています。`other` が `null` のときは正の数を返します。`null` は、どの値よりも前（小さい）とみなすのが決まりです。
+`CompareTo` では、まず `Chapter` どうしを `int` の `CompareTo` で比べます。結果が `0` でなければ、章だけで順序が決まるので、その結果を返します。`0` のときだけ、`Section` どうしを比べた結果を返します。このように、1 つ目の基準で同じ順位になったときに 2 つ目の基準で比べると、複数の基準で比べられます。
 
-`IComparable<Enemy>` を実装したので、`Sort()` で並べ替えられるようになりました。[型制約](/unity-csharp-learning/csharp/generic-constraints/) で作った `Util.Max` にも、`Enemy` を渡せます。`ToString` は、`string.Join` や `Console.WriteLine` で表示するときの文字列を決めるためにオーバーライドしています。
+`other` が `null` のときは正の数を返します。`null` は、どの値よりも前（小さい）とみなすのが決まりです。
+
+`IComparable<SectionNumber>` を実装したので、`Sort()` で数としての順に並べ替えられるようになりました。[型制約](/unity-csharp-learning/csharp/generic-constraints/) で作った `Util.Max` にも、`SectionNumber` を渡せます。`ToString` は、`string.Join` や `Console.WriteLine` で表示するときの文字列を決めるためにオーバーライドしています。
 
 ---
 
 ## 3. 比べ方を受け取るメソッドを作る
 
-`IComparable<T>` で決められる順序は、1 つの型につき 1 つです。`Enemy` の既定の順序はレベルの順にしたので、「名前の順で後ろのほう」を `Util.Max` で求めることはできません。
+節番号の順序は、誰が考えても 1 つに決まります。しかし、そうでない型もあります。
+
+ファイルの名前（`Name`）とサイズ（`Size`）を持つ `FileItem` クラスを考えます。エクスプローラーのようなファイルの一覧では、同じファイルを、名前の順にもサイズの順にも並べ替えます。どちらの順序も同じくらい自然で、`FileItem` の順序を 1 つに決めることはできません。
+
+```csharp
+class FileItem
+{
+    public string Name { get; }
+    public int Size { get; }
+
+    public FileItem(string name, int size)
+    {
+        Name = name;
+        Size = size;
+    }
+
+    public override string ToString()
+    {
+        return $"{Name} ({Size})";
+    }
+}
+```
+
+`FileItem` は `IComparable<T>` を実装していないので、2 節の `Util.Max` には渡せません。
+
+```csharp
+// ❌ NG: FileItem は IComparable<FileItem> を実装していない
+// FileItem notes = new FileItem("notes.txt", 1200);
+// FileItem data = new FileItem("data.csv", 48000);
+// Util.Max(notes, data);  // CS0311
+```
 
 そこで、比べ方を型に持たせるのではなく、呼び出す側から渡せるようにします。渡す方法には、インターフェイスを使う方法と、デリゲートを使う方法があります。
 
@@ -164,9 +224,9 @@ int Compare(T? x, T? y);
 名前の順で比べるクラスは、次のように書けます。[String.Compare メソッド](https://learn.microsoft.com/dotnet/api/system.string.compare) は、2 つの文字列を比べて、同じ約束の値を返します。`null` を渡してもかまいません。
 
 ```csharp
-class NameComparer : IComparer<Enemy>
+class NameComparer : IComparer<FileItem>
 {
-    public int Compare(Enemy? x, Enemy? y)
+    public int Compare(FileItem? x, FileItem? y)
     {
         return string.Compare(x?.Name, y?.Name);
     }
@@ -206,50 +266,38 @@ public static T Max<T>(T a, T b, Comparison<T> comparison)
 
 ### 完成したコード
 
-3 つの `Max` を使い比べます。
+2 つの `FileItem` を、名前の順とサイズの順で比べます。
 
 ```csharp
-Enemy slime = new Enemy("Slime", 3);
-Enemy bat = new Enemy("Bat", 5);
-
-// 既定の順序（レベルの順）で比べる
-Console.WriteLine(Util.Max(slime, bat));
+FileItem notes = new FileItem("notes.txt", 1200);
+FileItem data = new FileItem("data.csv", 48000);
 
 // IComparer<T> で、名前の順で比べる
-Console.WriteLine(Util.Max(slime, bat, new NameComparer()));
+Console.WriteLine(Util.Max(notes, data, new NameComparer()));
 
-// Comparison<T> で、名前の文字数で比べる
-Console.WriteLine(Util.Max(slime, bat, (x, y) => x.Name.Length.CompareTo(y.Name.Length)));
+// Comparison<T> で、サイズの順で比べる
+Console.WriteLine(Util.Max(notes, data, (x, y) => x.Size.CompareTo(y.Size)));
 
-class Enemy : IComparable<Enemy>
+class FileItem
 {
     public string Name { get; }
-    public int Level { get; }
+    public int Size { get; }
 
-    public Enemy(string name, int level)
+    public FileItem(string name, int size)
     {
         Name = name;
-        Level = level;
-    }
-
-    public int CompareTo(Enemy? other)
-    {
-        if (other is null)
-        {
-            return 1;
-        }
-        return Level.CompareTo(other.Level);
+        Size = size;
     }
 
     public override string ToString()
     {
-        return $"{Name} Lv{Level}";
+        return $"{Name} ({Size})";
     }
 }
 
-class NameComparer : IComparer<Enemy>
+class NameComparer : IComparer<FileItem>
 {
-    public int Compare(Enemy? x, Enemy? y)
+    public int Compare(FileItem? x, FileItem? y)
     {
         return string.Compare(x?.Name, y?.Name);
     }
@@ -275,12 +323,11 @@ static class Util
 ```
 
 ```
-Bat Lv5
-Slime Lv3
-Slime Lv3
+notes.txt (1200)
+data.csv (48000)
 ```
 
-同じ `slime` と `bat` でも、比べ方によって結果が変わります。レベルの順では `Bat`（Lv5）が、名前の順では `Slime`（`B` より `S` が後ろ）が、文字数の順では `Slime`（5 文字）が大きいと判断されます。`Max` の中身は「比べて、大きいほうを返す」だけで、何で比べるかは知りません。
+同じ `notes` と `data` でも、比べ方によって結果が変わります。名前の順では `notes.txt`（`d` より `n` が後ろ）が、サイズの順では `data.csv`（48000）が大きいと判断されます。`Max` の中身は「比べて、大きいほうを返す」だけで、何で比べるかは知りません。
 
 ### Func\<T, T, int\> にしない理由
 
@@ -292,12 +339,12 @@ Slime Lv3
 デリゲート型は、形が同じでも、名前が違えば別の型です。`Func<T, T, int>` の変数は、`Comparison<T>` の変数に代入できません。
 
 ```csharp
-// ❌ NG: Func<Enemy, Enemy, int> と Comparison<Enemy> は別の型
-// Func<Enemy, Enemy, int> byName = (x, y) => string.Compare(x.Name, y.Name);
-// Comparison<Enemy> comparison = byName;  // CS0029
+// ❌ NG: Func<FileItem, FileItem, int> と Comparison<FileItem> は別の型
+// Func<FileItem, FileItem, int> bySize = (x, y) => x.Size.CompareTo(y.Size);
+// Comparison<FileItem> comparison = bySize;  // CS0029
 ```
 
-`byName` を `Sort` に渡しても、同じ理由でコンパイルエラー（CS1503）になります。ラムダ式を直接書いて渡すときは、渡す先の型に合わせて変換されるので、この問題は起きません。
+`bySize` を `Sort` に渡しても、同じ理由でコンパイルエラー（CS1503）になります。ラムダ式を直接書いて渡すときは、渡す先の型に合わせて変換されるので、この問題は起きません。
 
 ---
 
@@ -307,7 +354,7 @@ Slime Lv3
 
 | 呼び出し方 | 比べ方 |
 |---|---|
-| `Sort()` | 要素の型の `IComparable<T>` |
+| `Sort()` | 要素の型の `IComparable<T>`（1 節・2 節の `SectionNumber`） |
 | `Sort(IComparer<T>? comparer)` | 渡した `IComparer<T>` |
 | `Sort(Comparison<T> comparison)` | 渡した `Comparison<T>` |
 
@@ -316,55 +363,43 @@ Slime Lv3
 `IComparer<T>` しか受け取らないメソッドに、ラムダ式で比べ方を渡したいこともあります。そのときは、[Comparer\<T\>.Create メソッド](https://learn.microsoft.com/dotnet/api/system.collections.generic.comparer-1.create) で、`Comparison<T>` から `IComparer<T>` のオブジェクトを作ります。
 
 ```csharp
-var enemies = new List<Enemy>
+var files = new List<FileItem>
 {
-    new Enemy("Slime", 3),
-    new Enemy("Dragon", 30),
-    new Enemy("Bat", 5),
+    new FileItem("notes.txt", 1200),
+    new FileItem("photo.jpg", 350000),
+    new FileItem("data.csv", 48000),
 };
 
-enemies.Sort();
-Console.WriteLine(string.Join(", ", enemies));
+files.Sort(new NameComparer());
+Console.WriteLine(string.Join(", ", files));
 
-enemies.Sort(new NameComparer());
-Console.WriteLine(string.Join(", ", enemies));
+files.Sort((x, y) => x.Size.CompareTo(y.Size));
+Console.WriteLine(string.Join(", ", files));
 
-enemies.Sort((x, y) => y.Level.CompareTo(x.Level));
-Console.WriteLine(string.Join(", ", enemies));
+IComparer<FileItem> bySizeDescending = Comparer<FileItem>.Create((x, y) => y.Size.CompareTo(x.Size));
+files.Sort(bySizeDescending);
+Console.WriteLine(string.Join(", ", files));
 
-IComparer<Enemy> byNameLength = Comparer<Enemy>.Create((x, y) => x.Name.Length.CompareTo(y.Name.Length));
-enemies.Sort(byNameLength);
-Console.WriteLine(string.Join(", ", enemies));
-
-class Enemy : IComparable<Enemy>
+class FileItem
 {
     public string Name { get; }
-    public int Level { get; }
+    public int Size { get; }
 
-    public Enemy(string name, int level)
+    public FileItem(string name, int size)
     {
         Name = name;
-        Level = level;
-    }
-
-    public int CompareTo(Enemy? other)
-    {
-        if (other is null)
-        {
-            return 1;
-        }
-        return Level.CompareTo(other.Level);
+        Size = size;
     }
 
     public override string ToString()
     {
-        return $"{Name} Lv{Level}";
+        return $"{Name} ({Size})";
     }
 }
 
-class NameComparer : IComparer<Enemy>
+class NameComparer : IComparer<FileItem>
 {
-    public int Compare(Enemy? x, Enemy? y)
+    public int Compare(FileItem? x, FileItem? y)
     {
         return string.Compare(x?.Name, y?.Name);
     }
@@ -372,13 +407,12 @@ class NameComparer : IComparer<Enemy>
 ```
 
 ```
-Slime Lv3, Bat Lv5, Dragon Lv30
-Bat Lv5, Dragon Lv30, Slime Lv3
-Dragon Lv30, Bat Lv5, Slime Lv3
-Bat Lv5, Slime Lv3, Dragon Lv30
+data.csv (48000), notes.txt (1200), photo.jpg (350000)
+notes.txt (1200), data.csv (48000), photo.jpg (350000)
+photo.jpg (350000), data.csv (48000), notes.txt (1200)
 ```
 
-3 つ目の `Sort` では、`x` と `y` を入れ替えて `y.Level.CompareTo(x.Level)` としています。比べる向きを逆にすると、大きい順に並びます。
+3 つ目の比べ方では、`x` と `y` を入れ替えて `y.Size.CompareTo(x.Size)` としています。比べる向きを逆にすると、大きい順に並びます。
 
 ---
 
@@ -394,61 +428,13 @@ flowchart LR
     Q -- "デリゲートを渡す" --> C["Comparison デリゲート<br>ラムダ式など"]
 ```
 
-| 方法 | 向いている場面 |
-|---|---|
-| `IComparable<T>` | その型にとって自然な順序が 1 つに決まる（数値の大小、日付の前後など） |
-| `IComparer<T>` | 名前を付けて、何か所でも使う比べ方。フィールドを持てるので、設定（大きい順にするかどうかなど）を持たせられる |
-| `Comparison<T>` | その場だけで使う比べ方。ラムダ式で短く書ける |
+| 方法 | 向いている場面 | このページの例 |
+|---|---|---|
+| `IComparable<T>` | その型にとって自然な順序が 1 つに決まる（数値の大小、日付の前後など） | 節番号の順 |
+| `IComparer<T>` | 名前を付けて、何か所でも使う比べ方。フィールドを持てるので、設定（大きい順にするかどうかなど）を持たせられる | ファイルの名前の順 |
+| `Comparison<T>` | その場だけで使う比べ方。ラムダ式で短く書ける | ファイルのサイズの順 |
 
-### 複数の基準で比べる
-
-1 つ目の基準で同じ順位になったときに、2 つ目の基準で比べるには、1 つ目の結果が `0` かどうかを調べます。`0` でなければその結果を返し、`0` なら 2 つ目の基準で比べた結果を返します。
-
-```csharp
-var enemies = new List<Enemy>
-{
-    new Enemy("Slime", 3),
-    new Enemy("Goblin", 5),
-    new Enemy("Bat", 5),
-    new Enemy("Dragon", 30),
-};
-
-// レベルの低い順。同じレベルなら名前の順
-enemies.Sort((x, y) =>
-{
-    int result = x.Level.CompareTo(y.Level);
-    if (result != 0)
-    {
-        return result;
-    }
-    return string.Compare(x.Name, y.Name);
-});
-
-Console.WriteLine(string.Join(", ", enemies));
-
-class Enemy
-{
-    public string Name { get; }
-    public int Level { get; }
-
-    public Enemy(string name, int level)
-    {
-        Name = name;
-        Level = level;
-    }
-
-    public override string ToString()
-    {
-        return $"{Name} Lv{Level}";
-    }
-}
-```
-
-```
-Slime Lv3, Bat Lv5, Goblin Lv5, Dragon Lv30
-```
-
-`Goblin` と `Bat` は、どちらも Lv5 なので、名前の順で `Bat` が前になります。この例の `Enemy` は `IComparable<T>` を実装していませんが、比べ方を `Sort` に渡しているので並べ替えられます。
+`IComparable<T>` を実装した型でも、`IComparer<T>` や `Comparison<T>` を渡せば、既定とは違う順序で並べ替えられます。たとえば `SectionNumber` も、`Comparison<T>` を渡せば大きい順に並べ替えられます。
 
 ---
 
@@ -505,7 +491,8 @@ Console.WriteLine(string.CompareOrdinal("a", "c"));
 
 - 引数なしの `Sort` は、比べ方を要素の型の `IComparable<T>` に尋ねる。実装していない型は、例外が発生して並べ替えられない
 - `IComparable<T>` の `CompareTo` で、型に既定の順序を 1 つ持たせる。自分が前なら負の数、同じなら `0`、後ろなら正の数を返す
-- 比べ方を外から渡すには、インターフェイスの `IComparer<T>` か、デリゲートの `Comparison<T>` を使う
+- 複数の基準で比べるときは、1 つ目の基準の結果が `0` のときだけ、2 つ目の基準で比べる
+- 自然な順序が 1 つに決まらない型は、比べ方を外から渡す。インターフェイスの `IComparer<T>` か、デリゲートの `Comparison<T>` を使う
 - 比べ方を受け取るメソッドは、手順だけを持ち、比べ方を差し替えられる。`List<T>.Sort` も、3 つの方法で比べ方を受け取る
 - 比べ方を受け取るパラメータには、`Func<T, T, int>` ではなく `Comparison<T>` を使う。`Comparer<T>.Create` で `Comparison<T>` から `IComparer<T>` を作れる
 - 比べ方は引き算ではなく `CompareTo` で書く。結果は `-1` や `1` ではなく、符号で調べる
@@ -531,7 +518,8 @@ Console.WriteLine(string.CompareOrdinal("a", "c"));
    Console.WriteLine(string.Join(", ", words));
    ```
 
-3. 3 節の完成したコードに、名前の逆順で比べる `IComparer<Enemy>` を実装した `NameDescendingComparer` クラスを追加してください。そして、`Util.Max(slime, bat, new NameDescendingComparer())` の結果を表示してください。
+3. `FileItem` に `IComparable<FileItem>` を実装して、名前の順を既定の順序にしなかったのはなぜですか？
+4. 3 節の完成したコードに、名前の逆順で比べる `IComparer<FileItem>` を実装した `NameDescendingComparer` クラスを追加してください。そして、`Util.Max(notes, data, new NameDescendingComparer())` の結果を表示してください。
 
 <details markdown="1">
 <summary>解答を見る</summary>
@@ -543,41 +531,33 @@ Console.WriteLine(string.CompareOrdinal("a", "c"));
    fig, kiwi, pear, banana
    ```
 
-3. ```csharp
-   Enemy slime = new Enemy("Slime", 3);
-   Enemy bat = new Enemy("Bat", 5);
+3. ファイルは、名前の順にもサイズの順にも並べ替えるので、自然な順序が 1 つに決まらないからです。名前の順を既定にすると、`Sort()` を見ただけでは何の順に並ぶのかがわかりません。どの順に並べるかを、呼び出す側が `IComparer<T>` や `Comparison<T>` で明示するほうがわかりやすくなります。
+4. ```csharp
+   FileItem notes = new FileItem("notes.txt", 1200);
+   FileItem data = new FileItem("data.csv", 48000);
 
-   Console.WriteLine(Util.Max(slime, bat, new NameDescendingComparer()));
+   Console.WriteLine(Util.Max(notes, data, new NameDescendingComparer()));
 
-   class Enemy : IComparable<Enemy>
+   class FileItem
    {
        public string Name { get; }
-       public int Level { get; }
+       public int Size { get; }
 
-       public Enemy(string name, int level)
+       public FileItem(string name, int size)
        {
            Name = name;
-           Level = level;
-       }
-
-       public int CompareTo(Enemy? other)
-       {
-           if (other is null)
-           {
-               return 1;
-           }
-           return Level.CompareTo(other.Level);
+           Size = size;
        }
 
        public override string ToString()
        {
-           return $"{Name} Lv{Level}";
+           return $"{Name} ({Size})";
        }
    }
 
-   class NameDescendingComparer : IComparer<Enemy>
+   class NameDescendingComparer : IComparer<FileItem>
    {
-       public int Compare(Enemy? x, Enemy? y)
+       public int Compare(FileItem? x, FileItem? y)
        {
            return string.Compare(y?.Name, x?.Name);
        }
@@ -602,7 +582,7 @@ Console.WriteLine(string.CompareOrdinal("a", "c"));
    }
    ```
 
-   `Bat Lv5` が表示されます。`NameComparer` の `x` と `y` を入れ替えると、名前の逆順になります。名前の逆順では `Bat` のほうが後ろになるので、`Max` は `Bat` を返します。
+   `data.csv (48000)` が表示されます。`NameComparer` の `x` と `y` を入れ替えると、名前の逆順になります。名前の逆順では `data.csv` のほうが後ろになるので、`Max` は `data.csv` を返します。
 
 </details>
 
