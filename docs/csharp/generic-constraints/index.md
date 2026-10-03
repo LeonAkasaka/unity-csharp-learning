@@ -83,7 +83,7 @@ xyz
 2.5
 ```
 
-`int`・`string`・`double` は、どれも `IComparable<T>` を実装しているので、`Max` に渡せます。戻り値の型も `T` なので、`Max(3, 7)` の結果は `int` のまま使えます。
+`int`・`string`・`double` は、どれも `IComparable<T>` を実装しているので、`Max` に渡せます。自分で作ったクラスに `IComparable<T>` を実装する方法は、[比較の仕組み](/unity-csharp-learning/csharp/comparison/) で学びます。戻り値の型も `T` なので、`Max(3, 7)` の結果は `int` のまま使えます。
 
 ### 制約は呼び出す側も制限する
 

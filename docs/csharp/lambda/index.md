@@ -184,7 +184,7 @@ Bat, Slime, Dragon, Skeleton
 Skeleton, Dragon, Slime, Bat
 ```
 
-並べ替えの手順は `Sort` が担当し、比べ方だけをラムダ式で渡しています。このように、処理の一部をラムダ式で渡す書き方は、[LINQ の基本](/unity-csharp-learning/csharp/linq-basics/) で学ぶ LINQ でも中心になります。
+並べ替えの手順は `Sort` が担当し、比べ方だけをラムダ式で渡しています。このラムダ式は、比べ方を表す `Comparison<string>` というデリゲート型に変換されます。比べ方を渡す仕組みは、[比較の仕組み](/unity-csharp-learning/csharp/comparison/) で詳しく学びます。このように、処理の一部をラムダ式で渡す書き方は、[LINQ の基本](/unity-csharp-learning/csharp/linq-basics/) で学ぶ LINQ でも中心になります。
 
 ---
 
