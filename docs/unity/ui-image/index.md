@@ -26,6 +26,9 @@ permalink: /unity/ui-image/
 **Image** は、Canvas 上に画像を表示するコンポーネントです。キャラクターの立ち絵、アイコン、メニューの背景などに使います。
 
 **書式：[Image コンポーネント](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/script-Image.html)**
+```csharp
+public class Image : MaskableGraphic, ISerializationCallbackReceiver, ILayoutElement, ICanvasRaycastFilter
+```
 
 Image に指定する画像は、**Sprite** として取り込みます。Sprite は、画像を2次元の描画に使うためのアセットです。Project ビューにある Sprite が画像の素材、Hierarchy にある Image がシーンでその素材を表示する側、と区別してください。同じ Sprite を複数の Image で使うこともできます。
 

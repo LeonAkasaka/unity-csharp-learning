@@ -65,6 +65,9 @@ Hierarchy で MenuPanel の左の三角を開き、ItemA、ItemB、ItemC が同�
 **Layout Element** は、そのオブジェクトがレイアウトに要求する最小サイズ、希望サイズ、伸びる割合などを指定します。自分で位置を並べるコンポーネントではありません。
 
 **書式：[Layout Element コンポーネント](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/script-LayoutElement.html)**
+```csharp
+public class LayoutElement : UIBehaviour, ILayoutElement, ILayoutIgnorer
+```
 
 Hierarchy で `ItemA` を選択し、Inspector 下部の **Add Component** をクリックします。検索欄に `Layout Element` と入力し、検索結果の **Layout Element** をクリックしてください。スクリプトを新しく作る操作ではなく、Unity に用意されているコンポーネントを追加する操作です。
 
@@ -92,6 +95,9 @@ ItemB と ItemC にも同じコンポーネントを追加し、同じ2項目を
 ## 3. Horizontal Layout Group で横に並べる
 
 **書式：[Horizontal Layout Group コンポーネント](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/script-HorizontalLayoutGroup.html)**
+```csharp
+public class HorizontalLayoutGroup : HorizontalOrVerticalLayoutGroup
+```
 
 **Horizontal Layout Group** は、直接の子を横方向に並べるコンポーネントです。親の `MenuPanel` を選び、**Add Component** の検索欄に `Horizontal Layout Group` と入力して、検索結果をクリックします。子の ItemA ではなく、親に追加する点に注意してください。
 
@@ -146,6 +152,9 @@ flowchart TD
 ## 4. Vertical Layout Group で縦に並べる
 
 **書式：[Vertical Layout Group コンポーネント](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/script-VerticalLayoutGroup.html)**
+```csharp
+public class VerticalLayoutGroup : HorizontalOrVerticalLayoutGroup
+```
 
 **Vertical Layout Group** は、子を縦方向に並べるコンポーネントです。横並びから縦並びに切り替えるため、先に Horizontal Layout Group を外します。コンポーネントを外すと、そのコンポーネントの設定も失われます。子の Image や Layout Element は残ります。
 
@@ -170,6 +179,9 @@ Play ボタンを押して、次のように縦に並ぶことを確認します
 縦に並べても、親の高さ260には下側の空きが残ります。項目の高さと間隔に合わせて親の高さを決めたい場合は、**Content Size Fitter** を使います。
 
 **書式：[Content Size Fitter コンポーネント](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/script-ContentSizeFitter.html)**
+```csharp
+public class ContentSizeFitter : UIBehaviour, ILayoutSelfController
+```
 
 再生を停止し、`MenuPanel` の Rect Transform の **Pivot Y** を `1`、続いて **Pos Y** を `130` にします。高さ260のときの上端の位置を保つため、中央から130上へピボットを置く設定です。前のページで学んだとおり、ピボットはサイズ変更の基準になります。
 
@@ -200,6 +212,9 @@ Layout Group は **子のサイズと位置**を管理し、同じ親に付け�
 ## 6. Grid Layout Group で格子状に並べる
 
 **書式：[Grid Layout Group コンポーネント](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/script-GridLayoutGroup.html)**
+```csharp
+public class GridLayoutGroup : LayoutGroup
+```
 
 Grid Layout Group は、項目を同じ大きさのセルに並べます。Horizontal / Vertical Layout Group と異なり、子の Preferred Width / Height より **Cell Size** が優先されます。
 

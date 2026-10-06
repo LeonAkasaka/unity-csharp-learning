@@ -29,6 +29,9 @@ UI を右上に固定したり、親の幅に合わせて伸ばしたりする�
 **`RectTransform`** は、UI の矩形の位置とサイズを管理するコンポーネントです。
 
 **書式：[RectTransform コンポーネント](https://docs.unity3d.com/ScriptReference/RectTransform.html)**
+```csharp
+public sealed class RectTransform : Transform
+```
 
 | 設定 | 基準 | 用途 |
 |---|---|---|

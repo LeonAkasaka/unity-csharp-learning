@@ -40,6 +40,9 @@ Corner、Strip、Bar は LayoutArea の子です。Pos Z、Rotation、Scale は�
 **Canvas Scaler** は Canvas 内の UI 全体のスケールを管理します。RectTransform の Width / Height を1つずつ変更する代わりに、全体の表示倍率を決めます。
 
 **書式：[Canvas Scaler コンポーネント](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/script-CanvasScaler.html)**
+```csharp
+public class CanvasScaler : UIBehaviour
+```
 
 UI を初めて追加したとき、Canvas には **Canvas**、**Canvas Scaler**、**Graphic Raycaster** が付いています。今回見るのは、このうち Canvas Scaler です。Hierarchy で `Canvas` を選択すると、Inspector に表示されます。
 
