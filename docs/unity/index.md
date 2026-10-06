@@ -42,16 +42,20 @@ Unity エディターの使い方と、C# スクリプトを使ったゲーム�
 |---|---|---|
 | 21 | [Unity UI とボタン操作](./unity-ui/) | Canvas にボタンを配置してクリックに反応するスクリプトを作る |
 | 22 | [TextMesh Pro](./textmesh-pro/) | 日本語フォントを設定してテキストを表示しスクリプトから書き換える |
+| 23 | [Image — 画像の表示と色・透明度](./ui-image/) | キャラクターの Sprite を表示し、縦横比・着色・透明度を調整する |
+| 24 | [RectTransform — アンカーとピボット](./rect-transform/) | 親に対する配置と、自分の位置・サイズ変更の基準を理解する |
+| 25 | [Canvas Scaler と画面サイズへの対応](./canvas-scaler/) | 基準解像度と Match を設定し、解像度や縦横比の違いに対応する |
+| 26 | [Layout Group による自動配置](./layout-group/) | 横・縦・格子状に項目を並べ、内容に合わせて親の高さを調整する |
 
 ## 状態管理と非同期操作
 
 | # | トピック | 概要 |
 |---|---|---|
-| 23 | [コルーチンの基本](./coroutines/) | 時間をまたぐ処理を順番どおりに書く仕組みを学ぶ |
-| 23.1 | [補足: IEnumerator と yield return](./ienumerator-yield/) | コルーチンの土台になる列挙処理と yield 文法を学ぶ |
-| 24 | [コルーチンの制御](./coroutine-control/) | 条件を待つ・別のコルーチンの終わりを待つ・コルーチンを止める・二重に開始しない |
-| 25 | [コルーチンでは書きにくいこと](./coroutine-limits/) | 結果を返せない・例外が呼び出し元に伝わらない・`yield return` を `try` / `catch` で囲めない・`Task` と `async` / `await` との対応 |
-| 26 | [Awaitable と async / await](./awaitable/) | `Awaitable.NextFrameAsync` / `WaitForSecondsAsync`・`Awaitable<T>` で結果を返す・`try` / `catch`・`CancellationToken` と `finally`・`destroyCancellationToken`・`async void` にするメソッド |
+| 27 | [コルーチンの基本](./coroutines/) | 時間をまたぐ処理を順番どおりに書く仕組みを学ぶ |
+| 27.1 | [補足: IEnumerator と yield return](./ienumerator-yield/) | コルーチンの土台になる列挙処理と yield 文法を学ぶ |
+| 28 | [コルーチンの制御](./coroutine-control/) | 条件を待つ・別のコルーチンの終わりを待つ・コルーチンを止める・二重に開始しない |
+| 29 | [コルーチンでは書きにくいこと](./coroutine-limits/) | 結果を返せない・例外が呼び出し元に伝わらない・`yield return` を `try` / `catch` で囲めない・`Task` と `async` / `await` との対応 |
+| 30 | [Awaitable と async / await](./awaitable/) | `Awaitable.NextFrameAsync` / `WaitForSecondsAsync`・`Awaitable<T>` で結果を返す・`try` / `catch`・`CancellationToken` と `finally`・`destroyCancellationToken`・`async void` にするメソッド |
 
 ## 前提知識
 
