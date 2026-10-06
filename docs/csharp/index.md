@@ -82,147 +82,149 @@ C# プログラミングをゼロから学びます。
 | 27 | [ファイルの分割と global using](/unity-csharp-learning/csharp/multiple-files/) | プロジェクトへのファイルの追加・ファイルスコープの名前空間・`global using`・暗黙的な using ディレクティブの正体・`.csproj` の `<Using>` |
 | 28 | [partial 型と partial メンバー](/unity-csharp-learning/csharp/partial/) | `partial class` で型を複数の部分に分ける・1 つの型になる条件（名前空間が違うと別の型）・partial メソッドの宣言と実装・実装を省略できる条件・partial プロパティ |
 | 29 | [入れ子の型](/unity-csharp-learning/csharp/nested-types/) | 補助のクラスを外に置くと困ること・クラスの中にクラスを定義する・省略すると `private`・`外側の型名.入れ子の型名`・外側の型の `private` メンバーを使える・外側の型のインスタンスは持たない（CS0120） |
+| 30 | [プリプロセッサディレクティブ](/unity-csharp-learning/csharp/preprocessor-directives/) | `#define` と `#if` / `#endif` でコンパイルするコードを切り替える・`if` 文との違い（コンパイルされない）・`#else` / `#elif` と `!` / `&&` / `||`・`#define` はファイルごと・`.csproj` の `<DefineConstants>`・`#undef`・`#error` / `#warning`・`#region`・`#pragma warning` |
+| 30.1 | [定義済みのシンボル（補足）](/unity-csharp-learning/csharp/predefined-symbols/) | デバッグビルドとリリースビルド（`-c Release`）・`DEBUG` / `TRACE`・`#if !DEBUG`・ターゲットフレームワークのシンボル（`NET10_0` / `NET10_0_OR_GREATER`）・シンボルの一覧 |
 
 ### C# 継承と抽象化
 
 | # | トピック | 概要 |
 |---|---|---|
-| 30 | [継承](/unity-csharp-learning/csharp/inheritance/) | 似たクラスを別々に書く問題・基底クラスと派生クラス・メンバーの追加・`: base(...)` とコンストラクターの実行順・継承の多段化と `object`・継承を使う目安 |
-| 31 | [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) | 基底クラスの型でまとめて扱う・変数の型と実体の型・アップキャストとダウンキャスト・`is`・`as`・型パターン |
-| 32 | [protected 修飾子](/unity-csharp-learning/csharp/protected-modifier/) | `private` と `public` の間が必要な理由・`protected` と `{ get; protected set; }`・継承を重ねた場合・`internal` |
-| 33 | [オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) | 種類ごとの `is` 分岐の問題・`virtual`・`override`・実体の型でメソッドが決まる（動的ディスパッチ）・`base.メソッド名()`・`ToString` のオーバーライド |
-| 34 | [メソッドの隠ぺいと sealed](/unity-csharp-learning/csharp/method-hiding/) | 基底クラスと同じ名前のメソッドを隠す・`new` 修飾子・`override` との違い・`sealed class`・`sealed override` |
-| 35 | [抽象クラスと抽象メソッド](/unity-csharp-learning/csharp/abstract-classes/) | `virtual` では防げない誤り・`abstract class`・`abstract` メソッドとプロパティ・派生クラスでの強制実装・`virtual` との使い分け |
-| 36 | [インターフェイス](/unity-csharp-learning/csharp/interfaces/) | 継承の関係がないクラスをまとめて扱う・`interface` の宣言と実装・インターフェイス型のパラメータ・複数の実装・抽象クラスとの違い |
-| 37 | [インターフェイスの明示的実装](/unity-csharp-learning/csharp/explicit-interface/) | 同名メンバーの衝突・明示的実装の書き方・暗黙的実装との比較 |
+| 31 | [継承](/unity-csharp-learning/csharp/inheritance/) | 似たクラスを別々に書く問題・基底クラスと派生クラス・メンバーの追加・`: base(...)` とコンストラクターの実行順・継承の多段化と `object`・継承を使う目安 |
+| 32 | [型変換と型チェック](/unity-csharp-learning/csharp/type-casting/) | 基底クラスの型でまとめて扱う・変数の型と実体の型・アップキャストとダウンキャスト・`is`・`as`・型パターン |
+| 33 | [protected 修飾子](/unity-csharp-learning/csharp/protected-modifier/) | `private` と `public` の間が必要な理由・`protected` と `{ get; protected set; }`・継承を重ねた場合・`internal` |
+| 34 | [オーバーライドとポリモーフィズム](/unity-csharp-learning/csharp/polymorphism/) | 種類ごとの `is` 分岐の問題・`virtual`・`override`・実体の型でメソッドが決まる（動的ディスパッチ）・`base.メソッド名()`・`ToString` のオーバーライド |
+| 35 | [メソッドの隠ぺいと sealed](/unity-csharp-learning/csharp/method-hiding/) | 基底クラスと同じ名前のメソッドを隠す・`new` 修飾子・`override` との違い・`sealed class`・`sealed override` |
+| 36 | [抽象クラスと抽象メソッド](/unity-csharp-learning/csharp/abstract-classes/) | `virtual` では防げない誤り・`abstract class`・`abstract` メソッドとプロパティ・派生クラスでの強制実装・`virtual` との使い分け |
+| 37 | [インターフェイス](/unity-csharp-learning/csharp/interfaces/) | 継承の関係がないクラスをまとめて扱う・`interface` の宣言と実装・インターフェイス型のパラメータ・複数の実装・抽象クラスとの違い |
+| 38 | [インターフェイスの明示的実装](/unity-csharp-learning/csharp/explicit-interface/) | 同名メンバーの衝突・明示的実装の書き方・暗黙的実装との比較 |
 
 ### C# ジェネリクス
 
 | # | トピック | 概要 |
 |---|---|---|
-| 38 | [ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) | `object` による汎用化の問題・型パラメータと型引数・型引数ごとに別の型になる・複数の型パラメータ・ジェネリックインターフェイスと `IComparable<T>` |
-| 39 | [ジェネリックメソッド](/unity-csharp-learning/csharp/generic-methods/) | メソッドに型パラメータを付ける・型推論と推論できない場合・クラスの型パラメータとの違いと使い分け |
-| 40 | [型制約](/unity-csharp-learning/csharp/generic-constraints/) | `where T :` による制約・インターフェイスと基底クラスの制約・呼び出す側への制限・`class` / `struct` / `new()`・複数の制約と順序 |
-| 41 | [共変・反変](/unity-csharp-learning/csharp/generic-variance/) | ジェネリック型が不変である理由・`out T`（共変）・`in T`（反変）・変性を付けられるもの・配列の共変 |
+| 39 | [ジェネリクスの基本](/unity-csharp-learning/csharp/generics/) | `object` による汎用化の問題・型パラメータと型引数・型引数ごとに別の型になる・複数の型パラメータ・ジェネリックインターフェイスと `IComparable<T>` |
+| 40 | [ジェネリックメソッド](/unity-csharp-learning/csharp/generic-methods/) | メソッドに型パラメータを付ける・型推論と推論できない場合・クラスの型パラメータとの違いと使い分け |
+| 41 | [型制約](/unity-csharp-learning/csharp/generic-constraints/) | `where T :` による制約・インターフェイスと基底クラスの制約・呼び出す側への制限・`class` / `struct` / `new()`・複数の制約と順序 |
+| 42 | [共変・反変](/unity-csharp-learning/csharp/generic-variance/) | ジェネリック型が不変である理由・`out T`（共変）・`in T`（反変）・変性を付けられるもの・配列の共変 |
 
 ### C# コレクションとイテレーター
 
 | # | トピック | 概要 |
 |---|---|---|
-| 42 | [List\<T\>](/unity-csharp-learning/csharp/list/) | 配列に追加しにくい理由・`Add` / `Insert` / `Remove` / `IndexOf`・`Count` と `Capacity`・`foreach` 中の変更 |
-| 43 | [Dictionary\<TKey, TValue\>](/unity-csharp-learning/csharp/dictionary/) | キーで値を探す・インデクサでの追加と上書き・`TryGetValue`・`KeyValuePair` の `foreach` |
-| 43.1 | [Queue\<T\>・Stack\<T\>・HashSet\<T\>（補足）](/unity-csharp-learning/csharp/other-collections/) | 先入れ先出し・後入れ先出し・重複のない集合と集合演算・コレクションの選び方 |
-| 44 | [IEnumerable\<T\> と foreach の仕組み](/unity-csharp-learning/csharp/ienumerable/) | `GetEnumerator` / `MoveNext` / `Current`・自作クラスへの `IEnumerable<T>` の実装・取り出し役を毎回作る理由 |
-| 45 | [イテレーターと yield return](/unity-csharp-learning/csharp/iterators/) | `yield return` / `yield break`・遅延実行・終わりのないシーケンス・ステートマシンへの置き換え |
+| 43 | [List\<T\>](/unity-csharp-learning/csharp/list/) | 配列に追加しにくい理由・`Add` / `Insert` / `Remove` / `IndexOf`・`Count` と `Capacity`・`foreach` 中の変更 |
+| 44 | [Dictionary\<TKey, TValue\>](/unity-csharp-learning/csharp/dictionary/) | キーで値を探す・インデクサでの追加と上書き・`TryGetValue`・`KeyValuePair` の `foreach` |
+| 44.1 | [Queue\<T\>・Stack\<T\>・HashSet\<T\>（補足）](/unity-csharp-learning/csharp/other-collections/) | 先入れ先出し・後入れ先出し・重複のない集合と集合演算・コレクションの選び方 |
+| 45 | [IEnumerable\<T\> と foreach の仕組み](/unity-csharp-learning/csharp/ienumerable/) | `GetEnumerator` / `MoveNext` / `Current`・自作クラスへの `IEnumerable<T>` の実装・取り出し役を毎回作る理由 |
+| 46 | [イテレーターと yield return](/unity-csharp-learning/csharp/iterators/) | `yield return` / `yield break`・遅延実行・終わりのないシーケンス・ステートマシンへの置き換え |
 
 ### C# 値型と参照型
 
 | # | トピック | 概要 |
 |---|---|---|
-| 46 | [値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) | 代入・値渡しでコピーされるもの・`==` の意味・`null` と既定値・`default` 演算子と default リテラル・ジェネリクスと `default(T)`・スタックとヒープ |
-| 47 | [ガベージコレクション](/unity-csharp-learning/csharp/garbage-collection/) | 到達できないオブジェクトの回収・回収のタイミングは決まらない・世代・メモリ以外のリソース |
-| 47.1 | [ファイナライザー（補足）](/unity-csharp-learning/csharp/finalizers/) | `~クラス名()` の書き方とコンストラクターとの違い・`GC.WaitForPendingFinalizers`・呼ばれるタイミングは決まらずプログラムの終了時にも呼ばれない・回収が 1 回遅れる・後片付けには使えない |
-| 48 | [構造体](/unity-csharp-learning/csharp/structs/) | `struct` の定義・値のコピー・クラスとの使い分け・プロパティが返す構造体の罠（CS1612） |
-| 49 | [構造体の制約](/unity-csharp-learning/csharp/struct-constraints/) | 継承できない・`System.ValueType`・インターフェイスの実装・コンストラクターと既定値・`readonly struct` |
-| 50 | [ボクシングとアンボクシング](/unity-csharp-learning/csharp/boxing/) | `object` やインターフェイスへの変換でヒープにコピー・アンボクシングの型・ジェネリクスで避ける |
-| 50.1 | [構造体のメモリレイアウト（補足）](/unity-csharp-learning/csharp/memory-layout/) | `Unsafe.SizeOf<T>()`・アラインメントとパディング・`StructLayout`（`Pack` / `Explicit`） |
-| 51 | [null 許容値型](/unity-csharp-learning/csharp/nullable-value-types/) | `int?` と `Nullable<T>`・`HasValue` / `Value`・演算と比較・`??` / `??=` |
-| 52 | [null 許容参照型](/unity-csharp-learning/csharp/nullable-reference-types/) | `string` と `string?`・主な警告（CS8600 / CS8602 / CS8603 / CS8604 / CS8618）・`string?` は別の型を作らない・フロー解析・`?.` と `!`・フィールドの初期化・`<Nullable>` と `#nullable` |
-| 53 | [タプル](/unity-csharp-learning/csharp/tuples/) | 複数の値を返す・要素の名前・分解と `_`・正体は `ValueTuple` 構造体（名前はコンパイル時だけ）・`System.Tuple` との違い |
-| 54 | [record](/unity-csharp-learning/csharp/records/) | 位置指定の構文とコンパイラーが作るメンバー・中身で比べる `==`・`Dictionary` / `HashSet` での利用・`with` 式・`record struct` |
-| 54.1 | [プライマリコンストラクター（補足）](/unity-csharp-learning/csharp/primary-constructors/) | `class クラス名(パラメータ)`・パラメータはクラス全体で使え値が保存される・record と違いプロパティを作らない・値が 2 か所に保存される問題（CS9124）・`: this(...)` による追加のコンストラクター（CS8862）・継承 |
-| 55 | [列挙型](/unity-csharp-learning/csharp/enums/) | `enum` の定義・整数との変換・定義されていない値・`Enum.TryParse`・`[Flags]` |
+| 47 | [値型と参照型](/unity-csharp-learning/csharp/value-reference-types/) | 代入・値渡しでコピーされるもの・`==` の意味・`null` と既定値・`default` 演算子と default リテラル・ジェネリクスと `default(T)`・スタックとヒープ |
+| 48 | [ガベージコレクション](/unity-csharp-learning/csharp/garbage-collection/) | 到達できないオブジェクトの回収・回収のタイミングは決まらない・世代・メモリ以外のリソース |
+| 48.1 | [ファイナライザー（補足）](/unity-csharp-learning/csharp/finalizers/) | `~クラス名()` の書き方とコンストラクターとの違い・`GC.WaitForPendingFinalizers`・呼ばれるタイミングは決まらずプログラムの終了時にも呼ばれない・回収が 1 回遅れる・後片付けには使えない |
+| 49 | [構造体](/unity-csharp-learning/csharp/structs/) | `struct` の定義・値のコピー・クラスとの使い分け・プロパティが返す構造体の罠（CS1612） |
+| 50 | [構造体の制約](/unity-csharp-learning/csharp/struct-constraints/) | 継承できない・`System.ValueType`・インターフェイスの実装・コンストラクターと既定値・`readonly struct` |
+| 51 | [ボクシングとアンボクシング](/unity-csharp-learning/csharp/boxing/) | `object` やインターフェイスへの変換でヒープにコピー・アンボクシングの型・ジェネリクスで避ける |
+| 51.1 | [構造体のメモリレイアウト（補足）](/unity-csharp-learning/csharp/memory-layout/) | `Unsafe.SizeOf<T>()`・アラインメントとパディング・`StructLayout`（`Pack` / `Explicit`） |
+| 52 | [null 許容値型](/unity-csharp-learning/csharp/nullable-value-types/) | `int?` と `Nullable<T>`・`HasValue` / `Value`・演算と比較・`??` / `??=` |
+| 53 | [null 許容参照型](/unity-csharp-learning/csharp/nullable-reference-types/) | `string` と `string?`・主な警告（CS8600 / CS8602 / CS8603 / CS8604 / CS8618）・`string?` は別の型を作らない・フロー解析・`?.` と `!`・フィールドの初期化・`<Nullable>` と `#nullable` |
+| 54 | [タプル](/unity-csharp-learning/csharp/tuples/) | 複数の値を返す・要素の名前・分解と `_`・正体は `ValueTuple` 構造体（名前はコンパイル時だけ）・`System.Tuple` との違い |
+| 55 | [record](/unity-csharp-learning/csharp/records/) | 位置指定の構文とコンパイラーが作るメンバー・中身で比べる `==`・`Dictionary` / `HashSet` での利用・`with` 式・`record struct` |
+| 55.1 | [プライマリコンストラクター（補足）](/unity-csharp-learning/csharp/primary-constructors/) | `class クラス名(パラメータ)`・パラメータはクラス全体で使え値が保存される・record と違いプロパティを作らない・値が 2 か所に保存される問題（CS9124）・`: this(...)` による追加のコンストラクター（CS8862）・継承 |
+| 56 | [列挙型](/unity-csharp-learning/csharp/enums/) | `enum` の定義・整数との変換・定義されていない値・`Enum.TryParse`・`[Flags]` |
 
 ### C# パターンマッチング
 
 | # | トピック | 概要 |
 |---|---|---|
-| 56 | [パターンと is 演算子](/unity-csharp-learning/csharp/is-patterns/) | `is` 演算子とパターン・定数パターンと `is null` / `== null` の違い・関係パターン・論理パターン（`if` の条件との比較、式が 1 回だけ評価される）・`is not null`・型パターンとの組み合わせ・優先順位と `( )`・パターンには定数しか書けない |
-| 57 | [switch 式](/unity-csharp-learning/csharp/switch-expressions/) | `switch` 文で値を選ぶ手間・`switch` 式・すべての値を扱う（CS8509 / CS8524）・アームにパターンを並べる・`when` で変数を使った条件を追加する・`switch` 文の `case` のパターン |
-| 58 | [プロパティパターン](/unity-csharp-learning/csharp/property-patterns/) | 入れ子のプロパティを調べる手間・`{ プロパティ名: パターン }`・`null` のときは当てはまらない・型パターンとの組み合わせ・`var` パターン・`switch` 式での分岐・`is { } 変数名` で null でない値を取り出す |
-| 59 | [位置パターンとリストパターン](/unity-csharp-learning/csharp/positional-list-patterns/) | 値の組み合わせを調べる手間・タプルと record の位置パターン・プロパティパターンとの使い分け・配列をインデックスで調べる手間・リストパターン（配列・文字列）とスライス |
+| 57 | [パターンと is 演算子](/unity-csharp-learning/csharp/is-patterns/) | `is` 演算子とパターン・定数パターンと `is null` / `== null` の違い・関係パターン・論理パターン（`if` の条件との比較、式が 1 回だけ評価される）・`is not null`・型パターンとの組み合わせ・優先順位と `( )`・パターンには定数しか書けない |
+| 58 | [switch 式](/unity-csharp-learning/csharp/switch-expressions/) | `switch` 文で値を選ぶ手間・`switch` 式・すべての値を扱う（CS8509 / CS8524）・アームにパターンを並べる・`when` で変数を使った条件を追加する・`switch` 文の `case` のパターン |
+| 59 | [プロパティパターン](/unity-csharp-learning/csharp/property-patterns/) | 入れ子のプロパティを調べる手間・`{ プロパティ名: パターン }`・`null` のときは当てはまらない・型パターンとの組み合わせ・`var` パターン・`switch` 式での分岐・`is { } 変数名` で null でない値を取り出す |
+| 60 | [位置パターンとリストパターン](/unity-csharp-learning/csharp/positional-list-patterns/) | 値の組み合わせを調べる手間・タプルと record の位置パターン・プロパティパターンとの使い分け・配列をインデックスで調べる手間・リストパターン（配列・文字列）とスライス |
 
 ### C# 属性
 
 | # | トピック | 概要 |
 |---|---|---|
-| 60 | [属性の基本](/unity-csharp-learning/csharp/attributes/) | コメントでは伝えられない宣言の情報・属性はメタデータとして記録される・`Attribute` を継承したクラスと `[名前]`・付けただけでは動作は変わらない・複数の属性・`[Obsolete]`（コンパイラーが読む）と `[Flags]`（実行中に読まれる） |
-| 61 | [属性を読み取る](/unity-csharp-learning/csharp/reading-attributes/) | リフレクション・`typeof` / `GetType` と `Type`・`GetProperties` と `GetValue` で一覧表示する・`GetCustomAttribute<T>` で `[Hidden]` を読み取る・`using System.Reflection` |
-| 62 | [引数を持つ属性](/unity-csharp-learning/csharp/attribute-arguments/) | コンストラクターで値を受け取る・`[RangeCheck(0, 100)]` と値の検証・名前付きの引数でプロパティに渡す・引数は定数だけ（CS0182）・`[Obsolete]` の引数（CS0612 / CS0618 / CS0619） |
-| 63 | [属性の対象](/unity-csharp-learning/csharp/attribute-targets/) | `[AttributeUsage]` と `AttributeTargets` で付けられる宣言を制限する（CS0592）・`AllowMultiple` と `GetCustomAttributes<T>`（CS0579）・`[field: ]` と自動実装プロパティのフィールド |
+| 61 | [属性の基本](/unity-csharp-learning/csharp/attributes/) | コメントでは伝えられない宣言の情報・属性はメタデータとして記録される・`Attribute` を継承したクラスと `[名前]`・付けただけでは動作は変わらない・複数の属性・`[Obsolete]`（コンパイラーが読む）と `[Flags]`（実行中に読まれる） |
+| 62 | [属性を読み取る](/unity-csharp-learning/csharp/reading-attributes/) | リフレクション・`typeof` / `GetType` と `Type`・`GetProperties` と `GetValue` で一覧表示する・`GetCustomAttribute<T>` で `[Hidden]` を読み取る・`using System.Reflection` |
+| 63 | [引数を持つ属性](/unity-csharp-learning/csharp/attribute-arguments/) | コンストラクターで値を受け取る・`[RangeCheck(0, 100)]` と値の検証・名前付きの引数でプロパティに渡す・引数は定数だけ（CS0182）・`[Obsolete]` の引数（CS0612 / CS0618 / CS0619） |
+| 64 | [属性の対象](/unity-csharp-learning/csharp/attribute-targets/) | `[AttributeUsage]` と `AttributeTargets` で付けられる宣言を制限する（CS0592）・`AllowMultiple` と `GetCustomAttributes<T>`（CS0579）・`[field: ]` と自動実装プロパティのフィールド |
 
 ### C# デリゲートとイベント
 
 | # | トピック | 概要 |
 |---|---|---|
-| 64 | [デリゲートの基本](/unity-csharp-learning/csharp/delegates/) | `delegate` 型の宣言・インスタンス化・呼び出し・実行時のメソッド切り替え・ジェネリックなデリゲート型・`Action` / `Func` |
-| 65 | [デリゲートの変数渡しとコールバック](/unity-csharp-learning/csharp/delegate-callback/) | デリゲートをパラメータとして渡す・処理の一部を渡して使い回す・途中経過や完了を知らせる・疎結合 |
-| 66 | [マルチキャストデリゲート](/unity-csharp-learning/csharp/multicast-delegates/) | 複数の相手に知らせる・`+=` / `-=` による登録と解除・`+=` は新しいデリゲートを作る・戻り値と `GetInvocationList()`・途中の例外 |
-| 67 | [イベント](/unity-csharp-learning/csharp/events/) | `event` キーワード・発行者/購読者パターン・購読の解除・`EventHandler` 標準パターンと `sender` / `EventArgs`・`add` / `remove` |
-| 68 | [ラムダ式](/unity-csharp-learning/csharp/lambda/) | `=>` 構文・式ラムダと文ラムダ・`Action` / `Func` への代入とパラメータの型の推論・メソッドの引数として渡す（`Sort` など）・イベントの購読と解除 |
-| 69 | [変数キャプチャ](/unity-csharp-learning/csharp/variable-capture/) | 外側の変数のキャプチャ（値のコピーではなく変数の共有）・コンパイラーが作るクラスへの書き換えと変数の寿命・ループ内の罠・`static` ラムダ |
-| 70 | [ローカル関数](/unity-csharp-learning/csharp/local-functions/) | メソッド内メソッド・再帰との相性・`static` ローカル関数・ラムダ式との使い分け |
-| 71 | [比較の仕組み](/unity-csharp-learning/csharp/comparison/) | 文字列の節番号は正しく並ばない・自作クラスは `Sort()` できない・`IComparable<T>` と `CompareTo` の約束・複数の基準・自然な順序が決まらない型・比べ方を受け取るメソッドを作る・`IComparer<T>` と `Comparison<T>`・`Func<T, T, int>` にしない理由・`List<T>.Sort` と `Comparer<T>.Create`・引き算で比べるミス |
+| 65 | [デリゲートの基本](/unity-csharp-learning/csharp/delegates/) | `delegate` 型の宣言・インスタンス化・呼び出し・実行時のメソッド切り替え・ジェネリックなデリゲート型・`Action` / `Func` |
+| 66 | [デリゲートの変数渡しとコールバック](/unity-csharp-learning/csharp/delegate-callback/) | デリゲートをパラメータとして渡す・処理の一部を渡して使い回す・途中経過や完了を知らせる・疎結合 |
+| 67 | [マルチキャストデリゲート](/unity-csharp-learning/csharp/multicast-delegates/) | 複数の相手に知らせる・`+=` / `-=` による登録と解除・`+=` は新しいデリゲートを作る・戻り値と `GetInvocationList()`・途中の例外 |
+| 68 | [イベント](/unity-csharp-learning/csharp/events/) | `event` キーワード・発行者/購読者パターン・購読の解除・`EventHandler` 標準パターンと `sender` / `EventArgs`・`add` / `remove` |
+| 69 | [ラムダ式](/unity-csharp-learning/csharp/lambda/) | `=>` 構文・式ラムダと文ラムダ・`Action` / `Func` への代入とパラメータの型の推論・メソッドの引数として渡す（`Sort` など）・イベントの購読と解除 |
+| 70 | [変数キャプチャ](/unity-csharp-learning/csharp/variable-capture/) | 外側の変数のキャプチャ（値のコピーではなく変数の共有）・コンパイラーが作るクラスへの書き換えと変数の寿命・ループ内の罠・`static` ラムダ |
+| 71 | [ローカル関数](/unity-csharp-learning/csharp/local-functions/) | メソッド内メソッド・再帰との相性・`static` ローカル関数・ラムダ式との使い分け |
+| 72 | [比較の仕組み](/unity-csharp-learning/csharp/comparison/) | 文字列の節番号は正しく並ばない・自作クラスは `Sort()` できない・`IComparable<T>` と `CompareTo` の約束・複数の基準・自然な順序が決まらない型・比べ方を受け取るメソッドを作る・`IComparer<T>` と `Comparison<T>`・`Func<T, T, int>` にしない理由・`List<T>.Sort` と `Comparer<T>.Create`・引き算で比べるミス |
 
 ### C# LINQ
 
 | # | トピック | 概要 |
 |---|---|---|
-| 72 | [LINQ の基本](/unity-csharp-learning/csharp/linq-basics/) | ループで書く絞り込みと変換・`Where` / `Select`・`IEnumerable<T>` の拡張メソッド・メソッドチェーンと `ToList` |
-| 73 | [遅延実行と即時実行](/unity-csharp-learning/csharp/linq-deferred/) | 回すまで実行されない・回すたびに実行し直される・キャプチャした変数の値・`ToList` / `Count` による即時実行 |
-| 73.1 | [Where と Select を自作する（補足）](/unity-csharp-learning/csharp/linq-implementation/) | 拡張メソッドとイテレーターとデリゲートで `MyWhere` / `MySelect` を作る・遅延実行と即時実行の理由 |
-| 74 | [並べ替え・集計・要素の取り出し](/unity-csharp-learning/csharp/linq-aggregation/) | `OrderBy` / `ThenBy`・`Count` / `Sum` / `Average` / `Max` / `MaxBy`・`Any` / `All`・`First` / `FirstOrDefault` / `Single`・`Take` / `Skip` / `Distinct` |
-| 75 | [グループ化と結合](/unity-csharp-learning/csharp/linq-grouping/) | `GroupBy` と `IGrouping<TKey, TElement>`・`ToDictionary`・`SelectMany`・`Join`・匿名型 |
-| 76 | [クエリ式](/unity-csharp-learning/csharp/linq-query/) | `from` / `where` / `select`・`orderby` / `group` / `join` / `let`・メソッド構文への置き換え・使い分け |
+| 73 | [LINQ の基本](/unity-csharp-learning/csharp/linq-basics/) | ループで書く絞り込みと変換・`Where` / `Select`・`IEnumerable<T>` の拡張メソッド・メソッドチェーンと `ToList` |
+| 74 | [遅延実行と即時実行](/unity-csharp-learning/csharp/linq-deferred/) | 回すまで実行されない・回すたびに実行し直される・キャプチャした変数の値・`ToList` / `Count` による即時実行 |
+| 74.1 | [Where と Select を自作する（補足）](/unity-csharp-learning/csharp/linq-implementation/) | 拡張メソッドとイテレーターとデリゲートで `MyWhere` / `MySelect` を作る・遅延実行と即時実行の理由 |
+| 75 | [並べ替え・集計・要素の取り出し](/unity-csharp-learning/csharp/linq-aggregation/) | `OrderBy` / `ThenBy`・`Count` / `Sum` / `Average` / `Max` / `MaxBy`・`Any` / `All`・`First` / `FirstOrDefault` / `Single`・`Take` / `Skip` / `Distinct` |
+| 76 | [グループ化と結合](/unity-csharp-learning/csharp/linq-grouping/) | `GroupBy` と `IGrouping<TKey, TElement>`・`ToDictionary`・`SelectMany`・`Join`・匿名型 |
+| 77 | [クエリ式](/unity-csharp-learning/csharp/linq-query/) | `from` / `where` / `select`・`orderby` / `group` / `join` / `let`・メソッド構文への置き換え・使い分け |
 
 ### C# 例外とリソース管理
 
 | # | トピック | 概要 |
 |---|---|---|
-| 77 | [例外の基本](/unity-csharp-learning/csharp/exceptions/) | `try` / `catch` / `finally`・例外の型の継承関係と `catch` の順序・`TryParse` との使い分け |
-| 78 | [例外を投げる](/unity-csharp-learning/csharp/throwing-exceptions/) | `throw`・呼び出し元への伝わり方とスタックトレース・`throw;` による再スロー・独自の例外クラスと `InnerException` |
-| 79 | [IDisposable と using](/unity-csharp-learning/csharp/dispose-using/) | `Dispose` が必要な理由・`IDisposable` の実装・`using` 文と `try` / `finally`・`using` 宣言と解放の順序 |
-| 79.1 | [イテレーターの後片付け（補足）](/unity-csharp-learning/csharp/iterator-dispose/) | `foreach` の `try` / `finally` と `Dispose`・`break` したときのイテレーターの `finally`・イテレーターの中の `using` |
-| 79.2 | [Dispose パターン（補足）](/unity-csharp-learning/csharp/dispose-pattern/) | アンマネージドリソース・ファイナライザーで呼び忘れに備える・`GC.SuppressFinalize`・`Dispose(bool disposing)` で後片付けの範囲を分ける・派生クラスでのオーバーライド・`SafeHandle` |
+| 78 | [例外の基本](/unity-csharp-learning/csharp/exceptions/) | `try` / `catch` / `finally`・例外の型の継承関係と `catch` の順序・`TryParse` との使い分け |
+| 79 | [例外を投げる](/unity-csharp-learning/csharp/throwing-exceptions/) | `throw`・呼び出し元への伝わり方とスタックトレース・`throw;` による再スロー・独自の例外クラスと `InnerException` |
+| 80 | [IDisposable と using](/unity-csharp-learning/csharp/dispose-using/) | `Dispose` が必要な理由・`IDisposable` の実装・`using` 文と `try` / `finally`・`using` 宣言と解放の順序 |
+| 80.1 | [イテレーターの後片付け（補足）](/unity-csharp-learning/csharp/iterator-dispose/) | `foreach` の `try` / `finally` と `Dispose`・`break` したときのイテレーターの `finally`・イテレーターの中の `using` |
+| 80.2 | [Dispose パターン（補足）](/unity-csharp-learning/csharp/dispose-pattern/) | アンマネージドリソース・ファイナライザーで呼び忘れに備える・`GC.SuppressFinalize`・`Dispose(bool disposing)` で後片付けの範囲を分ける・派生クラスでのオーバーライド・`SafeHandle` |
 
 ### C# スレッド
 
 | # | トピック | 概要 |
 |---|---|---|
-| 80 | [スレッドの基本](/unity-csharp-learning/csharp/threads/) | メインスレッド・`Thread` の `Start` / `Join`・実行の順序が決まらないこと・バックグラウンドスレッド |
-| 81 | [共有データと lock](/unity-csharp-learning/csharp/thread-safety/) | 競合状態・`count++` が 1 回の操作ではないこと・`lock` 文・`Interlocked` |
-| 82 | [スレッドの数と性能](/unity-csharp-learning/csharp/thread-performance/) | 論理プロセッサーの数・コンテキストスイッチ・計算するスレッドと待つスレッド・スレッドを増やしても速くならない理由 |
-| 83 | [スレッドプール](/unity-csharp-learning/csharp/thread-pool/) | スレッドの使い回し・`ThreadPool.QueueUserWorkItem`・完了・結果・例外を扱いにくいという限界 |
+| 81 | [スレッドの基本](/unity-csharp-learning/csharp/threads/) | メインスレッド・`Thread` の `Start` / `Join`・実行の順序が決まらないこと・バックグラウンドスレッド |
+| 82 | [共有データと lock](/unity-csharp-learning/csharp/thread-safety/) | 競合状態・`count++` が 1 回の操作ではないこと・`lock` 文・`Interlocked` |
+| 83 | [スレッドの数と性能](/unity-csharp-learning/csharp/thread-performance/) | 論理プロセッサーの数・コンテキストスイッチ・計算するスレッドと待つスレッド・スレッドを増やしても速くならない理由 |
+| 84 | [スレッドプール](/unity-csharp-learning/csharp/thread-pool/) | スレッドの使い回し・`ThreadPool.QueueUserWorkItem`・完了・結果・例外を扱いにくいという限界 |
 
 ### C# 非同期処理
 
 | # | トピック | 概要 |
 |---|---|---|
-| 84 | [Task と Task\<T\>](/unity-csharp-learning/csharp/tasks/) | `Task.Run`・`Wait`・`Result`・`AggregateException`・Thread / スレッドプール / Task の比較 |
-| 85 | [継続と ContinueWith](/unity-csharp-learning/csharp/task-continuation/) | 待たずに続きを登録する・継続のつなげ方・例外が深く包まれること・継続で組み立てる難しさ |
-| 85.1 | [非同期処理のパターンの変遷（補足）](/unity-csharp-learning/csharp/async-patterns-history/) | APM（`BeginXxx` / `EndXxx`）・EAP（`XxxAsync` と `XxxCompleted`）・TAP（`Task` を返す `XxxAsync`） |
-| 86 | [async と await](/unity-csharp-learning/csharp/async-await/) | `await` 演算子・async メソッドの定義と戻り値・`await` の正体（継続への置き換え）・元の例外が投げられること・`async void` |
-| 87 | [スレッドを使わずに待つ](/unity-csharp-learning/csharp/async-without-threads/) | `Task.Run` で待つとスレッドを占有する・`Task.Delay`・`TaskCompletionSource<TResult>`・計算する処理と待つ処理 |
-| 88 | [await の前後で実行されるスレッド](/unity-csharp-learning/csharp/await-threads/) | 完了済みの `Task` は中断しない・同期コンテキスト・`Wait` / `Result` によるデッドロック・`ConfigureAwait(false)` |
-| 89 | [複数の Task を待つ](/unity-csharp-learning/csharp/task-whenall/) | 開始と `await` を分ける・`Task.WhenAll` と複数の例外・`Task.WhenAny` とタイムアウト |
-| 90 | [キャンセル](/unity-csharp-learning/csharp/task-cancellation/) | 協調的なキャンセル・`CancellationTokenSource` / `CancellationToken`・`OperationCanceledException`・`CancelAfter` |
-| 91 | [ValueTask](/unity-csharp-learning/csharp/value-task/) | async メソッドが作る `Task` オブジェクト・構造体の `ValueTask<TResult>` で割り当てを減らす・1 回だけ `await` する制約 |
-| 92 | [IAsyncEnumerable と await foreach](/unity-csharp-learning/csharp/async-streams/) | `Task<List<T>>` との違い・`MoveNextAsync` と `ValueTask<bool>`・非同期イテレーター・`await foreach` の正体と後片付け |
-| 93 | [IAsyncDisposable と await using](/unity-csharp-learning/csharp/async-dispose/) | `DisposeAsync`・`await using` 文と宣言・`await using` の正体・`using` との使い分け |
+| 85 | [Task と Task\<T\>](/unity-csharp-learning/csharp/tasks/) | `Task.Run`・`Wait`・`Result`・`AggregateException`・Thread / スレッドプール / Task の比較 |
+| 86 | [継続と ContinueWith](/unity-csharp-learning/csharp/task-continuation/) | 待たずに続きを登録する・継続のつなげ方・例外が深く包まれること・継続で組み立てる難しさ |
+| 86.1 | [非同期処理のパターンの変遷（補足）](/unity-csharp-learning/csharp/async-patterns-history/) | APM（`BeginXxx` / `EndXxx`）・EAP（`XxxAsync` と `XxxCompleted`）・TAP（`Task` を返す `XxxAsync`） |
+| 87 | [async と await](/unity-csharp-learning/csharp/async-await/) | `await` 演算子・async メソッドの定義と戻り値・`await` の正体（継続への置き換え）・元の例外が投げられること・`async void` |
+| 88 | [スレッドを使わずに待つ](/unity-csharp-learning/csharp/async-without-threads/) | `Task.Run` で待つとスレッドを占有する・`Task.Delay`・`TaskCompletionSource<TResult>`・計算する処理と待つ処理 |
+| 89 | [await の前後で実行されるスレッド](/unity-csharp-learning/csharp/await-threads/) | 完了済みの `Task` は中断しない・同期コンテキスト・`Wait` / `Result` によるデッドロック・`ConfigureAwait(false)` |
+| 90 | [複数の Task を待つ](/unity-csharp-learning/csharp/task-whenall/) | 開始と `await` を分ける・`Task.WhenAll` と複数の例外・`Task.WhenAny` とタイムアウト |
+| 91 | [キャンセル](/unity-csharp-learning/csharp/task-cancellation/) | 協調的なキャンセル・`CancellationTokenSource` / `CancellationToken`・`OperationCanceledException`・`CancelAfter` |
+| 92 | [ValueTask](/unity-csharp-learning/csharp/value-task/) | async メソッドが作る `Task` オブジェクト・構造体の `ValueTask<TResult>` で割り当てを減らす・1 回だけ `await` する制約 |
+| 93 | [IAsyncEnumerable と await foreach](/unity-csharp-learning/csharp/async-streams/) | `Task<List<T>>` との違い・`MoveNextAsync` と `ValueTask<bool>`・非同期イテレーター・`await foreach` の正体と後片付け |
+| 94 | [IAsyncDisposable と await using](/unity-csharp-learning/csharp/async-dispose/) | `DisposeAsync`・`await using` 文と宣言・`await using` の正体・`using` との使い分け |
 
 ### C# メモリの効率化
 
 | # | トピック | 概要 |
 |---|---|---|
-| 94 | [文字列の不変性と StringBuilder](/unity-csharp-learning/csharp/string-immutability/) | 文字列は変更できない・連結で新しい文字列が作られる・ループ内の `+=` と割り当ての増え方・`StringBuilder`・`+` / 文字列補間 / `string.Join` との使い分け |
-| 95 | [ref ローカルと ref 戻り値](/unity-csharp-learning/csharp/ref-locals/) | 要素を取り出すとコピーになる・ref ローカルと指す先の付け替え・ref 戻り値・ローカル変数への参照を返せない理由・`ref readonly` |
-| 96 | [Span\<T\> と ReadOnlySpan\<T\>](/unity-csharp-learning/csharp/span/) | 範囲演算子 `..` によるコピー・`AsSpan`・`Slice` と範囲演算子・`Span` を受け取るメソッド・`ReadOnlySpan<char>` と文字列・インデクサが返す ref |
-| 97 | [ref struct と Span の制約](/unity-csharp-learning/csharp/ref-struct/) | `Span<T>` がスタックにしか置けない理由・`ref struct`・フィールド / ボクシング / 配列 / 型引数 / キャプチャ / `await` の制約・async メソッドでの使い方 |
-| 98 | [stackalloc](/unity-csharp-learning/csharp/stackalloc/) | スタックに領域を確保して `Span<T>` で受け取る・メソッドから戻ると取り除かれる・領域を返せない理由・大きさと `new` との使い分け・ループ内の `stackalloc` |
-| 99 | [ref フィールドと scoped](/unity-csharp-learning/csharp/ref-fields-scoped/) | ref フィールドと `= ref`・ref フィールドを持つ値を返せる場合と返せない場合・`scoped` パラメータと `stackalloc` の領域・`scoped` ローカル変数 |
-| 100 | [Memory\<T\>](/unity-csharp-learning/csharp/memory/) | フィールドに保存する・`await` をまたぐ・`Span` プロパティ・`ReadOnlyMemory<T>`・`Stream.ReadAsync`・`Span<T>` との使い分け |
-| 100.1 | [ArrayPool\<T\>（補足）](/unity-csharp-learning/csharp/array-pool/) | `Rent` / `Return`・求めた長さより長い配列・`try` / `finally` で返す・残っているデータと `clearArray`・`stackalloc` との組み合わせ |
-| 101 | [文字列処理の割り当てを減らす](/unity-csharp-learning/csharp/string-performance/) | `Split` による解析で作られるもの・`ReadOnlySpan<char>` と `IndexOf` / `int.Parse`・中身の比較と `==` の違い・`TryFormat` / `TryWrite` / `string.Create`・方法のまとめ |
+| 95 | [文字列の不変性と StringBuilder](/unity-csharp-learning/csharp/string-immutability/) | 文字列は変更できない・連結で新しい文字列が作られる・ループ内の `+=` と割り当ての増え方・`StringBuilder`・`+` / 文字列補間 / `string.Join` との使い分け |
+| 96 | [ref ローカルと ref 戻り値](/unity-csharp-learning/csharp/ref-locals/) | 要素を取り出すとコピーになる・ref ローカルと指す先の付け替え・ref 戻り値・ローカル変数への参照を返せない理由・`ref readonly` |
+| 97 | [Span\<T\> と ReadOnlySpan\<T\>](/unity-csharp-learning/csharp/span/) | 範囲演算子 `..` によるコピー・`AsSpan`・`Slice` と範囲演算子・`Span` を受け取るメソッド・`ReadOnlySpan<char>` と文字列・インデクサが返す ref |
+| 98 | [ref struct と Span の制約](/unity-csharp-learning/csharp/ref-struct/) | `Span<T>` がスタックにしか置けない理由・`ref struct`・フィールド / ボクシング / 配列 / 型引数 / キャプチャ / `await` の制約・async メソッドでの使い方 |
+| 99 | [stackalloc](/unity-csharp-learning/csharp/stackalloc/) | スタックに領域を確保して `Span<T>` で受け取る・メソッドから戻ると取り除かれる・領域を返せない理由・大きさと `new` との使い分け・ループ内の `stackalloc` |
+| 100 | [ref フィールドと scoped](/unity-csharp-learning/csharp/ref-fields-scoped/) | ref フィールドと `= ref`・ref フィールドを持つ値を返せる場合と返せない場合・`scoped` パラメータと `stackalloc` の領域・`scoped` ローカル変数 |
+| 101 | [Memory\<T\>](/unity-csharp-learning/csharp/memory/) | フィールドに保存する・`await` をまたぐ・`Span` プロパティ・`ReadOnlyMemory<T>`・`Stream.ReadAsync`・`Span<T>` との使い分け |
+| 101.1 | [ArrayPool\<T\>（補足）](/unity-csharp-learning/csharp/array-pool/) | `Rent` / `Return`・求めた長さより長い配列・`try` / `finally` で返す・残っているデータと `clearArray`・`stackalloc` との組み合わせ |
+| 102 | [文字列処理の割り当てを減らす](/unity-csharp-learning/csharp/string-performance/) | `Split` による解析で作られるもの・`ReadOnlySpan<char>` と `IndexOf` / `int.Parse`・中身の比較と `==` の違い・`TryFormat` / `TryWrite` / `string.Create`・方法のまとめ |
 
 ## 前提知識
 
