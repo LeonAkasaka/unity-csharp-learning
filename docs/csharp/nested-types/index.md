@@ -533,4 +533,4 @@ Bob: 90
 
 ## 次のステップ
 
-これで「C# プログラムの構成」のセクションは終わりです。[継承](/unity-csharp-learning/csharp/inheritance/) からは「C# 継承と抽象化」のセクションに進み、既存のクラスのメンバーを引き継いで、新しいクラスを作る仕組みを学びます。
+[プリプロセッサディレクティブ](/unity-csharp-learning/csharp/preprocessor-directives/) では、自分で定義したシンボルによって、コードのどの部分をコンパイルするかを切り替える方法を学びます。
