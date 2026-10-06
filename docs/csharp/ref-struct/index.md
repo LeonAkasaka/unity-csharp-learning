@@ -212,7 +212,7 @@ ref struct に関する規則は、C# のバージョンが上がるにつれて
 
 C# 12 以前では、4 節の最初のコードのように、async メソッドの中で `Span<T>` の変数を宣言するだけでエラー（CS9202 など）になります。その場合は、`Span<T>` を使う処理を async ではないメソッドに分けます。
 
-`Span<T>` の内部には、先頭の要素を指す ref フィールドと、要素の数を表すフィールドがあります。ref フィールドは、[ref ローカルと ref 戻り値](/unity-csharp-learning/csharp/ref-locals/) の ref ローカルと同じように変数を指すフィールドで、ref struct の中にしか宣言できません。
+`Span<T>` の内部には、先頭の要素を指す ref フィールドと、要素の数を表すフィールドがあります。ref フィールドは、[ref ローカルと ref 戻り値](/unity-csharp-learning/csharp/ref-locals/) の ref ローカルと同じように変数を指すフィールドで、ref struct の中にしか宣言できません。ref フィールドの書き方は、[ref フィールドと scoped](/unity-csharp-learning/csharp/ref-fields-scoped/) で学びます。
 
 ---
 
