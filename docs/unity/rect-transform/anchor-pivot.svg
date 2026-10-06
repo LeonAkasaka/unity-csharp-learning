@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 310" width="700" font-family="sans-serif">
+  <rect x="1" y="1" width="698" height="308" rx="8" fill="#f5f5f5" stroke="#bbb"/>
+  <rect x="50" y="65" width="530" height="200" fill="white" stroke="#bbb" stroke-width="2"/>
+  <text x="65" y="95" fill="#333" font-size="18">親の矩形（LayoutArea）</text>
+  <rect x="370" y="110" width="155" height="65" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="386" y="148" fill="#333" font-size="17">子（Corner）</text>
+  <circle cx="580" cy="65" r="6" fill="#1565c0"/>
+  <text x="375" y="36" fill="#1565c0" font-size="16">アンカー：親の右上 (1, 1)</text>
+  <path d="M 525 110 L 580 110 L 580 65" fill="none" stroke="#999" stroke-dasharray="5 4"/>
+  <circle cx="525" cy="110" r="6" fill="#e65100"/>
+  <text x="310" y="207" fill="#e65100" font-size="16">ピボット：子の右上 (1, 1)</text>
+  <path d="M 500 190 L 523 119" fill="none" stroke="#e65100"/>
+  <text x="536" y="137" fill="#555" font-size="15">右の余白</text>
+  <text x="590" y="94" fill="#555" font-size="15">上の余白</text>
+  <text x="65" y="290" fill="#555" font-size="15">Pos X / Pos Y は、アンカーからピボットまでの距離。</text>
+</svg>

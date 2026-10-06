@@ -323,7 +323,7 @@ Inspector ビューの `_textUi` 欄に TextMesh Pro ゲームオブジェクト
 
 ## 次のステップ
 
-[Unity UI とボタン操作](/unity-csharp-learning/unity/unity-ui/) では、ボタンのクリックイベントと TextMesh Pro を組み合わせてインタラクティブな UI を実装しています。合わせて確認してみてください。
+[Image — 画像の表示と色・透明度](/unity-csharp-learning/unity/ui-image/) では、キャラクター画像を Canvas に表示し、画像の縦横比や色、透明度を調整します。
 
 ## 参考
 
