@@ -1,12 +1,12 @@
 ---
 layout: page
-title: ref フィールドと scoped（補足）
+title: ref フィールドと scoped
 permalink: /csharp/ref-fields-scoped/
 ---
 
-# ref フィールドと scoped（補足）
+# ref フィールドと scoped
 
-[ref struct と Span の制約](/unity-csharp-learning/csharp/ref-struct/) で、`Span<T>` の内部には、先頭の要素を指す **ref フィールド**（ref field）があると紹介しました。ref フィールドを使うと、自分で作る ref struct にも、変数を指すフィールドを持たせられます。このページでは、ref フィールドの書き方と、ref struct の値をメソッドの外へ持ち出さないことをコンパイラーに約束する **scoped** を紹介します。
+[ref struct と Span の制約](/unity-csharp-learning/csharp/ref-struct/) で、`Span<T>` の内部には、先頭の要素を指す **ref フィールド**（ref field）があると紹介しました。ref フィールドを使うと、自分で作る ref struct にも、変数を指すフィールドを持たせられます。このページでは、ref フィールドの書き方と、ref struct の値をメソッドの外へ持ち出さないことをコンパイラーに約束する **scoped** を学びます。
 
 ## 学習目標
 

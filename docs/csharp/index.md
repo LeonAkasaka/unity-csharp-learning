@@ -219,10 +219,10 @@ C# プログラミングをゼロから学びます。
 | 96 | [Span\<T\> と ReadOnlySpan\<T\>](/unity-csharp-learning/csharp/span/) | 範囲演算子 `..` によるコピー・`AsSpan`・`Slice` と範囲演算子・`Span` を受け取るメソッド・`ReadOnlySpan<char>` と文字列・インデクサが返す ref |
 | 97 | [ref struct と Span の制約](/unity-csharp-learning/csharp/ref-struct/) | `Span<T>` がスタックにしか置けない理由・`ref struct`・フィールド / ボクシング / 配列 / 型引数 / キャプチャ / `await` の制約・async メソッドでの使い方 |
 | 98 | [stackalloc](/unity-csharp-learning/csharp/stackalloc/) | スタックに領域を確保して `Span<T>` で受け取る・メソッドから戻ると取り除かれる・領域を返せない理由・大きさと `new` との使い分け・ループ内の `stackalloc` |
-| 98.1 | [ref フィールドと scoped（補足）](/unity-csharp-learning/csharp/ref-fields-scoped/) | ref フィールドと `= ref`・ref フィールドを持つ値を返せる場合と返せない場合・`scoped` パラメータと `stackalloc` の領域・`scoped` ローカル変数 |
-| 99 | [Memory\<T\>](/unity-csharp-learning/csharp/memory/) | フィールドに保存する・`await` をまたぐ・`Span` プロパティ・`ReadOnlyMemory<T>`・`Stream.ReadAsync`・`Span<T>` との使い分け |
-| 99.1 | [ArrayPool\<T\>（補足）](/unity-csharp-learning/csharp/array-pool/) | `Rent` / `Return`・求めた長さより長い配列・`try` / `finally` で返す・残っているデータと `clearArray`・`stackalloc` との組み合わせ |
-| 100 | [文字列処理の割り当てを減らす](/unity-csharp-learning/csharp/string-performance/) | `Split` による解析で作られるもの・`ReadOnlySpan<char>` と `IndexOf` / `int.Parse`・中身の比較と `==` の違い・`TryFormat` / `TryWrite` / `string.Create`・方法のまとめ |
+| 99 | [ref フィールドと scoped](/unity-csharp-learning/csharp/ref-fields-scoped/) | ref フィールドと `= ref`・ref フィールドを持つ値を返せる場合と返せない場合・`scoped` パラメータと `stackalloc` の領域・`scoped` ローカル変数 |
+| 100 | [Memory\<T\>](/unity-csharp-learning/csharp/memory/) | フィールドに保存する・`await` をまたぐ・`Span` プロパティ・`ReadOnlyMemory<T>`・`Stream.ReadAsync`・`Span<T>` との使い分け |
+| 100.1 | [ArrayPool\<T\>（補足）](/unity-csharp-learning/csharp/array-pool/) | `Rent` / `Return`・求めた長さより長い配列・`try` / `finally` で返す・残っているデータと `clearArray`・`stackalloc` との組み合わせ |
+| 101 | [文字列処理の割り当てを減らす](/unity-csharp-learning/csharp/string-performance/) | `Split` による解析で作られるもの・`ReadOnlySpan<char>` と `IndexOf` / `int.Parse`・中身の比較と `==` の違い・`TryFormat` / `TryWrite` / `string.Create`・方法のまとめ |
 
 ## 前提知識
 
