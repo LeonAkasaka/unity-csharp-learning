@@ -317,4 +317,4 @@ Span<int> buffer = stackalloc int[4];
 
 ## 次のステップ
 
-[Memory\<T\>](/unity-csharp-learning/csharp/memory/) では、`Span<T>` と同じように配列の一部を指しながら、クラスのフィールドにしたり、`await` をまたいだりできる型を学びます。
+[ref フィールドと scoped（補足）](/unity-csharp-learning/csharp/ref-fields-scoped/) では、変数を指すフィールドを自分の ref struct に持たせる方法と、`stackalloc` の領域を指す `Span<T>` をメソッドに渡すときに必要になる `scoped` を学びます。
