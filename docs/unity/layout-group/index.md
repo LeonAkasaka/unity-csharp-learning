@@ -145,7 +145,7 @@ flowchart TD
 
 ![ItemA の Rect Transform。位置とサイズの欄に、Horizontal Layout Group が制御している表示がある](image-14.png)
 
-前のページで登録した Game ビューの **Sample UI 1280x720** を選び、Play ボタンを押します。冒頭の画像のように、青・オレンジ・緑が横に並ぶことを確認したら、再生を停止してください。
+RectTransform の [Game ビューの解像度を登録する](/unity-csharp-learning/unity/rect-transform/#game-ビューの解像度を登録する) で登録した **Sample UI 1280x720** を Game ビューで選び、Play ボタンを押します。冒頭の画像のように、青・オレンジ・緑が横に並ぶことを確認したら、再生を停止してください。
 
 ---
 
@@ -274,6 +274,10 @@ Horizontal / Vertical Layout Group の **Child Force Expand** がオンだと、
 
 **Control Child Size** がオンなら、子の RectTransform の Width / Height の手入力ではなく、Layout Element の **Preferred Width / Height** のチェックと値を確認してください。
 
+Grid の節で追加した ItemD は、Source Image が None で、Layout Element もありません。そのまま Horizontal / Vertical Layout Group で Control Child Size をオンにすると、希望する幅・高さは0になります。Vertical と Content Size Fitter で4項目を並べた場合、親の高さは **`20 + 3 × 50 + 0 + 3 × 10 + 20 = 220`** です。
+
+ItemD も ItemA〜ItemC と同じサイズにするには、[Layout Element で子の希望サイズを指定する](#2-layout-element-で子の希望サイズを指定する) の操作で Preferred Width を `160`、Preferred Height を `50` に指定します。4項目とも希望する高さが50なら、親の高さは270になります。
+
 ### 順番や折り返しが違う
 
 Hierarchy の兄弟順、Grid の **Start Corner / Start Axis / Constraint** を確認します。1つの親に複数の Layout Group を残さず、切り替える前に前のコンポーネントを外してください。
@@ -289,14 +293,14 @@ Hierarchy の兄弟順、Grid の **Start Corner / Start Axis / Constraint** を
 ## 理解度チェック
 
 1. Padding と Spacing は、それぞれ何の間隔ですか？
-2. この例の Vertical Layout Group で、4項目になったときの希望する高さはいくつですか？
+2. この例の Vertical Layout Group で、4項目すべての Layout Element に Preferred Height = 50 を指定したとき、希望する高さはいくつですか？
 3. Grid の Cell Size が160×60、子の Preferred Height が50なら、子の高さはいくつになりますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
 1. Padding は親の端と項目の余白、Spacing は項目どうしの間隔です。
-2. `20 + 4 × 50 + 3 × 10 + 20 = 270` です。
+2. 4項目とも希望する高さが50なので、`20 + 4 × 50 + 3 × 10 + 20 = 270` です。
 3. 60です。Grid Layout Group は Cell Size を使います。
 
 </details>
