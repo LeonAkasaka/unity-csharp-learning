@@ -20,6 +20,7 @@ Unity エディターの使い方と、C# スクリプトを使ったゲーム�
 | 5 | [AddComponent と物理演算](./rigidbody/) | Rigidbody を追加して重力や衝突などの物理演算を有効にする |
 | 6 | [チュートリアル: ドミノ倒し](./domino/) | for ループでドミノを並べ、物理演算で倒れる様子を作る |
 | 7 | [Update メソッドと連続実行](./update-basics/) | 毎フレーム処理を実行してオブジェクトを継続的に動かす |
+| 7.1 | [補足: Unity のメッセージと実行順序](./messages/) | Awake・FixedUpdate・LateUpdate などのメッセージが呼ばれる順序を俯瞰する |
 | 8 | [Input System で入力操作](./input-system/) | キーボードの入力を受け取ってオブジェクトを操作する |
 | 8.1 | [補足: 旧来の Input クラスと InputManager](./legacy-input/) | 古い Input クラスと新しい Input System の違いを理解する |
 | 9 | [フィールドでデータを維持する](./fields-basics/) | フレームをまたいでデータを保持し Inspector から値を設定する |

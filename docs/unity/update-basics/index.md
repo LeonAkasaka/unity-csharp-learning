@@ -33,6 +33,25 @@ permalink: /unity/update-basics/
 
 1秒間に画面が更新される回数を**フレームレート**と呼びます。60fps（フレーム毎秒）の環境では、`Update` は1秒間に60回呼び出されます。
 
+Play ボタンを押してから止めるまでの流れを図にすると、次のようになります。
+
+```mermaid
+flowchart TD
+    A([Play ボタンを押す]) --> S["Start()"]
+    S --> F
+    subgraph F["1 フレーム"]
+        direction TB
+        U["Update()"] --> R["画面を描画する"]
+    end
+    F --> C{"Play を止めた？"}
+    C -- いいえ --> F
+    C -- はい --> Z([終了])
+```
+
+`Start` が 1 回呼ばれた後は、「`Update` を呼ぶ → 画面を描画する」という 1 フレームの処理が、Play を止めるまで繰り返されます。`Update` の中でオブジェクトの位置を書き換えると、その直後の描画に新しい位置が反映されます。このループを 1 秒間に何回まわるかが、フレームレートです。
+
+> 💡 **ポイント**: Unity が決まったタイミングで呼び出すメソッドは、`Start` と `Update` のほかにもあります。全体の順序は [補足: Unity のメッセージと実行順序](/unity-csharp-learning/unity/messages/) で紹介します。
+
 ---
 
 ## 2. Debug.Log で連続実行を体験する
@@ -159,6 +178,12 @@ public static float deltaTime { get; }
 
 60fps では約 `0.0167`、30fps では約 `0.0333` の値になります。つまりフレームレートが高いほど小さい値です。移動量に `Time.deltaTime` を掛けることで、**フレームレートが変わっても1秒あたりの移動量が一定**になります。
 
+30fps と 60fps で、0.1 秒の間に `Update` が呼ばれるタイミングを時間軸に並べると、次のようになります。速さは 1 秒あたり 3.0 とします。
+
+![30fps と 60fps で、0.1 秒の間に Update が呼ばれるタイミングと、フレームごとの移動量を時間軸に並べた図。30fps では間隔 0.0333 秒で 3 回、1 回に 0.1 ずつ進み、60fps では間隔 0.0167 秒で 6 回、1 回に 0.05 ずつ進む。どちらも合計は 0.3](frame-interval.svg)
+
+60fps では `Update` が 30fps の 2 倍呼ばれますが、`Time.deltaTime` が半分なので、1 回の移動量も半分になります。その結果、0.1 秒間に進む距離はどちらも 0.3 で同じです。`Time.deltaTime` を掛けずに `0.1f` ずつ動かした場合は、30fps では 0.3、60fps では 0.6 進み、速さが 2 倍に変わってしまいます。
+
 ```csharp
 using UnityEngine;
 
@@ -207,3 +232,5 @@ public class UpdateSample : MonoBehaviour
 ## 次のステップ
 
 [Input System で入力操作](/unity-csharp-learning/unity/input-system/) では、キーボード入力を受け取ってオブジェクトを操作する方法を学びます。
+
+`Start` と `Update` 以外のメッセージ（`Awake`、`FixedUpdate`、`LateUpdate` など）と、それらが呼ばれる順序は、[補足: Unity のメッセージと実行順序](/unity-csharp-learning/unity/messages/) で紹介します。
