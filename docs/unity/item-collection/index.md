@@ -12,6 +12,7 @@ permalink: /unity/item-collection/
 
 - Rigidbody と AddForce でプレイヤーを操作できる
 - `OnTriggerEnter` でアイテムの回収を検知できる
+- 触れた相手の種類を、付いているスクリプトで見分けられる
 - プレハブを使って複数のアイテムを配置できる
 - `Transform.Rotate` で継続的な回転アニメーションを実装できる
 
@@ -63,7 +64,7 @@ public class Player : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         var move = Vector3.zero;
 
@@ -76,6 +77,8 @@ public class Player : MonoBehaviour
     }
 }
 ```
+
+力を加える処理は、[Rigidbody で力を加える](/unity-csharp-learning/unity/rigidbody-force/) と同じく、`Update` ではなく `FixedUpdate` に書きます。`FixedUpdate` は物理演算 1 回の直前に必ず 1 回呼ばれるので、フレームレートによって加わる力が変わりません。
 
 Play ボタンを押して方向キーで球体が動くことを確認しましょう。
 
@@ -151,7 +154,7 @@ public class Player : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         var move = Vector3.zero;
 
@@ -165,17 +168,19 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Item"))
+        if (other.TryGetComponent<Item>(out var item))
         {
-            Destroy(other.gameObject);
+            Destroy(item.gameObject);
         }
     }
 }
 ```
 
-`CompareTag("Item")` は、触れた相手の**タグ**が `"Item"` かどうかを調べます。これにより、Is Trigger がオンの別のオブジェクト（例: ゴールゾーンなど）を誤って削除することを防げます。
+`other.TryGetComponent<Item>(out var item)` は、触れた相手に `Item` スクリプト（コンポーネント）が付いているかを調べます。付いていれば `true` を返し、`item` にその `Item` コンポーネントが入ります。`TryGetComponent` は [チュートリアル: 信号機](/unity-csharp-learning/unity/traffic-light/) で紹介しました。
 
-> **タグの設定**: Item プレハブを選択し、Inspector 上部の **Tag** ドロップダウンから **Add Tag...** で `Item` タグを追加し、Item プレハブに設定してください。
+アイテムには 3 節で `Item` スクリプトを付けたので、これだけでアイテムかどうかを見分けられます。Is Trigger がオンの別のオブジェクト（例: ゴールゾーンなど）には `Item` スクリプトが付いていないので、誤って削除することはありません。
+
+> 💡 **ポイント**: 相手の種類は、タグ（`CompareTag`）で調べることもできます。ただし、タグは Editor で追加して設定する文字列です。設定を忘れたり名前を打ち間違えたりしても、コンパイルエラーにはならず、アイテムが回収されないだけになります。このチュートリアルのように、相手の種類を表すスクリプトがすでにあるときは、そのスクリプトが付いているかで調べるほうが確実です。課題 2 のように、取得したコンポーネントの値をそのまま使えるという利点もあります。
 
 <video controls src="./video.mp4"></video>
 
@@ -199,7 +204,7 @@ public class Player : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         var move = Vector3.zero;
 
@@ -213,9 +218,9 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Item"))
+        if (other.TryGetComponent<Item>(out var item))
         {
-            Destroy(other.gameObject);
+            Destroy(item.gameObject);
         }
     }
 }
@@ -258,9 +263,9 @@ private int _score = 0;
 
 private void OnTriggerEnter(Collider other)
 {
-    if (other.gameObject.CompareTag("Item"))
+    if (other.TryGetComponent<Item>(out var item))
     {
-        Destroy(other.gameObject);
+        Destroy(item.gameObject);
         _score++;
         Debug.Log($"スコア: {_score}");
     }
@@ -275,7 +280,7 @@ private void OnTriggerEnter(Collider other)
 
 アイテムによって得点が異なるようにしてみましょう。
 
-ヒント: `Item.cs` に `[SerializeField] public int point = 1;` フィールドを追加し、`Player.cs` の `OnTriggerEnter` 内で `other.GetComponent<Item>().point` を読み取ります。
+ヒント: `Item.cs` に `[SerializeField] public int point = 1;` フィールドを追加し、`Player.cs` の `OnTriggerEnter` 内で、`TryGetComponent` で取得した `item` の `point` を読み取ります。
 
 <details markdown="1">
 <summary>解答を見る</summary>
@@ -289,12 +294,11 @@ private void OnTriggerEnter(Collider other)
 // Player.cs の OnTriggerEnter
 private void OnTriggerEnter(Collider other)
 {
-    if (other.gameObject.CompareTag("Item"))
+    if (other.TryGetComponent<Item>(out var item))
     {
-        var item = other.GetComponent<Item>();
         _score += item.point;
         Debug.Log($"スコア: {_score}");
-        Destroy(other.gameObject);
+        Destroy(item.gameObject);
     }
 }
 ```
@@ -319,26 +323,28 @@ private void OnTriggerEnter(Collider other)
 
 ## まとめ
 
-- `GetComponent<Rigidbody>()` を Start でキャッシュし、`AddForce` で物理移動を実装した
+- `GetComponent<Rigidbody>()` を Start でキャッシュし、`FixedUpdate` で `AddForce` を呼んで物理移動を実装した
 - `Transform.Rotate()` を Update で繰り返し呼ぶことで継続的な回転アニメーションを作れる
 - Is Trigger + `OnTriggerEnter` でアイテム回収のような「交差検知」を実装できる
-- `CompareTag` で相手の種類を識別することで誤動作を防げる
+- `TryGetComponent<Item>` で相手に `Item` スクリプトが付いているかを調べると、アイテム以外のトリガーを誤って削除しない
 - プレハブを使うと同種のオブジェクトを効率よく配置・管理できる
 
 ---
 
 ## 理解度チェック
 
-1. `_rigidbody = GetComponent<Rigidbody>()` を `Update` ではなく `Start` に書く理由は何ですか？
-2. `CompareTag("Item")` を使わずに `Destroy(other.gameObject)` だけ書いた場合、何が問題になりますか？
+1. `_rigidbody = GetComponent<Rigidbody>()` を `FixedUpdate` ではなく `Start` に書く理由は何ですか？
+2. `TryGetComponent<Item>` で調べずに `Destroy(other.gameObject)` だけ書いた場合、何が問題になりますか？
 3. アイテムを 20 個に増やしたいとき、プレハブを使うメリットは何ですか？
+4. 相手がアイテムかどうかを、タグ（`CompareTag("Item")`）ではなく `Item` スクリプトの有無で調べると、どのような利点がありますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. `GetComponent` はコストのかかる処理であり、毎フレーム呼ぶとパフォーマンスへの影響が積み重なるため。`Start` で一度だけ取得してフィールドに保持する。
+1. `GetComponent` はコストのかかる処理であり、繰り返し呼ぶとパフォーマンスへの影響が積み重なるため。`Start` で一度だけ取得してフィールドに保持する。
 2. Is Trigger がオンのオブジェクトすべてに触れると削除してしまう。ゴールゾーンや罠ゾーンなども削除されてしまう可能性がある。
 3. プレハブを1か所変更するだけで20個すべてに変更が反映される。個別に修正する必要がなく、変更漏れが起きない。
+4. Editor でタグを追加・設定する手順が要らず、設定忘れや名前の打ち間違いで回収されなくなることがない。取得した `Item` コンポーネントの値（得点など）をそのまま使える。
 
 </details>
 
