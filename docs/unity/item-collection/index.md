@@ -280,15 +280,18 @@ private void OnTriggerEnter(Collider other)
 
 アイテムによって得点が異なるようにしてみましょう。
 
-ヒント: `Item.cs` に `[SerializeField] public int point = 1;` フィールドを追加し、`Player.cs` の `OnTriggerEnter` 内で、`TryGetComponent` で取得した `item` の `point` を読み取ります。
+ヒント: `Item.cs` に、Inspector で得点を設定する `[SerializeField] private int _point = 1;` フィールドと、ほかのスクリプトから得点を読み取るための `Point` プロパティを追加します。`Player.cs` の `OnTriggerEnter` 内で、`TryGetComponent` で取得した `item` の `Point` を読み取ります。
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
 ```csharp
 // Item.cs に追加
-[SerializeField] public int point = 1;
+[SerializeField] private int _point = 1; // Inspector で得点を設定する
+public int Point => _point;              // ほかのスクリプトから得点を読み取る
 ```
+
+`_point` は `private` なので、ほかのスクリプトからは書き換えられません。`Player` は読み取り専用の [プロパティ](/unity-csharp-learning/csharp/properties/) `Point` を通して得点を読み取ります。
 
 ```csharp
 // Player.cs の OnTriggerEnter
@@ -296,7 +299,7 @@ private void OnTriggerEnter(Collider other)
 {
     if (other.TryGetComponent<Item>(out var item))
     {
-        _score += item.point;
+        _score += item.Point;
         Debug.Log($"スコア: {_score}");
         Destroy(item.gameObject);
     }
@@ -344,7 +347,7 @@ private void OnTriggerEnter(Collider other)
 1. `GetComponent` はコストのかかる処理であり、繰り返し呼ぶとパフォーマンスへの影響が積み重なるため。`Start` で一度だけ取得してフィールドに保持する。
 2. Is Trigger がオンのオブジェクトすべてに触れると削除してしまう。ゴールゾーンや罠ゾーンなども削除されてしまう可能性がある。
 3. プレハブを1か所変更するだけで20個すべてに変更が反映される。個別に修正する必要がなく、変更漏れが起きない。
-4. Editor でタグを追加・設定する手順が要らず、設定忘れや名前の打ち間違いで回収されなくなることがない。取得した `Item` コンポーネントの値（得点など）をそのまま使える。
+4. Editor でタグを追加・設定する手順が要らず、設定忘れや名前の打ち間違いで回収されなくなることがない。取得した `Item` コンポーネントのメンバー（得点など）をそのまま使える。
 
 </details>
 
