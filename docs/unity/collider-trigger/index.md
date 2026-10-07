@@ -44,6 +44,8 @@ Rigidbody を持つオブジェクトが Collider を持つ別のオブジェク
 
 Rigidbody を持つオブジェクトが別の Collider に触れたとき、**`OnCollisionEnter()` メソッド** が呼ばれます。
 
+`OnCollisionEnter` は、`Start` や `Update` と同じように、Unity が決まったタイミングで呼び出すメソッド（**メッセージ**）です。物理演算の中で接触が見つかったときに呼ばれます。どの順序で呼ばれるのかは、[補足: Unity のメッセージと実行順序](/unity-csharp-learning/unity/messages/) を参照してください。
+
 **`MonoBehaviour.OnCollisionEnter()`** — Collider または Rigidbody が別の Collider / Rigidbody に接触したとき呼ばれます。
 
 **書式：[MonoBehaviour.OnCollisionEnter メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnCollisionEnter.html)**
@@ -122,7 +124,7 @@ public class Sample : MonoBehaviour
 
 ---
 
-## 6. OnTriggerEnter — 交差を検知するイベントメソッド
+## 6. OnTriggerEnter — 交差を検知するメッセージ
 
 Rigidbody を持つオブジェクトが、Is Trigger がオンの Collider に侵入したとき、**`OnTriggerEnter()` メソッド** が呼ばれます。
 
