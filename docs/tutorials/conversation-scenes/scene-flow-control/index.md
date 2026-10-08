@@ -381,8 +381,6 @@ public class ScenarioSequencer : MonoBehaviour
 | `_printer` | `MessagePrinter` コンポーネント |
 | `_message` | 表示したい 1 つのメッセージ |
 
-前のページのテストで `MessagePrinter` 側の `_message` フィールドに文字列を入れていた場合は、空に戻しておきましょう。今回のメッセージは `ScenarioSequencer` から `ShowMessage()` に渡します。
-
 前のページで `CharacterView` をクリック操作のテスト用に作っていた場合でも、今回の制御では `ScenarioSequencer` から `FadeIn()` を呼びます。動作確認中にクリック操作が混ざって分かりにくい場合は、`CharacterView` の `IPointerClickHandler` 実装や `OnPointerClick()` を一時的に外してもかまいません。
 
 ---
