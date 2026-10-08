@@ -195,7 +195,7 @@ public class SampleBarGauge : MonoBehaviour
 
 `_width` を 1 秒に `_speed`（80）ずつ減らし、0 を下回ったら `_maxWidth`（240）に戻します。240から0まで減るのに3秒かかります。
 
-`sizeDelta` は `Vector2` なので、X だけを書き換えることはできません。`new Vector2(_width, _rectTransform.sizeDelta.y)` で、高さは今の値のまま、幅だけを変えた値を代入しています。
+`_rectTransform.sizeDelta.x = _width;` のように、`sizeDelta` の X だけに代入することはできません。構造体を返すプロパティなので、コンパイルエラー（CS1612）になります。理由は C# の [構造体の「プロパティから受け取った構造体は書き換えられない」](/unity-csharp-learning/csharp/structs/#4-プロパティから受け取った構造体は書き換えられない) で説明しています。ここでは `new Vector2(_width, _rectTransform.sizeDelta.y)` で、高さは今の値のまま、幅だけを変えた `Vector2` 全体を代入しています。
 
 Play ボタンを押すと、Bar が左端を保ったまま右から短くなり、3秒ごとに240の幅に戻ります。前のページで Pivot X を `0` にしたので、幅の変更の基準が左端になっています。
 
@@ -309,7 +309,7 @@ Strip が親のパネルからはみ出さず、中央に向かって短くな�
 ## 理解度チェック
 
 1. `transform.anchoredPosition` と書くとコンパイルエラーになります。理由を説明してください。
-2. Corner を、親の右上から右と上に40ずつ離した位置に移すには、`anchoredPosition` にどの値を代入しますか？アンカーとピボットは右上のままとします。
+2. Corner を、親の右端と上端から、内側に40ずつ離した位置に移すには、`anchoredPosition` にどの値を代入しますか？アンカーとピボットは右上のままとします。
 3. 親の幅が600、Left / Right が20の Strip に、次のコードを実行しました。Strip の幅はいくつになりますか？
 
    ```csharp
@@ -320,7 +320,7 @@ Strip が親のパネルからはみ出さず、中央に向かって短くな�
 <summary>解答を見る</summary>
 
 1. `transform` プロパティの型が `Transform` で、`anchoredPosition` は `RectTransform` のメンバーだからです。実体が RectTransform でも、変数の型のメンバーしか使えません。`((RectTransform)transform).anchoredPosition` のようにキャストします。
-2. `new Vector2(-40, -40)` です。アンカーとピボットが右上なので、左へ40、下へ40の位置になります。
+2. `new Vector2(-40, -40)` です。アンカーとピボットが右上なので、親の右上の角から左へ40、下へ40の位置になります。右へ行くと X が、上へ行くと Y が増えるので、内側に離す値はどちらも負になります。
 3. `600 + 100 = 700` です。横方向はストレッチなので、`sizeDelta.x` はアンカーの間隔（600）との差になります。
 
 </details>
