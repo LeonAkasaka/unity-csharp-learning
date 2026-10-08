@@ -45,6 +45,7 @@ Unity エディターの使い方と、C# スクリプトを使ったゲーム�
 | 22 | [TextMesh Pro](./textmesh-pro/) | 日本語フォントを設定してテキストを表示しスクリプトから書き換える |
 | 23 | [Image — 画像の表示と色・透明度](./ui-image/) | キャラクターの Sprite を表示し、縦横比・着色・透明度を調整する |
 | 24 | [RectTransform — アンカーとピボット](./rect-transform/) | 親に対する配置と、自分の位置・サイズ変更の基準を理解する |
+| 24.1 | [補足: スクリプトから RectTransform を操作する](./rect-transform-script/) | anchoredPosition・sizeDelta・rect の違いを確かめ、SetSizeWithCurrentAnchors で幅をアニメーションさせる |
 | 25 | [Canvas Scaler と画面サイズへの対応](./canvas-scaler/) | 基準解像度と Match を設定し、解像度や縦横比の違いに対応する |
 | 26 | [Layout Group による自動配置](./layout-group/) | 横・縦・格子状に項目を並べ、内容に合わせて親の高さを調整する |
 

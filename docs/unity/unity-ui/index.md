@@ -64,7 +64,7 @@ Unity の標準 UI には歴史的な経緯で複数の種類があるので混�
 
 ![Canvas ゲームオブジェクトの Inspector ビュー（RectTransform）](./image-5.png)
 
-**`RectTransform` コンポーネント** — 2次元の UI レイアウトに特化した Transform です。<!-- [公式ドキュメント]() -->
+**[`RectTransform` コンポーネント](https://docs.unity3d.com/ScriptReference/RectTransform.html)** — Transform を継承し、2次元の UI レイアウトに特化したコンポーネントです。
 
 トップの Canvas の `RectTransform` の値は編集できません。これは描画先のスクリーンに直接対応しているためです。Unity エディター上では Game ビューのサイズに、実環境ではデバイスの解像度に対応します。
 

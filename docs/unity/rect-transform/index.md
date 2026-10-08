@@ -33,6 +33,8 @@ UI を右上に固定したり、親の幅に合わせて伸ばしたりする�
 public sealed class RectTransform : Transform
 ```
 
+`: Transform` は、RectTransform が [Transform](/unity-csharp-learning/unity/transform/) を[継承](/unity-csharp-learning/csharp/inheritance/)したクラスであることを表します。RectTransform は Transform の一種なので、親子関係、回転、拡大縮小は、Transform と同じように働きます。そのうえで、親の矩形に対する配置と、自分の矩形のサイズを決める設定が加わっています。それが次の表の設定です。
+
 | 設定 | 基準 | 用途 |
 |---|---|---|
 | Anchors（アンカー） | **親の矩形** | 親のどこに配置するか、親のサイズ変更にどう追従するか |
@@ -265,6 +267,8 @@ Strip の **Anchors Min X = 0**、**Max X = 1** を確認します。また、Ca
 ## 次のステップ
 
 [Canvas Scaler と画面サイズへの対応](/unity-csharp-learning/unity/canvas-scaler/) では、この配置を使って、解像度や画面の縦横比が変わったときの UI を調整します。
+
+スクリプトから位置やサイズを読み書きする方法は、[補足: スクリプトから RectTransform を操作する](/unity-csharp-learning/unity/rect-transform-script/) で紹介します。
 
 ## 参考
 
