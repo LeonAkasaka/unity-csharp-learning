@@ -115,7 +115,7 @@ class LikeCounter
 
 `POST` の応答で、増やした後の回数を返しているのは、クライアントが押した結果をすぐに表示できるようにするためです。応答で回数を返さないと、クライアントは表示を更新するために、続けて `GET` を送らなければなりません。
 
-`LikeCounter` は、[本文でデータを送る](/unity-csharp-learning/networking/request-body/) の `MessageStore` と同じように、`lock` で回数を守っています。複数のクライアントのリクエストは、別々のスレッドで同時に処理されることがあるからです。
+`LikeCounter` は、[本文でデータを送る](/unity-csharp-learning/networking/request-body/) の `messages` と同じように、`lock` で回数を守っています。複数のクライアントのリクエストは、別々のスレッドで同時に処理されることがあるからです。
 
 ### クライアントに名乗ってもらう
 

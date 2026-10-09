@@ -6,7 +6,7 @@ permalink: /networking/json/
 
 # JSON でやり取りする
 
-[本文でデータを送る](/unity-csharp-learning/networking/request-body/) では、メッセージをただの文字列として送り、一覧は `1: Hello` のような行を並べたテキストで返していました。このページでは、メッセージに送信者の名前と送った時刻を加え、データの形をはっきり決めてやり取りするために **JSON** を使います。サーバーでは ASP.NET Core の JSON の機能を、Unity では `JsonUtility` を使います。あわせて、URL に値を入れるときに必要な**エンコード**も学びます。
+[本文でデータを送る](/unity-csharp-learning/networking/request-body/) では、メッセージをただの文字列として送り、一覧はメッセージを 1 行に 1 つずつ並べたテキストで返していました。このページでは、メッセージに送信者の名前と送った時刻を加え、データの形をはっきり決めてやり取りするために **JSON** を使います。サーバーでは ASP.NET Core の JSON の機能を、Unity では `JsonUtility` を使います。あわせて、URL に値を入れるときに必要な**エンコード**も学びます。
 
 ## 学習目標
 
@@ -162,6 +162,8 @@ class MessageStore
     }
 }
 ```
+
+`MessageStore` は、メッセージの一覧を保存するクラスです。[本文でデータを送る](/unity-csharp-learning/networking/request-body/) の `messages` と同じように、`List` を `lock` で守りながら読み書きします。読み書きをクラスのメソッドにまとめておくと、ハンドラーごとに `lock` を書く必要がなくなり、書き忘れを防げます。
 
 ### データの形をレコードで決める
 

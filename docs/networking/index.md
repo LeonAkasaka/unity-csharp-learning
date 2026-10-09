@@ -17,7 +17,7 @@ permalink: /networking/
 | 3 | [ASP.NET Core でサーバーを作る](./aspnetcore-server/) | `MapGet` でパスとハンドラーを結び付け、ミドルウェアでリクエストと応答をログに出す |
 | 4 | [値を受け取って結果を返す](./parameters/) | クエリ文字列とルートパラメーターの値をハンドラーの引数で受け取り、`Results` で `200`・`400`・`404` を返し分ける |
 | 4.1 | [ブラウザに HTML を返す（補足）](./html-response/) | `Content-Type` と `charset`・`Results.Content` で HTML を返す・`GET` のフォーム・HTML インジェクションと XSS・`WebUtility.HtmlEncode` でエスケープする |
-| 5 | [本文でデータを送る](./request-body/) | データを変える操作に `POST` を使う理由を知り、`Stream` の引数で本文を読んでメッセージを保存する。`201`・`405` と、共有データを `lock` で守ることを扱う |
+| 5 | [本文でデータを送る](./request-body/) | リクエストの本文と `Content-Type`・`Content-Length` を知り、`MapPost` と `Stream` の引数で本文を読む。`405` を確かめ、実用例としてメッセージを保存して `201` を返し、共有データを `lock` で守る |
 | 5.1 | [HttpContext で仕組みを見る（補足）](./http-context/) | 同じ処理を `HttpContext` だけで書き直し、ハンドラーの引数と `IResult` が `Request` と `Response` をどう読み書きしているかを確かめる |
 | 6 | [Unity から通信する](./unity-webrequest/) | `UnityWebRequest` で `GET` と `POST` を送り、コルーチンと `await` で応答を待ち、`result` で成否を判断する |
 | 7 | [JSON でやり取りする](./json/) | サーバーと Unity の間で JSON を送受信し、`Content-Type`、`JsonUtility` の制約、URL のエンコードを扱う |
