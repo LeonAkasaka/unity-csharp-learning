@@ -85,7 +85,7 @@ app.MapGet("/likes", async (HttpContext context, int? delay) =>
 });
 ```
 
-ハンドラーの引数に `HttpContext` を加えています。[ASP.NET Core でサーバーを作る](/unity-csharp-learning/networking/aspnetcore-server/) のミドルウェアで使った、1 回のリクエストと応答の情報をまとめたオブジェクトです。ハンドラーの引数に `HttpContext` 型を書くと、ASP.NET Core がそれを渡してくれます。
+ハンドラーの引数に `HttpContext` を加えています。[ASP.NET Core でサーバーを作る](/unity-csharp-learning/networking/aspnetcore-server/) のミドルウェアで使った、1 回のリクエストと応答の情報をまとめたオブジェクトです。ハンドラーの引数に `HttpContext` 型を書くと、ASP.NET Core がそれを渡してくれます。`HttpContext` については、[HttpContext で仕組みを見る（補足）](/unity-csharp-learning/networking/http-context/) で詳しく扱っています。
 
 **書式：[IHeaderDictionary.ETag プロパティ](https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.iheaderdictionary.etag)**
 ```csharp

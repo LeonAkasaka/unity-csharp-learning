@@ -6,7 +6,7 @@ permalink: /networking/json/
 
 # JSON でやり取りする
 
-[Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) までは、メッセージをただの文字列として送り、一覧は `1: Hello` のような行を並べたテキストで返していました。このページでは、メッセージに送信者の名前と送った時刻を加え、データの形をはっきり決めてやり取りするために **JSON** を使います。サーバーでは ASP.NET Core の JSON の機能を、Unity では `JsonUtility` を使います。あわせて、URL に値を入れるときに必要な**エンコード**も学びます。
+[本文でデータを送る](/unity-csharp-learning/networking/request-body/) では、メッセージをただの文字列として送り、一覧はメッセージを 1 行に 1 つずつ並べたテキストで返していました。このページでは、メッセージに送信者の名前と送った時刻を加え、データの形をはっきり決めてやり取りするために **JSON** を使います。サーバーでは ASP.NET Core の JSON の機能を、Unity では `JsonUtility` を使います。あわせて、URL に値を入れるときに必要な**エンコード**も学びます。
 
 ## 学習目標
 
@@ -20,7 +20,7 @@ permalink: /networking/json/
 
 ## 前提知識
 
-- [Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) を読んでいること。このページでは、そのページの `SampleHttpServer` と `MessageClient` を書き換えます
+- [Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) を読んでいること。このページでは、`SampleHttpServer` のプロジェクトを書き換え、Unity では新しく `MessageClient` を作ります
 - [レコード](/unity-csharp-learning/csharp/records/) を読んでいること
 - [補足: 現実時間の取得（DateTime と DateTimeOffset）](/unity-csharp-learning/unity/time-datetime/) を読んでいること
 
@@ -77,7 +77,7 @@ JSON では、データを次の組み合わせで書きます。
 
 ## 3. サーバーで JSON を扱う
 
-`SampleHttpServer` の `Program.cs` を、次のように書き換えます。このページからは、`PUT` と `DELETE` のハンドラーは使わないので削除しています。
+`SampleHttpServer` の `Program.cs` を、次のように書き換えます。
 
 ```csharp
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -163,6 +163,8 @@ class MessageStore
 }
 ```
 
+`MessageStore` は、メッセージの一覧を保存するクラスです。[本文でデータを送る](/unity-csharp-learning/networking/request-body/) の `messages` と同じように、`List` を `lock` で守りながら読み書きします。読み書きをクラスのメソッドにまとめておくと、ハンドラーごとに `lock` を書く必要がなくなり、書き忘れを防げます。
+
 ### データの形をレコードで決める
 
 サーバーがやり取りするデータの形を、3 つの**レコード**で決めています。
@@ -187,7 +189,7 @@ C# のプロパティ名は `Sender` のように大文字で始まりますが�
 
 `MapPost` のハンドラーの引数を、`PostMessageRequest` 型にしています。ハンドラーの引数に、ルートパラメーターでもクエリ文字列でもない、クラスやレコードの型を書くと、ASP.NET Core はリクエストの本文を JSON として読み、その型のオブジェクトに変換して渡します。JSON の名前の大文字と小文字は区別せずに対応させます。
 
-[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) では `StreamReader` で本文を文字列として読んでいましたが、その処理と JSON からの変換を、ASP.NET Core が引き受けてくれます。
+[本文でデータを送る](/unity-csharp-learning/networking/request-body/) では `Stream` 型の引数で本文を受け取り、`StreamReader` で文字列として読んでいましたが、その処理と JSON からの変換を、ASP.NET Core が引き受けてくれます。
 
 JSON に `sender` や `text` がないと、そのプロパティは `null` になります。そこで、`string.IsNullOrEmpty` で確かめて、足りなければ `400 Bad Request` を返しています。
 
@@ -328,7 +330,7 @@ public static string ToJson(object obj);
 - 変換する値は、`public` なフィールドにする（プロパティは変換されない）
 - フィールドの名前を、JSON の名前と大文字、小文字まで同じにする
 
-Project ビューで `MessageClient.cs` と同じフォルダーを右クリックし、**Create → Scripting → Empty C# Script** から `MessageData` という名前のスクリプトを作ります。次のように書きます。
+Project ビューで `Assets` フォルダーを右クリックし、**Create → Scripting → Empty C# Script** から `MessageData` という名前のスクリプトを作ります。次のように書きます。
 
 ```csharp
 using System;
@@ -378,9 +380,11 @@ JSON の `ユ` のようなエスケープは、`JsonUtility` でも元の文字
 
 ---
 
-## 6. MessageClient を書き換える
+## 6. MessageClient を作る
 
-`MessageClient` を次のように書き換えます。
+Unity のメニューバーの **GameObject → Create Empty** を選択し、空のゲームオブジェクトを作成します。名前を `MessageClient` に変更してください。
+
+`MessageClient` を選択し、Inspector ビューの **Add Component → New script** から `MessageClient` という名前のスクリプトを作成してアタッチします。スクリプトを次のように書き換えます。
 
 ```csharp
 using System;
@@ -550,7 +554,7 @@ public static string EscapeDataString(string stringToEscape);
 
 ### Content-Type を text/plain のままにする
 
-[Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) の `PostMessage` のように、`UnityWebRequest.Post` の 3 つ目の引数を `"text/plain"` のままにすると、本文が JSON でも、サーバーは `415 Unsupported Media Type` を返します。
+[Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) の `SendPost` のように、`UnityWebRequest.Post` の 3 つ目の引数を `"text/plain"` のままにすると、本文が JSON でも、サーバーは `415 Unsupported Media Type` を返します。
 
 ```csharp
 // ❌ NG: Content-Type が text/plain なので、サーバーは JSON として読まない

@@ -111,11 +111,11 @@ class LikeCounter
 | `GET` | `/likes` | 今の回数を返す | `{"count":3}` |
 | `POST` | `/likes` | 回数を 1 増やし、増やした後の回数を返す | `{"count":4}` |
 
-`POST` の応答は、`201 Created` ではなく `200 OK` にしています。[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) でメッセージを追加したときとは違い、自分の URL を持つ新しいデータを作るわけではないからです。`LikeCount` を返すと、[JSON でやり取りする](/unity-csharp-learning/networking/json/) で学んだとおり、ASP.NET Core が JSON に変換し、`200 OK` の応答にします。
+`POST` の応答は、`201 Created` ではなく `200 OK` にしています。[本文でデータを送る](/unity-csharp-learning/networking/request-body/) でメッセージを追加したときとは違い、自分の URL を持つ新しいデータを作るわけではないからです。`LikeCount` を返すと、[JSON でやり取りする](/unity-csharp-learning/networking/json/) で学んだとおり、ASP.NET Core が JSON に変換し、`200 OK` の応答にします。
 
 `POST` の応答で、増やした後の回数を返しているのは、クライアントが押した結果をすぐに表示できるようにするためです。応答で回数を返さないと、クライアントは表示を更新するために、続けて `GET` を送らなければなりません。
 
-`LikeCounter` は、[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) の `MessageStore` と同じように、`lock` で回数を守っています。複数のクライアントのリクエストは、別々のスレッドで同時に処理されることがあるからです。
+`LikeCounter` は、[本文でデータを送る](/unity-csharp-learning/networking/request-body/) の `messages` と同じように、`lock` で回数を守っています。複数のクライアントのリクエストは、別々のスレッドで同時に処理されることがあるからです。
 
 ### クライアントに名乗ってもらう
 
