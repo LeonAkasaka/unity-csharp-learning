@@ -6,7 +6,7 @@ permalink: /networking/html-response/
 
 # ブラウザに HTML を返す（補足）
 
-このページは、[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) の補足です。ここまでのサーバーは、curl や Unity から使うことを考えて、ただのテキストを返してきました。このページでは、一般的な Web サーバーのように、ブラウザで開くと Web ページとして表示される **HTML** を返します。クエリ文字列で受け取った値を HTML に入れて返し、そのときに気をつけなければならない**インジェクション**の危険と、その防ぎ方を学びます。
+このページは、[値を受け取って結果を返す](/unity-csharp-learning/networking/parameters/) の補足です。ここまでのサーバーは、curl や Unity から使うことを考えて、ただのテキストを返してきました。このページでは、一般的な Web サーバーのように、ブラウザで開くと Web ページとして表示される **HTML** を返します。クエリ文字列で受け取った値を HTML に入れて返し、そのときに気をつけなければならない**インジェクション**の危険と、その防ぎ方を学びます。
 
 ## 学習目標
 
@@ -20,7 +20,7 @@ permalink: /networking/html-response/
 
 ## 前提知識
 
-- [HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) を読んでいること。このページでは新しいプロジェクトを作るので、そのページで作った `SampleHttpServer` のコードは使いません
+- [値を受け取って結果を返す](/unity-csharp-learning/networking/parameters/) を読んでいること。このページでは新しいプロジェクトを作るので、そのページで作った `SampleHttpServer` のコードは使いません
 - [文字列リテラルと書式（補足）](/unity-csharp-learning/csharp/string-literals/) で、生文字列リテラル `"""` を読んでいること
 - HTML のタグ（`<h1>` や `<b>` など）を見たことがあること。このページでは、HTML の書き方そのものは説明しません
 
@@ -161,7 +161,7 @@ Server: Kestrel
 
 ## 4. クエリ文字列を HTML に入れる
 
-[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) の「6. 一覧を絞り込む（クエリ文字列）」と同じように、クエリ文字列から名前を受け取り、あいさつの HTML を返すハンドラーを、`/html` のハンドラーの後ろに追加します。
+[値を受け取って結果を返す](/unity-csharp-learning/networking/parameters/) の「2. クエリ文字列を引数で受け取る」と同じように、クエリ文字列から名前を受け取り、あいさつの HTML を返すハンドラーを、`/html` のハンドラーの後ろに追加します。
 
 ```csharp
 app.MapGet("/greeting", (string? name) =>
@@ -443,7 +443,7 @@ if (name != null && name.Contains("<script"))
 
 - **エスケープの方法は、入れる先によって変わる**：HTML の本文、HTML の属性の値、URL、JavaScript、データベースへの命令（SQL）では、特別な意味を持つ文字や、置き換え方が違います。たとえば、データベースへの命令に値をそのまま入れると、**SQL インジェクション**が起きます。どの場合も、原因は「外から来た値を、別の言語の文の中にそのまま入れた」ことです。入れる先に合った方法で、値と文を区別します。
 - **フレームワークに任せる**：実際の Web アプリでは、HTML を文字列の連結で組み立てることはあまりありません。ASP.NET Core の Razor など、HTML のテンプレートの仕組みを使うのが一般的です。これらの仕組みは、値を HTML に入れるときに、自動でエスケープします。
-- **データを変える操作に GET を使わない**：[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) で、`GET` はサーバーのデータを変えないと説明しました。ブラウザは、ページを速く開くためにリンク先を先に読み込んでおくことがあります。また、検索エンジンのプログラム（クローラー）は、見つけたリンクを次々に `GET` で開きます。`GET /messages/1/delete` のような URL でデータを消せるようにすると、誰も押していないのに消えることがあります。フォームでデータを変えるときは、`method="post"` にします。
+- **データを変える操作に GET を使わない**：`GET` は、サーバーのデータを変えないことになっています。ブラウザは、ページを速く開くためにリンク先を先に読み込んでおくことがあります。また、検索エンジンのプログラム（クローラー）は、見つけたリンクを次々に `GET` で開きます。`GET /messages/1/delete` のような URL でデータを消せるようにすると、誰も押していないのに消えることがあります。フォームでデータを変えるときは、`method="post"` にします。`POST` については、[本文でデータを送る](/unity-csharp-learning/networking/request-body/) で扱います。
 - **ブラウザの開発者ツール**：ブラウザで F12 キーを押すと、開発者ツールが開きます。［ネットワーク］（Network）タブでは、ブラウザが送ったリクエストと、返ってきた応答のステータスコードやヘッダーを確かめられます。curl の `-i` と同じことを、ブラウザの側から確かめられます。
 
 ---
@@ -479,4 +479,4 @@ if (name != null && name.Contains("<script"))
 
 ## 次のステップ
 
-[Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) では、Unity から `UnityWebRequest` を使って、[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) で作った `SampleHttpServer` にリクエストを送ります。このページの `SampleHtmlServer` は使わないので、動いていたら Ctrl+C で止めてから、`SampleHttpServer` を起動します。
+[本文でデータを送る](/unity-csharp-learning/networking/request-body/) では、[値を受け取って結果を返す](/unity-csharp-learning/networking/parameters/) で作った `SampleHttpServer` を書き換えて、サーバーにデータを送って保存してもらいます。このページの `SampleHtmlServer` は使わないので、動いていたら Ctrl+C で止めてから、`SampleHttpServer` で作業します。

@@ -276,7 +276,7 @@ public static IApplicationBuilder Use(this IApplicationBuilder app, Func<HttpCon
 | `context.Request.QueryString` | `?` から後ろの部分（クエリ文字列） | `?x=1` |
 | `context.Response.StatusCode` | 応答のステータスコード | `200` |
 
-クエリ文字列は、URL の `?` の後ろに `名前=値` の形で付け加える情報です。次の回で使います。
+クエリ文字列は、URL の `?` の後ろに `名前=値` の形で付け加える情報です。次の回で使います。`HttpContext` から読み書きできる情報と、ハンドラーとの関係は、[HttpContext で仕組みを見る（補足）](/unity-csharp-learning/networking/http-context/) で詳しく扱います。
 
 サーバーを起動し直して、前の節と同じ 3 つのパスにアクセスすると、サーバーのログに次のように表示されます。
 
@@ -363,7 +363,7 @@ curl は `Transfer-Encoding: chunked` を理解しているので、長さの行
 
 [TCP で受け取る](/unity-csharp-learning/networking/tcp-receive/) では、ブラウザが作った何も送ってこない接続のために、ほかの接続が待たされる問題がありました。Kestrel は、複数の接続を同時に処理するので、この問題は起きません。ブラウザで開いた直後に curl を実行しても、すぐに応答が返ってきます。
 
-複数の接続を同時に処理するということは、複数のリクエストのハンドラーが、別々のスレッドで同時に呼び出されることがあるということです。ハンドラーから同じデータを読み書きするときは、この点に注意が必要になります。次の回で扱います。
+複数の接続を同時に処理するということは、複数のリクエストのハンドラーが、別々のスレッドで同時に呼び出されることがあるということです。ハンドラーから同じデータを読み書きするときは、この点に注意が必要になります。[本文でデータを送る](/unity-csharp-learning/networking/request-body/) で扱います。
 
 ---
 
@@ -424,4 +424,4 @@ fail: Microsoft.Extensions.Hosting.Internal.Host[11]
 
 ## 次のステップ
 
-[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) では、`GET` 以外のメソッドを使って、サーバーにデータを追加したり、書き換えたり、削除したりします。
+[値を受け取って結果を返す](/unity-csharp-learning/networking/parameters/) では、クライアントから URL で値を受け取り、その値を使って計算した結果を返します。

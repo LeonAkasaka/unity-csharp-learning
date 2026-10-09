@@ -6,7 +6,7 @@ permalink: /networking/unity-webrequest/
 
 # Unity から通信する
 
-[HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) では、メッセージの一覧を持つサーバーを作り、curl から操作しました。このページでは、curl の代わりに Unity からサーバーにリクエストを送ります。Unity 標準の **UnityWebRequest** を使ってメッセージの一覧を取得し、メッセージを追加して、結果を Console ビューで確かめます。
+ここまでは、curl を使ってサーバーにリクエストを送ってきました。このページでは、Unity からリクエストを送ります。Unity 標準の **UnityWebRequest** を使って、自分のサーバーからデータを取得したり、サーバーにデータを送ったりして、結果を Console ビューとサーバーのログで確かめます。
 
 ## 学習目標
 
@@ -19,7 +19,7 @@ permalink: /networking/unity-webrequest/
 
 ## 前提知識
 
-- [HTTP のメソッドとステータスコード](/unity-csharp-learning/networking/http-methods/) を読んでいること。このページでは、そのページで完成した `SampleHttpServer` を使います
+- [本文でデータを送る](/unity-csharp-learning/networking/request-body/) を読んでいること。このページでは、そのページまでに作った `SampleHttpServer` のプロジェクトを書き換えます
 - [Debug.Log でスクリプトの実行を確認する](/unity-csharp-learning/unity/debug-log/) を読んでいること
 - [コルーチンの基本](/unity-csharp-learning/unity/coroutines/) を読んでいること
 - [async と await](/unity-csharp-learning/csharp/async-await/) を読んでいること
@@ -27,34 +27,7 @@ permalink: /networking/unity-webrequest/
 
 ---
 
-## 1. サーバーを準備する
-
-[TCP で送る](/unity-csharp-learning/networking/tcp-send/) で学んだように、通信する 2 つのプログラムは、片方ずつ確かめます。サーバーはすでに curl で確かめ済みなので、ここでは Unity の側だけを作ります。
-
-`SampleHttpServer` のフォルダーで、サーバーを起動します。
-
-```powershell
-dotnet run
-```
-
-別のターミナルから、curl でメッセージを 2 つ追加し、一覧を確かめておきます。
-
-```powershell
-curl.exe -X POST -d "Hello" http://localhost:8080/messages
-curl.exe -X POST -d "Good morning" http://localhost:8080/messages
-curl.exe http://localhost:8080/messages
-```
-
-```
-1: Hello
-2: Good morning
-```
-
-サーバーは、Unity から試している間、起動したままにしておきます。
-
----
-
-## 2. UnityWebRequest
+## 1. UnityWebRequest
 
 **UnityWebRequest** は、Unity に標準で含まれている、HTTP のリクエストを送るためのクラスです。.NET にも `HttpClient` などの通信用のクラスがありますが、`UnityWebRequest` は、Unity が対応するさまざまなプラットフォーム（Web ブラウザー上で動く WebGL など）で同じように使えるように作られています。Unity で HTTP の通信をするときは、まず `UnityWebRequest` を使います。
 
@@ -77,30 +50,89 @@ public class UnityWebRequest : IDisposable
 
 ---
 
-## 3. 一覧を取得する（コルーチン）
+## 2. サーバーを準備する
 
-メニューバーの **GameObject → Create Empty** を選択し、空のゲームオブジェクトを作成します。名前を `MessageClient` に変更してください。
+[TCP で送る](/unity-csharp-learning/networking/tcp-send/) で学んだように、通信する 2 つのプログラムは、片方ずつ確かめます。先にサーバーを作って curl で確かめておけば、Unity から試してうまくいかないときに、Unity の側だけを調べれば済みます。
 
-`MessageClient` を選択し、Inspector ビューの **Add Component → New script** から `MessageClient` という名前のスクリプトを作成してアタッチします。スクリプトを次のように書き換えます。
+`SampleHttpServer` の `Program.cs` を、次のように書き換えます。ログを出すミドルウェアのほかには、決まった文字列を返すハンドラーを 1 つだけ登録します。
+
+```csharp
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+WebApplication app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    HttpRequest request = context.Request;
+    Console.WriteLine($"--> {request.Method} {request.Path}{request.QueryString}");
+    await next(context);
+    Console.WriteLine($"<-- {context.Response.StatusCode}");
+});
+
+app.MapGet("/hello", () => "こんにちは、サーバーです");
+
+app.Run("http://localhost:8080");
+```
+
+サーバーを起動します。
+
+```powershell
+dotnet run
+```
+
+別のターミナルから、curl で確かめます。
+
+```powershell
+curl.exe http://localhost:8080/hello
+```
+
+```
+こんにちは、サーバーです
+```
+
+サーバーは、Unity から試している間、起動したままにしておきます。
+
+### HTTP で接続する設定
+
+このサーバーの URL は、`https://` ではなく `http://` で始まります。`http://` の通信は暗号化されないので、Unity には、これを許可するかどうかを決める設定があります。
+
+Unity の Player 設定の **Allow downloads over HTTP** という項目です（**Edit → Project Settings → Player → Other Settings**）。スクリプトからは [PlayerSettings.insecureHttpOption](https://docs.unity3d.com/ScriptReference/PlayerSettings-insecureHttpOption.html) にあたります。
+
+| 選択肢 | 意味 |
+|---|---|
+| **Not Allowed** | `http://` の通信を許可しない（既定値） |
+| **Allowed in Development Builds** | 開発用のビルド（Development Build）でだけ許可する |
+| **Always Allowed** | 常に許可する |
+
+詳しくは [Player 設定のマニュアル](https://docs.unity3d.com/Manual/playersettings-windows.html) を参照してください。
+
+このページの手順は、この設定が既定値の **Not Allowed** のまま、Unity Editor の Play モードで `http://localhost:8080` に接続できることを確かめています。一方、ビルドしたアプリから `http://` のサーバーに接続するには、この設定を変える必要があります。インターネット上のサーバーと通信するときに `https://` を使う理由とあわせて、後の回で扱います。
+
+---
+
+## 3. GET を送る（コルーチン）
+
+Unity のメニューバーの **GameObject → Create Empty** を選択し、空のゲームオブジェクトを作成します。名前を `RequestTester` に変更してください。
+
+`RequestTester` を選択し、Inspector ビューの **Add Component → New script** から `RequestTester` という名前のスクリプトを作成してアタッチします。スクリプトを次のように書き換えます。
 
 ```csharp
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class MessageClient : MonoBehaviour
+public class RequestTester : MonoBehaviour
 {
-    [SerializeField] private string _baseUrl = "http://localhost:8080";
+    [SerializeField] private string _getUrl = "http://localhost:8080/hello";
 
-    [ContextMenu("一覧を取得する")]
-    private void GetMessages()
+    [ContextMenu("GET を送る")]
+    private void SendGet()
     {
-        StartCoroutine(GetMessagesCoroutine());
+        StartCoroutine(SendGetCoroutine());
     }
 
-    private IEnumerator GetMessagesCoroutine()
+    private IEnumerator SendGetCoroutine()
     {
-        using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/messages");
+        using UnityWebRequest request = UnityWebRequest.Get(_getUrl);
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)
@@ -113,7 +145,7 @@ public class MessageClient : MonoBehaviour
 }
 ```
 
-`_baseUrl` は、サーバーの URL です。`[SerializeField]` を付けているので、Inspector ビューから変更できます。
+`_getUrl` は、`GET` のリクエストを送る URL です。`[SerializeField]` を付けているので、Inspector ビューから変更できます。
 
 ### リクエストを作る
 
@@ -185,18 +217,19 @@ public string text { get; }
 
 `[ContextMenu]` 属性を付けたメソッドは、Inspector ビューのコンポーネントのメニューから呼び出せるようになります。ボタンなどの UI を作らなくても、好きなときにリクエストを送って試せます。
 
-Play モードに入り、Hierarchy ビューで `MessageClient` を選択します。Inspector ビューで `Message Client` コンポーネントの見出しを右クリックする（または見出しの右端の **⋮** を押す）と、メニューに **一覧を取得する** が表示されます。選択すると、Console ビューに次のように表示されます。
+### 確かめる
+
+Play モードに入り、Hierarchy ビューで `RequestTester` を選択します。Inspector ビューで `Request Tester` コンポーネントの見出しを右クリックする（または見出しの右端の **⋮** を押す）と、メニューに **GET を送る** が表示されます。選択すると、Console ビューに次のように表示されます。
 
 ```
 200
-1: Hello
-2: Good morning
+こんにちは、サーバーです
 ```
 
 サーバーのログには、Unity から届いたリクエストが表示されます。
 
 ```
---> GET /messages
+--> GET /hello
 <-- 200
 ```
 
@@ -206,29 +239,20 @@ curl から送ったときと同じように、Unity からのリクエストも
 
 ## 4. await で書く
 
-Unity 6 では、`SendWebRequest` の戻り値を、コルーチンの `yield return` の代わりに `await` で待つこともできます。スクリプトを次のように書き換えます。1 つのメッセージを取得するメソッドと、結果を出力する処理をまとめた `LogResult` メソッドも追加しています。
+Unity 6 では、`SendWebRequest` の戻り値を、コルーチンの `yield return` の代わりに `await` で待つこともできます。スクリプトを次のように書き換えます。結果を出力する処理は、この後のリクエストでも使うので、`LogResult` メソッドにまとめています。
 
 ```csharp
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class MessageClient : MonoBehaviour
+public class RequestTester : MonoBehaviour
 {
-    [SerializeField] private string _baseUrl = "http://localhost:8080";
-    [SerializeField] private int _messageId = 1;
+    [SerializeField] private string _getUrl = "http://localhost:8080/hello";
 
-    [ContextMenu("一覧を取得する")]
-    private async void GetMessages()
+    [ContextMenu("GET を送る")]
+    private async void SendGet()
     {
-        using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/messages");
-        await request.SendWebRequest();
-        LogResult(request);
-    }
-
-    [ContextMenu("1 件を取得する")]
-    private async void GetMessage()
-    {
-        using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/messages/{_messageId}");
+        using UnityWebRequest request = UnityWebRequest.Get(_getUrl);
         await request.SendWebRequest();
         LogResult(request);
     }
@@ -245,7 +269,7 @@ public class MessageClient : MonoBehaviour
 }
 ```
 
-コルーチンの版では、`GetMessages` から `StartCoroutine` で別のメソッドを動かしていました。`await` を使うと、リクエストを作る、送って待つ、結果を見る、という流れを 1 つのメソッドの中に上から順に書けます。`[ContextMenu]` から呼び出すメソッドは戻り値を受け取る相手がいないので、`async void` にしています。
+コルーチンの版では、`SendGet` から `StartCoroutine` で別のメソッドを動かしていました。`await` を使うと、リクエストを作る、送って待つ、結果を見る、という流れを 1 つのメソッドの中に上から順に書けます。`[ContextMenu]` から呼び出すメソッドは戻り値を受け取る相手がいないので、`async void` にしています。
 
 `LogResult` では、どのリクエストの結果なのかがわかるように、`request.method`（メソッド）と `request.url`（URL）も出力しています。
 
@@ -261,66 +285,124 @@ public string url { get; set; }
 
 `method` はリクエストのメソッド（`GET` など）、`url` はリクエストを送る URL です。`UnityWebRequest.Get` などで作ったときに設定されます。
 
-Play モードに入り、コンポーネントのメニューから **一覧を取得する** を選ぶと、Console ビューに次のように表示されます。
+Play モードに入り、コンポーネントのメニューから **GET を送る** を選ぶと、Console ビューに次のように表示されます。
 
 ```
-GET http://localhost:8080/messages → 200
-1: Hello
-2: Good morning
-```
-
-Inspector ビューで `Message Id` を `2` にしてから **1 件を取得する** を選ぶと、次のように表示されます。
-
-```
-GET http://localhost:8080/messages/2 → 200
-Good morning
+GET http://localhost:8080/hello → 200
+こんにちは、サーバーです
 ```
 
 コルーチンと `await` のどちらを使っても、通信の結果は同じです。このシリーズでは、この後、`await` の書き方を使います。
 
+### インターネット上の文書を取得する
+
+`_getUrl` を変えれば、同じスクリプトで、インターネット上で公開されている文書も取得できます。
+
+Play モードを終了してから、Inspector ビューで `Get Url` を次の URL に書き換えます。インターネットの技術の標準を定めた文書である **RFC** のうち、`example.com` のように説明や例のために使うドメイン名を決めた RFC 2606 の URL です。
+
+```
+https://www.rfc-editor.org/rfc/rfc2606.txt
+```
+
+Play モードに入り、**GET を送る** を選ぶと、Console ビューの一覧に次のように表示されます。
+
+```
+GET https://www.rfc-editor.org/rfc/rfc2606.txt → 200
+```
+
+Console ビューの一覧には、ログの先頭の 2 行だけが表示されます。RFC 2606 の本文は空の行から始まるので、一覧では 1 行目だけが見えます。ログを選択すると、Console ビューの下の欄に、`Network Working Group` で始まる本文の全体が表示されます。ブラウザで同じ URL を開くと、同じ文書が表示されます。
+
+このリクエストは `SampleHttpServer` には送られていないので、サーバーのログには何も表示されません。接続先は、URL だけで決まります。
+
+確かめたら、`Get Url` を `http://localhost:8080/hello` に戻しておきます。
+
 ---
 
-## 5. メッセージを追加する（POST）
+## 5. POST を送る
 
-メッセージを追加するメソッドを追加します。スクリプトを次のように書き換えます。
+次は、サーバーに `POST` でデータを送ります。
+
+### サーバーにハンドラーを追加する
+
+`SampleHttpServer` の `Program.cs` で、`/hello` のハンドラーの後ろに、次のハンドラーを追加します。届いた本文をサーバーのログに出力し、`受け取りました: ` を付けて送り返します。
+
+```csharp
+app.MapPost("/echo", async (Stream body) =>
+{
+    using StreamReader reader = new StreamReader(body);
+    string text = await reader.ReadToEndAsync();
+    Console.WriteLine($"本文: {text}");
+    return $"受け取りました: {text}";
+});
+```
+
+本文は、[本文でデータを送る](/unity-csharp-learning/networking/request-body/) と同じように、`Stream` 型の引数で受け取り、`StreamReader` で読んでいます。
+
+`Program.cs` の全体は、次のようになります。
+
+```csharp
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+WebApplication app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    HttpRequest request = context.Request;
+    Console.WriteLine($"--> {request.Method} {request.Path}{request.QueryString}");
+    await next(context);
+    Console.WriteLine($"<-- {context.Response.StatusCode}");
+});
+
+app.MapGet("/hello", () => "こんにちは、サーバーです");
+
+app.MapPost("/echo", async (Stream body) =>
+{
+    using StreamReader reader = new StreamReader(body);
+    string text = await reader.ReadToEndAsync();
+    Console.WriteLine($"本文: {text}");
+    return $"受け取りました: {text}";
+});
+
+app.Run("http://localhost:8080");
+```
+
+サーバーを Ctrl+C で止めて起動し直し、curl で確かめます。
+
+```powershell
+curl.exe -X POST -d "Hello" http://localhost:8080/echo
+```
+
+```
+受け取りました: Hello
+```
+
+### Unity から送る
+
+`RequestTester` のスクリプトを、次のように書き換えます。`POST` を送るメソッドと、その送り先と本文を決めるフィールドを追加しています。
 
 ```csharp
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class MessageClient : MonoBehaviour
+public class RequestTester : MonoBehaviour
 {
-    [SerializeField] private string _baseUrl = "http://localhost:8080";
-    [SerializeField] private int _messageId = 1;
-    [SerializeField] private string _messageText = "Hello from Unity";
+    [SerializeField] private string _getUrl = "http://localhost:8080/hello";
+    [SerializeField] private string _postUrl = "http://localhost:8080/echo";
+    [SerializeField] private string _postText = "Hello from Unity";
 
-    [ContextMenu("一覧を取得する")]
-    private async void GetMessages()
+    [ContextMenu("GET を送る")]
+    private async void SendGet()
     {
-        using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/messages");
+        using UnityWebRequest request = UnityWebRequest.Get(_getUrl);
         await request.SendWebRequest();
         LogResult(request);
     }
 
-    [ContextMenu("1 件を取得する")]
-    private async void GetMessage()
+    [ContextMenu("POST を送る")]
+    private async void SendPost()
     {
-        using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/messages/{_messageId}");
+        using UnityWebRequest request = UnityWebRequest.Post(_postUrl, _postText, "text/plain");
         await request.SendWebRequest();
         LogResult(request);
-    }
-
-    // 追加
-    [ContextMenu("追加する")]
-    private async void PostMessage()
-    {
-        using UnityWebRequest request = UnityWebRequest.Post($"{_baseUrl}/messages", _messageText, "text/plain");
-        await request.SendWebRequest();
-        LogResult(request);
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            Debug.Log($"Location: {request.GetResponseHeader("Location")}");
-        }
     }
 
     private void LogResult(UnityWebRequest request)
@@ -346,39 +428,18 @@ public static UnityWebRequest Post(string uri, string postData, string contentTy
 | `postData` | 本文にする文字列 |
 | `contentType` | 本文の種類。`Content-Type` ヘッダーになる。ここでは、ただのテキストを表す `text/plain` |
 
-**書式：[UnityWebRequest.GetResponseHeader メソッド](https://docs.unity3d.com/ScriptReference/Networking.UnityWebRequest.GetResponseHeader.html)**
-```csharp
-public string GetResponseHeader(string name);
-```
-
-`GetResponseHeader` は、応答のヘッダーの値を返します。サーバーは、`201 Created` の応答の `Location` ヘッダーで、追加したメッセージのパスを知らせてくれるので、それを出力しています。
-
-Play モードに入り、**追加する** を選ぶと、Console ビューに次のように表示されます。`201` の応答は本文が空なので、1 行目の後には何も表示されません。
+Play モードに入り、**POST を送る** を選ぶと、Console ビューに次のように表示されます。
 
 ```
-POST http://localhost:8080/messages → 201
-
+POST http://localhost:8080/echo → 200
+受け取りました: Hello from Unity
 ```
 
-```
-Location: /messages/3
-```
-
-続けて **一覧を取得する** を選ぶと、Unity から追加したメッセージが一覧に加わっています。
+サーバーのログには、Unity から届いたリクエストと本文が表示されます。
 
 ```
-GET http://localhost:8080/messages → 200
-1: Hello
-2: Good morning
-3: Hello from Unity
-```
-
-サーバーのログにも、`POST` が届いて `201` を返したことが表示されます。
-
-```
---> POST /messages
-<-- 201
---> GET /messages
+--> POST /echo
+本文: Hello from Unity
 <-- 200
 ```
 
@@ -412,20 +473,20 @@ public enum Result
 
 ### ステータスコードが失敗を表しているとき
 
-Inspector ビューで `Message Id` を `9`（存在しない番号）にして **1 件を取得する** を選ぶと、Console ビューにエラーとして次のように表示されます。
+Play モードを終了してから、Inspector ビューで `Get Url` を、登録していないパスの `http://localhost:8080/nothing` に書き換えます。Play モードに入って **GET を送る** を選ぶと、Console ビューにエラーとして次のように表示されます。
 
 ```
-GET http://localhost:8080/messages/9 は失敗しました: ProtocolError / 404 / HTTP/1.1 404 Not Found
+GET http://localhost:8080/nothing は失敗しました: ProtocolError / 404 / HTTP/1.1 404 Not Found
 ```
 
 サーバーからは `404 Not Found` の応答が届いています。通信そのものはできているので、`ConnectionError` ではなく `ProtocolError` になります。
 
 ### サーバーに接続できないとき
 
-サーバーのターミナルで Ctrl+C を押してサーバーを止め、**一覧を取得する** を選ぶと、次のように表示されます。
+`Get Url` を `http://localhost:8080/hello` に戻します。サーバーのターミナルで Ctrl+C を押してサーバーを止め、**GET を送る** を選ぶと、次のように表示されます。
 
 ```
-GET http://localhost:8080/messages は失敗しました: ConnectionError / 0 / Cannot connect to destination host
+GET http://localhost:8080/hello は失敗しました: ConnectionError / 0 / Cannot connect to destination host
 ```
 
 今度は応答が届いていないので、`result` は `ConnectionError`、`responseCode` は `0` です。
@@ -434,19 +495,49 @@ GET http://localhost:8080/messages は失敗しました: ConnectionError / 0 / 
 
 ---
 
-## 7. HTTP で接続する設定
+## 完成したコード
 
-Unity の Player 設定には、暗号化されていない `http://` の通信を許可するかどうかを決める **Allow downloads over HTTP** という項目があります（**Edit → Project Settings → Player → Other Settings**）。スクリプトからは [PlayerSettings.insecureHttpOption](https://docs.unity3d.com/ScriptReference/PlayerSettings-insecureHttpOption.html) にあたります。
+このページで作った `RequestTester` のスクリプトの全体です。
 
-| 選択肢 | 意味 |
-|---|---|
-| **Not Allowed** | `http://` の通信を許可しない（既定値） |
-| **Allowed in Development Builds** | 開発用のビルド（Development Build）でだけ許可する |
-| **Always Allowed** | 常に許可する |
+```csharp
+using UnityEngine;
+using UnityEngine.Networking;
 
-詳しくは [Player 設定のマニュアル](https://docs.unity3d.com/Manual/playersettings-windows.html) を参照してください。
+public class RequestTester : MonoBehaviour
+{
+    [SerializeField] private string _getUrl = "http://localhost:8080/hello";
+    [SerializeField] private string _postUrl = "http://localhost:8080/echo";
+    [SerializeField] private string _postText = "Hello from Unity";
 
-このページの手順は、この設定が既定値の **Not Allowed** のまま、Unity Editor の Play モードで `http://localhost:8080` に接続できることを確かめています。一方、ビルドしたアプリから `http://` のサーバーに接続するには、この設定を変える必要があります。インターネット上のサーバーと通信するときに `https://` を使う理由とあわせて、後の回で扱います。
+    [ContextMenu("GET を送る")]
+    private async void SendGet()
+    {
+        using UnityWebRequest request = UnityWebRequest.Get(_getUrl);
+        await request.SendWebRequest();
+        LogResult(request);
+    }
+
+    [ContextMenu("POST を送る")]
+    private async void SendPost()
+    {
+        using UnityWebRequest request = UnityWebRequest.Post(_postUrl, _postText, "text/plain");
+        await request.SendWebRequest();
+        LogResult(request);
+    }
+
+    private void LogResult(UnityWebRequest request)
+    {
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"{request.method} {request.url} は失敗しました: {request.result} / {request.responseCode} / {request.error}");
+            return;
+        }
+        Debug.Log($"{request.method} {request.url} → {request.responseCode}\n{request.downloadHandler.text}");
+    }
+}
+```
+
+`SampleHttpServer` の `Program.cs` は、「5. POST を送る」で示した全体のとおりです。
 
 ---
 
@@ -462,7 +553,7 @@ await request.SendWebRequest();
 Debug.Log(request.downloadHandler.text);
 ```
 
-たとえば、存在しない番号を指定したときの `404` の応答は、本文が空です。このコードでは空の行が出力されるだけで、エラーは表示されません。「メッセージが空だった」のか「メッセージがなかった」のかを区別できないので、必ず先に `result` を確かめます。
+たとえば、`SampleHttpServer` が返す `404` の応答は、本文が空です。このコードでは空の行が出力されるだけで、エラーは表示されません。「本文が空だった」のか「失敗した」のかを区別できないので、必ず先に `result` を確かめます。
 
 ### サーバーを起動し忘れる
 
@@ -476,6 +567,7 @@ Debug.Log(request.downloadHandler.text);
 - 応答は、コルーチンの `yield return` か、`await` で待つ。どちらも、待っている間ゲームは止まらない
 - 使い終わった `UnityWebRequest` は `Dispose` する。`using` で宣言すると自動で `Dispose` される
 - 結果は `result` で確かめる。接続できないときは `ConnectionError`、`4xx` や `5xx` の応答は `ProtocolError` になり、どちらも例外はスローされない
+- 通信する 2 つのプログラムは、片方ずつ確かめる。サーバーを curl で確かめてから、Unity の側を確かめる
 - `[ContextMenu]` 属性を付けたメソッドは、Inspector ビューのコンポーネントのメニューから呼び出せる
 
 ---
@@ -501,4 +593,4 @@ Debug.Log(request.downloadHandler.text);
 
 ## 次のステップ
 
-[JSON でやり取りする](/unity-csharp-learning/networking/json/) では、メッセージを文字列ではなく、名前や時刻などを含むデータとしてやり取りするために、JSON を使います。
+[JSON でやり取りする](/unity-csharp-learning/networking/json/) では、文字列だけでなく、名前や時刻などを含むデータをやり取りするために、JSON を使います。
