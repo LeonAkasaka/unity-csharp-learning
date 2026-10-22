@@ -253,8 +253,7 @@ public class LikeButton : MonoBehaviour
         GetLikes();
     }
 
-    [ContextMenu("最新の回数を取得する")]
-    private async void GetLikes()
+    public async void GetLikes()
     {
         using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/likes");
         LikeCountData data = await SendAsync(request);
@@ -303,13 +302,25 @@ public class LikeButton : MonoBehaviour
 
 `Button` の子にある `Text (TMP)` を、Inspector ビューの `Label` 欄にドラッグして設定します。続けて、`Button` コンポーネントの `On Click ()` の **＋** を押し、`Button` ゲームオブジェクトを設定して、**LikeButton → OnClick ()** を選択します。手順は、[Unity UI とボタン操作](/unity-csharp-learning/unity/unity-ui/) の「4. クリックに反応する」と同じです。
 
+### 手動で取得するボタンを置く
+
+「いいね」を増やさずに最新の回数だけを取得するため、もう 1 つボタンを置きます。
+
+1. Play モードを終了します。既存の `Button` の Rect Transform を、中央のアンカーと Pivot のまま `Pos X = 0`、`Pos Y = 70` にします。幅 `400`、高さ `100` にします。
+2. **GameObject → UI (Canvas) → Button - TextMeshPro**（または **UI → Button - TextMeshPro**）で同じ Canvas 内に新しいボタンを作り、`RefreshButton` とします。既存の `Button` を複製すると `LikeButton` までコピーされるため、ここでは新規作成します。
+3. `RefreshButton` は中央のアンカーと Pivot のまま `Pos X = 0`、`Pos Y = -70`、`Width = 400`、`Height = 100` にします。子の `Text (TMP)` の文字を `Refresh`、`Font Size` を `48` にします。
+4. `RefreshButton` の **Button → On Click () → ＋** を押し、対象の欄に `LikeButton` がアタッチされた元の `Button` ゲームオブジェクトをドラッグします。関数は **LikeButton → GetLikes ()** を選びます。`RefreshButton` 自体には `LikeButton` をアタッチしません。
+5. シーンを保存します。Play 開始時に 1 回取得し、以降は「いいね」のボタンで加算、**Refresh** ボタンで取得だけを行います。
+
+![RefreshButton の On Click に元の Button の LikeButton.GetLikes を登録した Inspector](image-6.png)
+
 スクリプトの各部分を見ていきます。
 
 | メソッド | すること |
 |---|---|
 | `Awake` | このクライアントの名前（`_clientId`）を決める |
 | `Start` | ボタンの表示を `Like ?` にしてから、今の回数を取得する |
-| `GetLikes` | `GET /likes` を送り、受け取った回数を表示する。コンポーネントのメニューからも呼び出せる |
+| `GetLikes` | `GET /likes` を送り、受け取った回数を表示する。更新用のボタンからも呼び出せる |
 | `OnClick` | ボタンが押されたら `POST /likes` を送り、受け取った回数を表示する |
 | `SendAsync` | リクエストに共通の設定をして送り、応答の JSON を `LikeCountData` に変換して返す。失敗したときや中止したときは `null` を返す |
 
@@ -402,7 +413,7 @@ curl.exe -X POST -H "Client-Id: curl-A" http://localhost:8080/likes
 
 サーバーの回数は `6` になりました。ところが、Unity のボタンの表示は `Like 4` のままです。
 
-Inspector ビューで `Like Button` コンポーネントの見出しを右クリックし、**最新の回数を取得する** を選ぶと、表示が `Like 6` に変わります。
+Game ビューの **Refresh** ボタンを押すと、表示が `Like 6` に変わります。
 
 ![最新の回数を取得した後、Like 6 と表示されている](image-3.png)
 

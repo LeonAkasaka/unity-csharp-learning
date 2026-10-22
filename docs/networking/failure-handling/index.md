@@ -65,6 +65,111 @@ app.MapGet("/unstable", () =>
 });
 ```
 
+`Program.cs` の全体は次のとおりです。前のページの JSON 用のパスも含みます。書き換えたらサーバーを止めて `dotnet run` で起動し直します。
+
+```csharp
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+WebApplication app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    HttpRequest request = context.Request;
+    Console.WriteLine($"--> {request.Method} {request.Path}{request.QueryString}");
+    await next(context);
+    Console.WriteLine($"<-- {context.Response.StatusCode}");
+});
+
+MessageStore store = new MessageStore();
+
+app.MapGet("/messages", (string? contains) =>
+{
+    List<Message> messages = store.GetAll();
+    if (contains != null)
+    {
+        messages = messages.FindAll(message => message.Text.Contains(contains));
+    }
+    return new MessageList(messages);
+});
+
+app.MapGet("/messages/{id:int}", (int id) =>
+{
+    if (store.TryGet(id, out Message? message))
+    {
+        return Results.Ok(message);
+    }
+    return Results.NotFound();
+});
+
+app.MapPost("/messages", (PostMessageRequest body) =>
+{
+    if (string.IsNullOrEmpty(body.Sender) || string.IsNullOrEmpty(body.Text))
+    {
+        return Results.BadRequest();
+    }
+    Message message = store.Add(body.Sender, body.Text);
+    return Results.Created($"/messages/{message.Id}", message);
+});
+
+// 動作確認用：指定した秒数だけ待ってから応答する
+app.MapGet("/slow", async (int seconds) =>
+{
+    await Task.Delay(TimeSpan.FromSeconds(seconds));
+    return "遅い応答です";
+});
+
+// 動作確認用：3 回に 2 回は 503 を返す
+int unstableCount = 0;
+app.MapGet("/unstable", () =>
+{
+    int count = Interlocked.Increment(ref unstableCount);
+    if (count % 3 != 0)
+    {
+        return Results.StatusCode(503);
+    }
+    return Results.Text("やっと成功しました");
+});
+
+app.Run("http://localhost:8080");
+
+record Message(int Id, string Sender, string Text, DateTimeOffset CreatedAt);
+record PostMessageRequest(string Sender, string Text);
+record MessageList(List<Message> Messages);
+
+class MessageStore
+{
+    private readonly List<Message> _messages = new List<Message>();
+    private int _nextId = 1;
+
+    public List<Message> GetAll()
+    {
+        lock (_messages)
+        {
+            return new List<Message>(_messages);
+        }
+    }
+
+    public bool TryGet(int id, out Message? message)
+    {
+        lock (_messages)
+        {
+            message = _messages.Find(m => m.Id == id);
+            return message != null;
+        }
+    }
+
+    public Message Add(string sender, string text)
+    {
+        lock (_messages)
+        {
+            Message message = new Message(_nextId, sender, text, DateTimeOffset.UtcNow);
+            _nextId++;
+            _messages.Add(message);
+            return message;
+        }
+    }
+}
+```
+
 | パス | 動作 |
 |---|---|
 | `/slow?seconds=5` | 指定した秒数だけ待ってから、`200 OK` を返す |
@@ -80,7 +185,7 @@ app.MapGet("/unstable", () =>
 
 ## 3. FailureTester を作る
 
-Unity で、失敗を確かめるためのコンポーネントを作ります。メニューバーの **GameObject → Create Empty** で空のゲームオブジェクトを作り、名前を `FailureTester` にします。Inspector ビューの **Add Component → New script** から `FailureTester` という名前のスクリプトを作ってアタッチし、次のように書きます。
+Unity の **File → New Scene** で新しいシーンを作り、`FailureSample` として保存します。前のページの `MessageClient` は置きません。このシーンで、失敗を確かめるためのコンポーネントを作ります。メニューバーの **GameObject → Create Empty** で空のゲームオブジェクトを作り、名前を `FailureTester` にします。Inspector ビューの **Add Component → New script** から `FailureTester` という名前のスクリプトを作ってアタッチし、次のように書きます。
 
 ```csharp
 using System;
@@ -98,8 +203,7 @@ public class FailureTester : MonoBehaviour
 
     private bool _isBusy;
 
-    [ContextMenu("遅いパスを取得する")]
-    private async void GetSlow()
+    public async void GetSlow()
     {
         if (_isBusy)
         {
@@ -136,8 +240,7 @@ public class FailureTester : MonoBehaviour
         }
     }
 
-    [ContextMenu("送り直しながら取得する")]
-    private async void GetWithRetry()
+    public async void GetWithRetry()
     {
         string text = await GetWithRetryAsync($"{_baseUrl}{_retryPath}");
         if (text != null)
@@ -176,12 +279,24 @@ public class FailureTester : MonoBehaviour
 }
 ```
 
-このスクリプトには、2 つのメニューがあります。
+このスクリプトには、ボタンから呼び出す 2 つの `public` メソッドがあります。
 
-| メニュー | すること |
+| ボタンの役割 | すること |
 |---|---|
 | **遅いパスを取得する** | `/slow?seconds={Slow Seconds}` を、時間の制限を付けて取得する。重ねて送らないことと、破棄されたときの中止も扱う |
 | **送り直しながら取得する** | `{Retry Path}` のパスを、失敗したら送り直しながら取得する |
+
+### 操作用のボタンを置く
+
+1. Play モードを終了し、**GameObject → UI (Canvas) → Button - TextMeshPro**（または **UI → Button - TextMeshPro**）でボタンを作ります。TMP Importer が表示された場合は **Import TMP Essentials** を押します。自動作成された `Canvas` と `EventSystem` は残します。EventSystem に入力モジュールの切り替えを求めるボタンが表示された場合は **Replace with InputSystemUIInputModule** を押します。
+2. ボタンを `SlowButton` とし、中央のアンカーと Pivot のまま、`Pos X = 0`、`Pos Y = 50`、`Width = 280`、`Height = 70` にします。子の `Text (TMP)` の文字を `Slow`、`Font Size` を `32` にします。
+3. 複製して `RetryButton` にし、`Pos Y = -50`、子の文字を `Retry` にします。
+4. 各ボタンの **Button → On Click () → ＋** でイベントを 1 件登録します。対象の欄に `FailureTester` ゲームオブジェクトをドラッグし、`SlowButton` は **FailureTester → GetSlow ()**、`RetryButton` は **FailureTester → GetWithRetry ()** を選びます。複製されたイベントがあれば、その行を変更します。
+5. シーンを保存します。サーバーを起動して Play モードに入ると、Game ビューに 2 つのボタンが表示されます。**Slow** は遅い応答、**Retry** は送り直しの確認用です。ここでは操作のタイミングを自分で決めるため、Play 開始時には通信しません。
+
+![Game ビューに Slow と Retry のボタンが並んでいる](image-1.png)
+
+以降の「押す」は Game ビューのボタンを押す操作です。結果は Console ビューで確認します。
 
 以下の節で、このスクリプトの各部分を順に見ていきます。
 
@@ -198,7 +313,7 @@ public int timeout { get; set; }
 
 サーバーが止まっているわけではないのに、何かの理由で応答が返ってこないことがあります。時間の制限がないと、ゲームはいつまでも応答を待ち続け、プレイヤーには何が起きているのかわかりません。通信するときは、必ず `timeout` を設定します。
 
-`GetSlow` では、`request.timeout = _timeoutSeconds;` で、制限を 3 秒にしています。一方、`Slow Seconds` の既定値は 5 秒なので、サーバーは 5 秒待ってから応答します。Play モードで **遅いパスを取得する** を選ぶと、3 秒後に Console ビューに次のエラーが表示されます。
+`GetSlow` では、`request.timeout = _timeoutSeconds;` で、制限を 3 秒にしています。一方、`Slow Seconds` の既定値は 5 秒なので、サーバーは 5 秒待ってから応答します。Play モードで Game ビューの **Slow** ボタンを押すと、3 秒後に Console ビューに次のエラーが表示されます。
 
 ```
 失敗しました: ConnectionError / 0 / Request timeout
@@ -206,7 +321,7 @@ public int timeout { get; set; }
 
 時間切れは、`result` が `ConnectionError`、`error` が `Request timeout` になります。応答は届いていないので、`responseCode` は `0` です。
 
-Inspector ビューで `Slow Seconds` を `1` にして、もう一度選ぶと、制限の時間内に応答が届くので、次のように表示されます。
+Inspector ビューで `Slow Seconds` を `1` にして、もう一度 **Slow** ボタンを押すと、制限の時間内に応答が届くので、次のように表示されます。
 
 ```
 FailureTester: 遅い応答です
@@ -226,7 +341,7 @@ FailureTester: 遅い応答です
 
 `finally` に書いているのは、途中で `return` したときや、例外がスローされたときにも、必ず `false` に戻すためです。戻し忘れると、それ以降、二度とリクエストを送れなくなります。
 
-`Slow Seconds` を `2` にして、**遅いパスを取得する** を続けて 2 回選ぶと、2 回目は送られずに、次のように表示されます。
+`Slow Seconds` を `2` にして、Game ビューの **Slow** ボタンを続けて 2 回押すと、2 回目は送られずに、次のように表示されます。
 
 ```
 前のリクエストが終わっていないので、送りません
@@ -253,8 +368,7 @@ public class FailureTesterNg : MonoBehaviour
     [SerializeField] private int _slowSeconds = 5;
 
     // ❌ NG: 破棄に備えていない
-    [ContextMenu("破棄に備えずに取得する")]
-    private async void GetSlowNoCancel()
+    public async void GetSlowNoCancel()
     {
         using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/slow?seconds={_slowSeconds}");
         await request.SendWebRequest();
@@ -263,13 +377,23 @@ public class FailureTesterNg : MonoBehaviour
 }
 ```
 
-Play モードで **破棄に備えずに取得する** を選び、応答が届く前に Hierarchy ビューで `FailureTesterNg` を削除すると、応答が届いたときに次の例外がスローされます。
+Play モードを終了した状態で `SlowButton` を複製し、`NoCancelButton` とします。`Pos Y = -150`、子の文字を `No cancel` にします。コピーされた `On Click ()` の対象を `FailureTesterNg` ゲームオブジェクトに変更し、関数を **FailureTesterNg → GetSlowNoCancel ()** にします。元の `GetSlow` のイベントが残っていないことを確認してください。
+
+![Slow、Retry に加えて No cancel のボタンを置いた Game ビュー](image-2.png)
+
+`SlowButton` のイベントは、引き続き `FailureTester.GetSlow` です。ボタンごとに対象と関数が違うことを確認します。
+
+![SlowButton の On Click に FailureTester.GetSlow を登録した Inspector](image-3.png)
+
+Play モードで Game ビューの **No cancel** ボタンを押し、応答が届く前に Hierarchy ビューで `FailureTesterNg` を削除すると、応答が届いたときに次の例外がスローされます。
 
 ```
 MissingReferenceException: The object of type 'FailureTesterNg' has been destroyed but you are still trying to access it.
 ```
 
 `await` の後の処理は、GameObject が破棄された後でも実行されます。そこで、破棄されたコンポーネントの `name` にアクセスしたので、例外がスローされました。Play モードを終了したときも、シーンの GameObject はすべて破棄されます。
+
+確認したら Play モードを終了します。Play 中に削除した `FailureTesterNg` は、編集時の状態に戻ります。
 
 ### destroyCancellationToken
 
@@ -316,11 +440,13 @@ catch (OperationCanceledException)
 
 `destroyCancellationToken` をメソッドの最初でローカル変数に入れているのは、コンポーネントが破棄された後に、そのプロパティを読まずに済むようにするためです。
 
-`Slow Seconds` を `5`、`Timeout Seconds` を `10` にして **遅いパスを取得する** を選び、応答が届く前に Hierarchy ビューで `FailureTester` を削除します（または Play モードを終了します）。Console ビューには、例外ではなく、次のように表示されます。
+`Slow Seconds` を `5`、`Timeout Seconds` を `10` にして Game ビューの **Slow** ボタンを押し、応答が届く前に Hierarchy ビューで `FailureTester` を削除します（または Play モードを終了します）。Console ビューには、例外ではなく、次のように表示されます。
 
 ```
 GameObject が破棄されたので、リクエストを中止しました
 ```
+
+確認したら Play モードを終了し、削除した `FailureTester` が編集時の状態に戻ったことを確かめます。次の節は、この状態から始めてください。
 
 なお、中止したのは Unity の側だけです。サーバーのログを見ると、サーバーは 5 秒待った後、いつもどおり `200` の応答を返しています。
 
@@ -358,7 +484,7 @@ public static Awaitable WaitForSecondsAsync(float seconds, CancellationToken can
 
 ### 確かめる
 
-サーバーを起動し直して `/unstable` の回数を 0 に戻してから、Play モードで **送り直しながら取得する** を選ぶと、次のように表示されます。
+サーバーを起動し直して `/unstable` の回数を 0 に戻してから、Play モードで Game ビューの **Retry** ボタンを押すと、次のように表示されます。
 
 ```
 1 回目は失敗しました: ProtocolError / 503 / HTTP/1.1 503 Service Unavailable
@@ -377,14 +503,14 @@ public static Awaitable WaitForSecondsAsync(float seconds, CancellationToken can
 <-- 200
 ```
 
-Inspector ビューで `Retry Path` を `/messages/999`（存在しないメッセージ）にして選ぶと、`404` は送り直さずに、すぐにあきらめます。
+Inspector ビューで `Retry Path` を `/messages/999`（存在しないメッセージ）にして **Retry** ボタンを押すと、`404` は送り直さずに、すぐにあきらめます。
 
 ```
 1 回目は失敗しました: ProtocolError / 404 / HTTP/1.1 404 Not Found
 送り直しても結果が変わらない失敗なので、あきらめます
 ```
 
-サーバーを止めてから選ぶと、接続できない失敗なので、3 回送り直した後にあきらめます。
+サーバーを止めてから **Retry** ボタンを押すと、接続できない失敗なので、3 回送り直した後にあきらめます。
 
 ```
 1 回目は失敗しました: ConnectionError / 0 / Cannot connect to destination host

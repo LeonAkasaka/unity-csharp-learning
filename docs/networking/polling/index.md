@@ -57,7 +57,7 @@ sequenceDiagram
 dotnet run
 ```
 
-Unity の `LikeButton` を、次のように書き換えます。`LikeCountData` とシーンは、そのまま使います。
+Unity の `LikeButton` を、次のように書き換えます。`LikeCountData` は、そのまま使います。Play モードを終了し、Hierarchy ビューで前のページの `RefreshButton` を削除してください。取得は自動になるため、更新用のボタンは使いません。「いいね」の `Button` と、その `On Click () → LikeButton.OnClick` の設定は残します。
 
 ```csharp
 using System;
@@ -160,7 +160,7 @@ public class LikeButton : MonoBehaviour
 | 変えたところ | 内容 |
 |---|---|
 | `Start` | 一度だけ取得するのをやめ、コンポーネントが破棄されるまで、取得と待機を繰り返す |
-| `GetLikes` → `GetLikesAsync` | `Start` から `await` で待てるように、戻り値を `Awaitable` にした。コンポーネントのメニューから呼び出す必要はなくなったので、`[ContextMenu]` を外した |
+| `GetLikes` → `GetLikesAsync` | `Start` から `await` で待てるように、戻り値を `Awaitable` にした。手動更新のボタンを削除したので、`public` から `private` にした |
 | `ShowCount` | 回数を表示する処理を、`GetLikesAsync` と `OnClick` から呼び出すメソッドにまとめた。前と同じ回数なら、何もしない |
 | `SendAsync` | 成功したときのログを出さないようにした。1 秒ごとにログが出て、Console ビューが埋まってしまうからだ。代わりに、`ShowCount` が、表示を変えたときだけログを出す |
 
@@ -354,7 +354,104 @@ curl.exe -X POST -H "Client-Id: curl-B" http://localhost:8080/likes
 using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/likes?delay={_delaySeconds}");
 ```
 
-`LikeButton` の全体は、「6. 完成したコード」を見てください。ただし、「6. 完成したコード」の `ShowCount` は、次の「5. 小さい値を無視する」の変更を入れた後のものです。この節では、`ShowCount` は「2. 定期的に取得する」のままにしておきます。
+この時点の `LikeButton.cs` の全体は、次のとおりです。`ShowCount` は、まだ古い値を無視しない版です。
+
+```csharp
+using System;
+using System.Threading;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Networking;
+
+public class LikeButton : MonoBehaviour
+{
+    [SerializeField] private string _baseUrl = "http://localhost:8080";
+    [SerializeField] private int _timeoutSeconds = 3;
+    [SerializeField] private float _pollIntervalSeconds = 1f;
+    [SerializeField] private int _delaySeconds = 0; // 動作確認用
+    [SerializeField] private TMP_Text _label = null;
+
+    private string _clientId;
+    private int _shownCount = -1;
+
+    private void Awake()
+    {
+        _clientId = "unity-" + Guid.NewGuid().ToString("N").Substring(0, 4);
+    }
+
+    private async void Start()
+    {
+        _label.text = "Like ?";
+        CancellationToken token = destroyCancellationToken;
+        try
+        {
+            while (true)
+            {
+                await GetLikesAsync();
+                await Awaitable.WaitForSecondsAsync(_pollIntervalSeconds, token);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Awaitable GetLikesAsync()
+    {
+        using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/likes?delay={_delaySeconds}");
+        LikeCountData data = await SendAsync(request);
+        if (data != null)
+        {
+            ShowCount(data.count);
+        }
+    }
+
+    public async void OnClick()
+    {
+        using UnityWebRequest request = new UnityWebRequest(
+            $"{_baseUrl}/likes", UnityWebRequest.kHttpVerbPOST, new DownloadHandlerBuffer(), null);
+        LikeCountData data = await SendAsync(request);
+        if (data != null)
+        {
+            ShowCount(data.count);
+        }
+    }
+
+    private void ShowCount(int count)
+    {
+        if (count == _shownCount)
+        {
+            return;
+        }
+        _shownCount = count;
+        _label.text = $"Like {count}";
+        Debug.Log($"{_clientId}: Like {count} を表示しました");
+    }
+
+    private async Awaitable<LikeCountData> SendAsync(UnityWebRequest request)
+    {
+        CancellationToken token = destroyCancellationToken;
+        request.timeout = _timeoutSeconds;
+        request.SetRequestHeader("Client-Id", _clientId);
+        using CancellationTokenRegistration registration = token.Register(request.Abort);
+
+        try
+        {
+            await request.SendWebRequest();
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"{_clientId}: {request.method} {request.url} は失敗しました: {request.result} / {request.responseCode} / {request.error}");
+            return null;
+        }
+        return JsonUtility.FromJson<LikeCountData>(request.downloadHandler.text);
+    }
+}
+```
 
 Inspector ビューで `Delay Seconds` を `2`、`Poll Interval Seconds` を `1` にして、Play モードに入ります。応答に 2 秒かかり、その後 1 秒待つので、ポーリングの `GET` の応答を待っている時間が、全体の 3 分の 2 ほどになります。ボタンを何回か押すと、Console ビューに次のように表示されることがあります。
 

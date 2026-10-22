@@ -15,7 +15,7 @@ permalink: /networking/unity-webrequest/
 - `UnityWebRequest` で `GET` と `POST` のリクエストを送れる
 - 応答を、コルーチンと `await` の両方の書き方で待てる
 - `result`、`responseCode`、`error` を使って、通信が成功したかどうかを判断できる
-- `[ContextMenu]` 属性を使って、Play モード中に Inspector ビューからメソッドを呼び出せる
+- Play 開始時に通信し、Game ビューのボタンからもリクエストを送れる
 
 ## 前提知識
 
@@ -111,6 +111,8 @@ Unity の Player 設定の **Allow downloads over HTTP** という項目です�
 
 ## 3. GET を送る（コルーチン）
 
+Unity の **File → New Scene** で新しいシーンを作り、`RequestSample` として保存します。以降は、このシーンで動作を確かめます。
+
 Unity のメニューバーの **GameObject → Create Empty** を選択し、空のゲームオブジェクトを作成します。名前を `RequestTester` に変更してください。
 
 `RequestTester` を選択し、Inspector ビューの **Add Component → New script** から `RequestTester` という名前のスクリプトを作成してアタッチします。スクリプトを次のように書き換えます。
@@ -124,8 +126,7 @@ public class RequestTester : MonoBehaviour
 {
     [SerializeField] private string _getUrl = "http://localhost:8080/hello";
 
-    [ContextMenu("GET を送る")]
-    private void SendGet()
+    private void Start()
     {
         StartCoroutine(SendGetCoroutine());
     }
@@ -208,18 +209,18 @@ public string text { get; }
 
 `result` が `Success` でなければ、エラーを `Debug.LogError` で出力して、`yield break` でコルーチンを終わらせます。成功したときは、ステータスコードと本文を出力します。
 
-### ContextMenu からメソッドを呼び出す
+### Play 開始時に送る
 
-**書式：[ContextMenu 属性](https://docs.unity3d.com/ScriptReference/ContextMenu.html)**
+`Start` は、シーン内の有効なゲームオブジェクトにアタッチした有効なコンポーネントについて、最初のフレームの更新前に Unity が呼び出すメソッドです。この例では、Play を押すと `Start` がコルーチンを開始し、GET を 1 回送ります。
+
+**書式：[MonoBehaviour.Start メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.Start.html)**
 ```csharp
-[ContextMenu("メニューに表示する名前")]
+private void Start();
 ```
-
-`[ContextMenu]` 属性を付けたメソッドは、Inspector ビューのコンポーネントのメニューから呼び出せるようになります。ボタンなどの UI を作らなくても、好きなときにリクエストを送って試せます。
 
 ### 確かめる
 
-Play モードに入り、Hierarchy ビューで `RequestTester` を選択します。Inspector ビューで `Request Tester` コンポーネントの見出しを右クリックする（または見出しの右端の **⋮** を押す）と、メニューに **GET を送る** が表示されます。選択すると、Console ビューに次のように表示されます。
+サーバーを起動したまま Play モードに入ります。追加の操作をしなくても GET が 1 回送られ、Console ビューに次のように表示されます。Game ビューに結果を表示する処理はまだないため、結果は Console ビューで確認します。
 
 ```
 200
@@ -249,8 +250,7 @@ public class RequestTester : MonoBehaviour
 {
     [SerializeField] private string _getUrl = "http://localhost:8080/hello";
 
-    [ContextMenu("GET を送る")]
-    private async void SendGet()
+    private async void Start()
     {
         using UnityWebRequest request = UnityWebRequest.Get(_getUrl);
         await request.SendWebRequest();
@@ -269,7 +269,7 @@ public class RequestTester : MonoBehaviour
 }
 ```
 
-コルーチンの版では、`SendGet` から `StartCoroutine` で別のメソッドを動かしていました。`await` を使うと、リクエストを作る、送って待つ、結果を見る、という流れを 1 つのメソッドの中に上から順に書けます。`[ContextMenu]` から呼び出すメソッドは戻り値を受け取る相手がいないので、`async void` にしています。
+コルーチンの版では、`Start` から `StartCoroutine` で別のメソッドを動かしていました。`await` を使うと、リクエストを作る、送って待つ、結果を見る、という流れを 1 つのメソッドの中に上から順に書けます。この例では、Unity から呼ばれる `Start` を `async void` にしています。
 
 `LogResult` では、どのリクエストの結果なのかがわかるように、`request.method`（メソッド）と `request.url`（URL）も出力しています。
 
@@ -285,7 +285,7 @@ public string url { get; set; }
 
 `method` はリクエストのメソッド（`GET` など）、`url` はリクエストを送る URL です。`UnityWebRequest.Get` などで作ったときに設定されます。
 
-Play モードに入り、コンポーネントのメニューから **GET を送る** を選ぶと、Console ビューに次のように表示されます。
+Play モードに入ると、自動で GET が 1 回送られ、Console ビューに次のように表示されます。
 
 ```
 GET http://localhost:8080/hello → 200
@@ -304,7 +304,7 @@ Play モードを終了してから、Inspector ビューで `Get Url` を次の
 https://www.rfc-editor.org/rfc/rfc2606.txt
 ```
 
-Play モードに入り、**GET を送る** を選ぶと、Console ビューの一覧に次のように表示されます。
+Play モードに入ると、自動で GET が 1 回送られ、Console ビューの一覧に次のように表示されます。
 
 ```
 GET https://www.rfc-editor.org/rfc/rfc2606.txt → 200
@@ -389,16 +389,19 @@ public class RequestTester : MonoBehaviour
     [SerializeField] private string _postUrl = "http://localhost:8080/echo";
     [SerializeField] private string _postText = "Hello from Unity";
 
-    [ContextMenu("GET を送る")]
-    private async void SendGet()
+    private void Start()
+    {
+        SendGet();
+    }
+
+    public async void SendGet()
     {
         using UnityWebRequest request = UnityWebRequest.Get(_getUrl);
         await request.SendWebRequest();
         LogResult(request);
     }
 
-    [ContextMenu("POST を送る")]
-    private async void SendPost()
+    public async void SendPost()
     {
         using UnityWebRequest request = UnityWebRequest.Post(_postUrl, _postText, "text/plain");
         await request.SendWebRequest();
@@ -417,6 +420,25 @@ public class RequestTester : MonoBehaviour
 }
 ```
 
+### GET と POST のボタンを置く
+
+ここからは、Play 開始時の GET に加えて、Game ビューのボタンから好きなタイミングで GET と POST を送ります。`SendGet` と `SendPost` を `public` にしたのは、Button の `On Click ()` から呼び出せるようにするためです。通信の結果が出てから次のボタンを押してください。
+
+1. Play モードを終了し、**GameObject → UI (Canvas) → Button - TextMeshPro**（または **UI → Button - TextMeshPro**）でボタンを作ります。TMP Importer が表示された場合は **Import TMP Essentials** を押します。自動作成された `Canvas` と `EventSystem` は残します。EventSystem に入力モジュールの切り替えを求めるボタンが表示された場合は **Replace with InputSystemUIInputModule** を押します。
+2. ボタンの名前を `GetButton` にします。Rect Transform のアンカーと Pivot は中央のまま、`Pos X = 0`、`Pos Y = 50`、`Width = 280`、`Height = 70` にします。子の `Text (TMP)` の `Text Input` を `GET`、`Font Size` を `32` にします。
+3. `GetButton` を複製して `PostButton` にし、`Pos Y = -50`、子の文字を `POST` にします。
+4. `GetButton` の **Button → On Click () → ＋** を押します。追加された欄に Hierarchy ビューの `RequestTester` ゲームオブジェクトをドラッグし、関数の一覧から **RequestTester → SendGet ()** を選びます。
+5. `PostButton` にも同じ手順でイベントを登録し、対象を `RequestTester`、関数を **RequestTester → SendPost ()** にします。複製で GET のイベントもコピーされている場合は、その行を POST に変更し、イベントが 1 件だけになっていることを確認します。
+6. シーンを保存して Play モードに入ります。最初の GET の結果が Console に出たら、Game ビューの `POST` ボタンを押します。
+
+![Game ビューに GET と POST のボタンが縦に並んでいる](image-1.png)
+
+`PostButton` の設定例です。`On Click ()` に `RequestTester.SendPost` を 1 件だけ登録します。
+
+![PostButton の Inspector に RequestTester.SendPost を登録した画面](image-2.png)
+
+ボタンの作成とイベントの仕組みは、[Unity UI とボタン操作](/unity-csharp-learning/unity/unity-ui/) でも説明しています。
+
 **書式：[UnityWebRequest.Post メソッド](https://docs.unity3d.com/ScriptReference/Networking.UnityWebRequest.Post.html)**（文字列の本文）
 ```csharp
 public static UnityWebRequest Post(string uri, string postData, string contentType);
@@ -428,7 +450,7 @@ public static UnityWebRequest Post(string uri, string postData, string contentTy
 | `postData` | 本文にする文字列 |
 | `contentType` | 本文の種類。`Content-Type` ヘッダーになる。ここでは、ただのテキストを表す `text/plain` |
 
-Play モードに入り、**POST を送る** を選ぶと、Console ビューに次のように表示されます。
+Play モードで Game ビューの **POST** ボタンを押すと、Console ビューに次のように表示されます。
 
 ```
 POST http://localhost:8080/echo → 200
@@ -473,7 +495,7 @@ public enum Result
 
 ### ステータスコードが失敗を表しているとき
 
-Play モードを終了してから、Inspector ビューで `Get Url` を、登録していないパスの `http://localhost:8080/nothing` に書き換えます。Play モードに入って **GET を送る** を選ぶと、Console ビューにエラーとして次のように表示されます。
+Play モードを終了してから、Inspector ビューで `Get Url` を、登録していないパスの `http://localhost:8080/nothing` に書き換えます。Play モードに入ると、最初の GET が自動で送られ、Console ビューにエラーとして次のように表示されます。
 
 ```
 GET http://localhost:8080/nothing は失敗しました: ProtocolError / 404 / HTTP/1.1 404 Not Found
@@ -483,7 +505,7 @@ GET http://localhost:8080/nothing は失敗しました: ProtocolError / 404 / H
 
 ### サーバーに接続できないとき
 
-`Get Url` を `http://localhost:8080/hello` に戻します。サーバーのターミナルで Ctrl+C を押してサーバーを止め、**GET を送る** を選ぶと、次のように表示されます。
+`Get Url` を `http://localhost:8080/hello` に戻します。サーバーのターミナルで Ctrl+C を押してサーバーを止め、Game ビューの **GET** ボタンを押すと、次のように表示されます。
 
 ```
 GET http://localhost:8080/hello は失敗しました: ConnectionError / 0 / Cannot connect to destination host
@@ -509,16 +531,19 @@ public class RequestTester : MonoBehaviour
     [SerializeField] private string _postUrl = "http://localhost:8080/echo";
     [SerializeField] private string _postText = "Hello from Unity";
 
-    [ContextMenu("GET を送る")]
-    private async void SendGet()
+    private void Start()
+    {
+        SendGet();
+    }
+
+    public async void SendGet()
     {
         using UnityWebRequest request = UnityWebRequest.Get(_getUrl);
         await request.SendWebRequest();
         LogResult(request);
     }
 
-    [ContextMenu("POST を送る")]
-    private async void SendPost()
+    public async void SendPost()
     {
         using UnityWebRequest request = UnityWebRequest.Post(_postUrl, _postText, "text/plain");
         await request.SendWebRequest();
@@ -542,6 +567,10 @@ public class RequestTester : MonoBehaviour
 ---
 
 ## よくあるミス
+
+### ボタンの On Click () にメソッドを登録していない
+
+ボタンを置いただけでは、押してもメソッドは呼び出されません。`Button` コンポーネントの `On Click ()` に、対象の `RequestTester` ゲームオブジェクトと、GET なら `SendGet`、POST なら `SendPost` が 1 件ずつ設定されていることを確認します。ボタンを押すのは Play モード中の Game ビューです。
 
 ### result を確かめずに本文を使う
 
@@ -568,7 +597,7 @@ Debug.Log(request.downloadHandler.text);
 - 使い終わった `UnityWebRequest` は `Dispose` する。`using` で宣言すると自動で `Dispose` される
 - 結果は `result` で確かめる。接続できないときは `ConnectionError`、`4xx` や `5xx` の応答は `ProtocolError` になり、どちらも例外はスローされない
 - 通信する 2 つのプログラムは、片方ずつ確かめる。サーバーを curl で確かめてから、Unity の側を確かめる
-- `[ContextMenu]` 属性を付けたメソッドは、Inspector ビューのコンポーネントのメニューから呼び出せる
+- 最初の GET は `Start` から送り、再取得や POST は Game ビューのボタンから送る。Button の `On Click ()` に、呼び出す `public` メソッドを登録する
 
 ---
 

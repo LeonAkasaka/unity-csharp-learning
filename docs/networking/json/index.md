@@ -6,12 +6,15 @@ permalink: /networking/json/
 
 # JSON でやり取りする
 
-[本文でデータを送る](/unity-csharp-learning/networking/request-body/) では、メッセージをただの文字列として送り、一覧はメッセージを 1 行に 1 つずつ並べたテキストで返していました。このページでは、メッセージに送信者の名前と送った時刻を加え、データの形をはっきり決めてやり取りするために **JSON** を使います。サーバーでは ASP.NET Core の JSON の機能を、Unity では `JsonUtility` を使います。あわせて、URL に値を入れるときに必要な**エンコード**も学びます。
+[Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) では、サーバーから文字列を取得したり、テキストを送って送り返してもらったりできました。単純な値やテキストの交換は、ここまでの方法で実装できます。では、送信者の名前と本文を持つメッセージのように、プログラムの中でクラスや構造体にまとめているデータを送るには、どうすればよいでしょうか。
+
+このページでは、こうしたデータを送受信できる形式に変換する**シリアライズ**と、受け取ったデータをオブジェクトに戻す**デシリアライズ**を学びます。まず、**JSON** 形式の文字列に変換して元の値を復元する最小例を試し、その後、サーバーと Unity の間でメッセージをやり取りする実用例を作ります。
 
 ## 学習目標
 
 このページを読み終えると、以下のことができるようになります。
 
+- シリアライズとデシリアライズの役割を説明し、JSON の文字列からオブジェクトを復元できる
 - JSON の書き方と、データのやり取りに JSON を使う理由を説明できる
 - ASP.NET Core のハンドラーで、JSON を受け取り、JSON を返せる
 - `Content-Type` ヘッダーの役割を説明できる
@@ -26,28 +29,114 @@ permalink: /networking/json/
 
 ---
 
-## 1. テキストの書式の限界
+## 1. 構造を持つデータを送りたい
 
-今のサーバーは、メッセージの一覧を次のようなテキストで返しています。
+送信者の名前と本文を別々の値として持つメッセージを考えます。プログラムの中では、クラスや構造体を使えば、これらをひとまとまりのデータとして扱えます。しかし、そのオブジェクトを、そのまま前のページのテキスト送信用の処理に渡すことはできません。送受信できる形式に変換する必要があります。
 
+たとえば、名前と本文を `: ` で区切った文字列にして送る方法が考えられます。しかし、名前や本文にも `: ` が含まれていたら、どこで分けるのかを決めなければなりません。複数のメッセージを改行で区切れば、本文に含まれる改行との区別も必要です。値が増えるたびに、送る側と受け取る側の両方で、文字列を組み立てたり分解したりする処理を書くのは不便です。
+
+### シリアライズとデシリアライズ
+
+オブジェクトのデータを、保存や送信ができる形式に変換することを**シリアライズ**（serialize）、そのデータからオブジェクトを復元することを**デシリアライズ**（deserialize）と呼びます。変換先にはバイナリ形式もありますが、このページでは文字列に変換します。
+
+その代表的な形式が **JSON**（JavaScript Object Notation）です。JSON はデータの書き表し方を決めたもので、変換を行う機能を**シリアライザー**と呼びます。多くの言語や環境に JSON のシリアライザーが用意されているので、区切りや特殊な文字の扱いを自分で実装せずに済みます。このページでは、Unity 標準の `JsonUtility` を使って変換を確かめます。
+
+```mermaid
+flowchart LR
+    A[送る側のオブジェクト] -->|シリアライズ| B[JSON の文字列]
+    B -->|通信で渡す| C[受け取った JSON の文字列]
+    C -->|デシリアライズ| D[受け取る側の新しいオブジェクト]
 ```
-1: Hello
-2: Good morning
-```
 
-受け取った側は、各行を `: ` で区切って、番号とメッセージに分けることになります。しかし、この書式には次のような問題があります。
-
-- メッセージに改行が含まれていると、1 つのメッセージが 2 行に分かれてしまい、区切りを判断できない
-- 送信者の名前や送った時刻を加えるには、新しい区切り方を考えなければならない。名前に `: ` が含まれていたらどうするか、といった取り決めも必要になる
-- 区切り方を変えるたびに、サーバーとクライアントの両方で、読み書きするコードを作り直すことになる
-
-データの形を決めて送る方法は、多くのプログラムで共通に使える形式として、すでに決められています。Web で最も広く使われているのが **JSON**（JavaScript Object Notation）です。.NET にも Unity にも、JSON を読み書きする機能が用意されています。
+送るのは、値とその構造です。クラスのメソッドや、元のインスタンスそのものを送るわけではありません。受け取る側では、データに対応する型を用意して復元します。
 
 ---
 
-## 2. JSON の書き方
+## 2. Unity で変換と復元を確かめる
 
-JSON では、データを次の組み合わせで書きます。
+Unity の **File → New Scene** で新しいシーンを作り、`MessageSample` として保存します。前のページの `RequestTester` はこのシーンに置きません。
+
+通信を組み合わせる前に、1 つのプログラムの中で「オブジェクト → JSON の文字列 → 新しいオブジェクト」を確かめます。
+
+前のページと同じ Unity プロジェクトを使います。ここで作るデータのクラスと `MessageClient` は、後の通信の実用例でも使います。この段階では通信しないので、サーバーを起動する必要はありません。
+
+### データとスクリプトを用意する
+
+Project ビューで `Assets` フォルダーを右クリックし、**Create → Scripting → Empty C# Script** から `MessageData` という名前のスクリプトを作ります。全体を次のコードに書き換えます。
+
+```csharp
+using System;
+
+[Serializable]
+public class MessageData
+{
+    public string sender;
+    public string text;
+}
+```
+
+`JsonUtility` で変換するクラスには `[Serializable]` 属性を付け、値を `public` なフィールドにします。このクラスはデータだけを持つので、ゲームオブジェクトにはアタッチしません。
+
+Unity のメニューバーの **GameObject → Create Empty** を選択し、空のゲームオブジェクトを作成します。名前を `MessageClient` に変更してください。
+
+`MessageClient` を選択し、Inspector ビューの **Add Component → New script** から `MessageClient` という名前のスクリプトを作成してアタッチします。スクリプトの全体を次のコードに書き換えます。
+
+```csharp
+using UnityEngine;
+
+public class MessageClient : MonoBehaviour
+{
+    private void Start()
+    {
+        MessageData original = new MessageData();
+        original.sender = "Player1";
+        original.text = "こんにちは";
+
+        string json = JsonUtility.ToJson(original);
+        Debug.Log(json);
+
+        MessageData restored = JsonUtility.FromJson<MessageData>(json);
+        Debug.Log($"送信者: {restored.sender}");
+        Debug.Log($"本文: {restored.text}");
+    }
+}
+```
+
+Play モードに入ると、`Start` が自動で実行されます。Console ビューに、次の 3 件のログが表示されます。
+
+```
+{"sender":"Player1","text":"こんにちは"}
+送信者: Player1
+本文: こんにちは
+```
+
+確認したら Play モードを終了します。
+
+### 文字列に変換し、オブジェクトに戻す
+
+`JsonUtility.ToJson` にオブジェクトを渡すと、フィールドの名前と値を JSON の文字列に変換します。最初のログが、その結果です。
+
+**書式：[JsonUtility.ToJson メソッド](https://docs.unity3d.com/ScriptReference/JsonUtility.ToJson.html)**
+```csharp
+public static string ToJson(object obj);
+```
+
+続いて、`JsonUtility.FromJson<MessageData>` にその文字列を渡し、`MessageData` 型の新しいオブジェクトを作っています。後の 2 件のログから、送信者と本文を別々のフィールドとして取り出せることがわかります。
+
+**書式：[JsonUtility.FromJson メソッド](https://docs.unity3d.com/ScriptReference/JsonUtility.FromJson.html)**
+```csharp
+public static T FromJson<T>(string json);
+```
+
+`<MessageData>` は復元先の型の指定です。JSON に C# のクラス名が保存されていて、自動で型が選ばれるわけではありません。`JsonUtility` は、JSON の名前に一致するフィールドへ値を入れます。
+
+ここでは Unity の中で文字列を渡しました。通信するときにも、`ToJson` で得た文字列を HTTP の本文で送り、受け取った文字列を `FromJson` でオブジェクトに戻せば、フィールドの値として使えます。
+
+---
+
+## 3. JSON の書き方
+
+最小例の `{"sender":"Player1","text":"こんにちは"}` は、名前と値の組を `{ }` で囲んだ JSON の**オブジェクト**です。JSON では、データを次の組み合わせで書きます。
 
 | 書き方 | 意味 | 例 |
 |---|---|---|
@@ -75,9 +164,13 @@ JSON では、データを次の組み合わせで書きます。
 
 ---
 
-## 3. サーバーで JSON を扱う
+## 4. 実用例：サーバーで JSON を扱う
 
-`SampleHttpServer` の `Program.cs` を、次のように書き換えます。
+ここからは、番号、送信者、本文、受信時刻を持つメッセージを、サーバーに保存して取得する例を作ります。[本文でデータを送る](/unity-csharp-learning/networking/request-body/) で扱ったメッセージの保存を、JSON を使う形に発展させます。
+
+直前の [Unity から通信する](/unity-csharp-learning/networking/unity-webrequest/) では、`SampleHttpServer` は `/hello` と `/echo` を扱うサーバーになっていました。ここではその `Program.cs` 全体を、次のコードに書き換えます。これ以降は `/messages` を使い、Unity 側は最小例で作った `MessageClient` を後で書き換えて接続します。
+
+Unity 側では `JsonUtility` を自分で呼びますが、このサーバーでは ASP.NET Core が、受信した JSON をハンドラーの引数へデシリアライズし、戻り値のオブジェクトを JSON へシリアライズしてくれるため、変換のコードを書く必要はありません。
 
 ```csharp
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -177,7 +270,7 @@ class MessageStore
 
 `PostMessageRequest` に番号や時刻がないのは、それらはサーバーが決めるものだからです。クライアントが送ってきた値を使うと、番号が重なったり、でたらめな時刻が記録されたりするおそれがあります。
 
-一覧を、配列のまま返さずに `MessageList` で包んでいる理由は、「5. Unity で JSON を扱う」で説明します。
+一覧を、配列のまま返さずに `MessageList` で包んでいる理由は、「5. Unity のデータクラスを実用例に合わせる」で説明します。
 
 ### オブジェクトを返すと JSON になる
 
@@ -261,77 +354,9 @@ Server: Kestrel
 
 ---
 
-## 4. 補足：JsonSerializer で変換を確かめる
+## 5. Unity のデータクラスを実用例に合わせる
 
-ASP.NET Core は、内部で [System.Text.Json](https://learn.microsoft.com/dotnet/api/system.text.json.jsonserializer.serialize) の `JsonSerializer` クラスを使って、オブジェクトと JSON を変換しています。`JsonSerializer` を直接使って、どのような JSON になるかを確かめます。コンソールアプリで、次のコードを実行します。
-
-```csharp
-using System.Text.Json;
-
-Message message = new Message(1, "Player1", "こんにちは", new DateTimeOffset(2026, 9, 28, 12, 0, 0, TimeSpan.Zero));
-Console.WriteLine(JsonSerializer.Serialize(message));
-Console.WriteLine(JsonSerializer.Serialize(message, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
-
-string json = "{\"id\":2,\"sender\":\"Player2\",\"text\":\"Hi\",\"createdAt\":\"2026-09-28T12:00:00+00:00\"}";
-Message? m2 = JsonSerializer.Deserialize<Message>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-Console.WriteLine(m2);
-
-record Message(int Id, string Sender, string Text, DateTimeOffset CreatedAt);
-```
-
-実行結果の例です。3 行目の日時の書式は、パソコンの地域の設定によって変わります。
-
-```
-{"Id":1,"Sender":"Player1","Text":"こんにちは","CreatedAt":"2026-09-28T12:00:00+00:00"}
-{"id":1,"sender":"Player1","text":"こんにちは","createdAt":"2026-09-28T12:00:00+00:00"}
-Message { Id = 2, Sender = Player2, Text = Hi, CreatedAt = 2026/09/28 12:00:00 +00:00 }
-```
-
-**書式：[JsonSerializer.Serialize メソッド](https://learn.microsoft.com/dotnet/api/system.text.json.jsonserializer.serialize)**
-```csharp
-public static string Serialize<TValue>(TValue value, JsonSerializerOptions? options = null);
-```
-
-**書式：[JsonSerializer.Deserialize メソッド](https://learn.microsoft.com/dotnet/api/system.text.json.jsonserializer.deserialize)**
-```csharp
-public static TValue? Deserialize<TValue>(string json, JsonSerializerOptions? options = null);
-```
-
-オブジェクトを JSON などの形式に変換することを**シリアライズ**（serialize）、その逆を**デシリアライズ**（deserialize）と呼びます。
-
-結果から、次のことがわかります。
-
-- `JsonSerializer` の標準の設定では、名前は C# のプロパティ名のまま（`Id`）になる。[JsonSerializerDefaults.Web](https://learn.microsoft.com/dotnet/api/system.text.json.jsonserializerdefaults) を指定すると、キャメルケース（`id`）になり、読むときに大文字と小文字を区別しなくなる。ASP.NET Core は、この `Web` の設定を使っている
-- `JsonSerializer` の標準の設定では、日本語は `ユ` のような書き方（**エスケープ**）で出力される。`\u` の後の 4 桁は、文字の番号を 16 進数で表したもので、JSON として正しい書き方なので、読む側では元の文字に戻る。なお、「3. サーバーで JSON を扱う」の curl の結果のとおり、ASP.NET Core の応答では、日本語はエスケープされずにそのまま出力される
-
----
-
-## 5. Unity で JSON を扱う
-
-Unity では、[JsonUtility](https://docs.unity3d.com/ScriptReference/JsonUtility.html) クラスを使って、JSON とオブジェクトを変換します。
-
-**書式：[JsonUtility.FromJson メソッド](https://docs.unity3d.com/ScriptReference/JsonUtility.FromJson.html)**
-```csharp
-public static T FromJson<T>(string json);
-```
-
-**書式：[JsonUtility.ToJson メソッド](https://docs.unity3d.com/ScriptReference/JsonUtility.ToJson.html)**
-```csharp
-public static string ToJson(object obj);
-```
-
-`FromJson` は JSON を `T` 型のオブジェクトに、`ToJson` はオブジェクトを JSON に変換します。
-
-### データのクラスを用意する
-
-`JsonUtility` で変換するクラスは、次の決まりを守って書きます。
-
-- クラスに `[Serializable]` 属性を付ける
-- 変換する値は、`public` なフィールドにする（プロパティは変換されない）
-- フィールドの名前を、JSON の名前と大文字、小文字まで同じにする
-
-Project ビューで `Assets` フォルダーを右クリックし、**Create → Scripting → Empty C# Script** から `MessageData` という名前のスクリプトを作ります。次のように書きます。
-
+「2. Unity で変換と復元を確かめる」で作った `MessageData.cs` を、次の全体のコードに書き換えます。メッセージに番号と時刻を加え、一覧の受信用と追加の送信用のクラスも同じファイルに用意します。
 ```csharp
 using System;
 
@@ -358,11 +383,11 @@ public class PostMessageData
 }
 ```
 
-サーバーのレコードと対応させて、3 つのクラスを作っています。`createdAt` を `string` にしている理由は、次の制約の表で説明します。
+最小例と同じく、`[Serializable]` を付けたクラスに `public` なフィールドを書いています。フィールドの名前は、受け取る JSON の名前と大文字、小文字まで一致させます。サーバーのレコードと対応させて、3 つのクラスを作っています。`createdAt` を `string` にしている理由は、次の制約の表で説明します。
 
 ### JsonUtility の制約
 
-`JsonUtility` は、Unity の Inspector ビューに値を保存する仕組みと同じ規則で変換します。そのため、.NET の `JsonSerializer` とは違う、次のような制約があります。
+`JsonUtility` は、Unity の Inspector ビューに値を保存する仕組みと同じ規則で変換します。そのため、扱えるデータには次のような制約があります。
 
 | 制約 | 実際の動作 |
 |---|---|
@@ -374,17 +399,11 @@ public class PostMessageData
 
 サーバーが一覧を `{"messages":[...]}` のようにオブジェクトで包んで返しているのは、1 つ目の制約のためです。時刻は `string` として受け取り、使うときに [DateTimeOffset.Parse](https://learn.microsoft.com/dotnet/api/system.datetimeoffset.parse) で `DateTimeOffset` に変換します。
 
-JSON の `ユ` のようなエスケープは、`JsonUtility` でも元の文字に戻ります。
-
-> 💡 **ポイント**: `JsonUtility` の制約が合わないときは、Unity のパッケージとして提供されている **Newtonsoft Json**（`com.unity.nuget.newtonsoft-json`）を使う方法もあります。このシリーズでは、Unity 標準の `JsonUtility` で足りるように、サーバーの JSON の形を決めています。
-
 ---
 
-## 6. MessageClient を作る
+## 6. Unity から送受信する
 
-Unity のメニューバーの **GameObject → Create Empty** を選択し、空のゲームオブジェクトを作成します。名前を `MessageClient` に変更してください。
-
-`MessageClient` を選択し、Inspector ビューの **Add Component → New script** から `MessageClient` という名前のスクリプトを作成してアタッチします。スクリプトを次のように書き換えます。
+最小例でアタッチした `MessageClient` を、そのまま使います。Play モードを終了した状態で、`MessageClient.cs` の全体を次のコードに書き換えます。変換を確かめるだけだった処理を、一覧の取得、メッセージの追加、検索に置き換えます。
 
 ```csharp
 using System;
@@ -398,8 +417,12 @@ public class MessageClient : MonoBehaviour
     [SerializeField] private string _text = "こんにちは";
     [SerializeField] private string _keyword = "1+1";
 
-    [ContextMenu("一覧を取得する")]
-    private async void GetMessages()
+    private void Start()
+    {
+        GetMessages();
+    }
+
+    public async void GetMessages()
     {
         using UnityWebRequest request = UnityWebRequest.Get($"{_baseUrl}/messages");
         await request.SendWebRequest();
@@ -412,8 +435,7 @@ public class MessageClient : MonoBehaviour
         LogMessages(list);
     }
 
-    [ContextMenu("検索する")]
-    private async void SearchMessages()
+    public async void SearchMessages()
     {
         string url = $"{_baseUrl}/messages?contains={Uri.EscapeDataString(_keyword)}";
         using UnityWebRequest request = UnityWebRequest.Get(url);
@@ -427,8 +449,7 @@ public class MessageClient : MonoBehaviour
         LogMessages(list);
     }
 
-    [ContextMenu("追加する")]
-    private async void PostMessage()
+    public async void PostMessage()
     {
         PostMessageData data = new PostMessageData();
         data.sender = _sender;
@@ -474,13 +495,36 @@ public class MessageClient : MonoBehaviour
 }
 ```
 
+### 一覧・追加・検索のボタンを置く
+
+最小例で作った `MessageClient` のシーンを使います。前のページの `RequestTester` とは別のシーンです。
+
+1. Play モードを終了し、**GameObject → UI (Canvas) → Button - TextMeshPro**（または **UI → Button - TextMeshPro**）でボタンを作ります。TMP Importer が表示された場合は **Import TMP Essentials** を押します。自動作成された `Canvas` と `EventSystem` は残します。EventSystem に入力モジュールの切り替えを求めるボタンが表示された場合は **Replace with InputSystemUIInputModule** を押します。
+2. ボタンを `ListButton` にし、中央のアンカーと Pivot のまま、`Pos X = 0`、`Pos Y = 100`、`Width = 280`、`Height = 70` にします。子の `Text (TMP)` の文字を `List`、`Font Size` を `32` にします。
+3. 複製して `AddButton`（`Pos Y = 0`、文字 `Add`）と `SearchButton`（`Pos Y = -100`、文字 `Search`）を作ります。
+4. 各ボタンの **Button → On Click () → ＋** でイベントを 1 件登録します。対象の欄に `MessageClient` ゲームオブジェクトをドラッグし、次の関数を選びます。複製されたイベントがある場合は、それを変更して 1 件だけにします。
+
+| ボタン | 表示する文字 | On Click () の関数 |
+|---|---|---|
+| `ListButton` | `List`（一覧を取得する） | **MessageClient → GetMessages ()** |
+| `AddButton` | `Add`（追加する） | **MessageClient → PostMessage ()** |
+| `SearchButton` | `Search`（検索する） | **MessageClient → SearchMessages ()** |
+
+`ListButton` の設定例です。`On Click ()` の対象が `MessageClient`、関数が `MessageClient.GetMessages` になっていることを確認します。
+
+![ListButton の Inspector に MessageClient.GetMessages を登録した画面](image-2.png)
+
+![Game ビューに List、Add、Search のボタンが並んでいる](image-1.png)
+
+Play 開始時には `Start` から一覧を 1 回取得します。以降は Game ビューのボタンを押して操作します。送信者、本文、検索語は Inspector で設定し、結果は Console ビューで確認します。各操作の結果が出てから、次のボタンを押してください。
+
 - **一覧を取得する**：受け取った JSON を `JsonUtility.FromJson<MessageListData>` で変換し、1 行に 1 つずつ出力します。
 - **追加する**：`PostMessageData` を `JsonUtility.ToJson` で JSON にし、`Content-Type` を `application/json` にして送ります。応答の `201 Created` の本文には、追加されたメッセージの JSON が入っているので、それを変換して出力します。
 - **検索する**：「7. URL に値を入れる」で説明します。
 
 `Format` メソッドは、時刻を `DateTimeOffset.Parse` で変換し、`ToLocalTime` でパソコンの地域の時刻に直して表示します。サーバーは UTC で記録しているので、日本の時刻では 9 時間進んだ時刻になります。
 
-Inspector ビューには、`Sender`、`Text`、`Keyword` が表示されます。既定値のまま、Play モードで **一覧を取得する**、**追加する**、**一覧を取得する** の順に選ぶと、Console ビューに次のように表示されます。実行結果の例です。時刻は実行するたびに変わります。
+Inspector ビューには、`Sender`、`Text`、`Keyword` が表示されます。既定値のまま Play モードに入り、最初の一覧が表示されたら、Game ビューの **Add**、**List** の順にボタンを押すと、Console ビューに次のように表示されます。実行結果の例です。時刻は実行するたびに変わります。
 
 ```
 2 件のメッセージ
@@ -505,7 +549,7 @@ Unity から送った日本語の本文が、文字化けせずにサーバー�
 
 ## 7. URL に値を入れる
 
-**検索する** は、`Keyword` の文字列を含むメッセージを、クエリ文字列の `contains` で検索します。既定値の `1+1` のまま選ぶと、次のように表示されます。
+Game ビューの **Search** ボタンは、`Keyword` の文字列を含むメッセージを、クエリ文字列の `contains` で検索します。既定値の `1+1` のまま押すと、次のように表示されます。
 
 ```
 1 件のメッセージ
@@ -571,6 +615,7 @@ Console ビューには、`ProtocolError / 415 / HTTP/1.1 415 Unsupported Media 
 
 ## まとめ
 
+- シリアライズは、オブジェクトのデータを保存や送信ができる形式に変換すること。デシリアライズは、そのデータからオブジェクトを復元すること。JSON は、その形式の 1 つ
 - JSON は、オブジェクト（`{ }`）、配列（`[ ]`）、文字列、数値、真偽値、`null` でデータを書き表す形式。改行や記号を含むデータも、区切りと取り違えずに送れる
 - ASP.NET Core のハンドラーは、オブジェクトを返すと JSON に変換し、クラスやレコードの引数には JSON の本文を変換して渡す。名前はキャメルケースになる
 - `Content-Type` は本文の形式を伝えるヘッダー。JSON を送るときは `application/json` にする。合わないと `415` が返る
@@ -582,6 +627,13 @@ Console ビューには、`ProtocolError / 415 / HTTP/1.1 415 Unsupported Media 
 
 ## 理解度チェック
 
+最小例について、次を説明してください。
+
+- `JsonUtility.ToJson` の戻り値は、どんな型ですか？
+- `JsonUtility.FromJson<MessageData>` の `<MessageData>` は何を指定していますか？ 復元した送信者と本文は、どこから取り出せますか？
+
+実用例について、次を説明してください。
+
 1. サーバーが一覧を `[...]` の配列のまま返さず、`{"messages":[...]}` のように包んで返しているのはなぜですか？
 2. `PostMessageRequest` に `Id` や `CreatedAt` を含めていないのはなぜですか？
 3. JSON の本文を `Content-Type: text/plain` で送ると、このページのサーバーは何番のステータスコードを返しますか？
@@ -589,6 +641,13 @@ Console ビューには、`ProtocolError / 415 / HTTP/1.1 415 Unsupported Media 
 
 <details markdown="1">
 <summary>解答を見る</summary>
+
+最小例：
+
+- `string` 型です。JSON 形式で書き表したデータを持つ文字列が返ります。
+- `<MessageData>` は、JSON から復元するオブジェクトの型を指定しています。戻り値のオブジェクトの `sender` と `text` フィールドから取り出せます。
+
+実用例：
 
 1. Unity の `JsonUtility` は、JSON の最上位に配列を置けないからです。オブジェクトで包めば、配列をフィールド（`messages`）として受け取れます。
 2. 番号や時刻は、サーバーが決めるべき値だからです。クライアントが送った値を使うと、番号が重なったり、正しくない時刻が記録されたりするおそれがあります。
