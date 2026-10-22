@@ -46,6 +46,8 @@ Unity の標準 UI には歴史的な経緯で複数の種類があるので混�
 
 試しにボタンを追加してみましょう。メニューバーから「GameObject」→「UI」→「Button - TextMeshPro」を選択してください。
 
+Unity のバージョンによっては、「UI」が「UI (Canvas)」と表示されます。
+
 ![「GameObject」→「UI」→「Button - TextMeshPro」を選択している画面](./image-2.png)
 
 プロジェクトに最初に TextMesh Pro 依存コンポーネントを含める場合、TMP Importer ダイアログが表示されます。「Import TMP Essentials」ボタンを押して必要なアセットをインポートしてください。詳細は [TextMesh Pro](/unity-csharp-learning/unity/textmesh-pro/) を参照してください。
@@ -209,6 +211,8 @@ public class Clicker : MonoBehaviour
 ---
 
 ## 次のステップ
+
+Inspector での登録に続いて、[補足: ボタンのクリック処理をスクリプトから登録する](/unity-csharp-learning/unity/button-listeners/) では、同じクリックカウンターを `AddListener` で登録します。`RemoveListener` による解除、`UnityAction`、ラムダ式を使った登録も扱います。
 
 ボタンはプレイヤーと対話するための最も基本的な UI です。様々なゲームで応用できるコンポーネントなので、UI の操作方法やスクリプトからの制御方法、レイアウトの工夫などを研究してみてください。
 

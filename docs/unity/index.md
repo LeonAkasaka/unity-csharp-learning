@@ -42,6 +42,7 @@ Unity エディターの使い方と、C# スクリプトを使ったゲーム�
 | # | トピック | 概要 |
 |---|---|---|
 | 21 | [Unity UI とボタン操作](./unity-ui/) | Canvas にボタンを配置してクリックに反応するスクリプトを作る |
+| 21.1 | [補足: ボタンのクリック処理をスクリプトから登録する](./button-listeners/) | AddListener・RemoveListener による登録と解除・UnityAction・ラムダ式の保存 |
 | 22 | [TextMesh Pro](./textmesh-pro/) | 日本語フォントを設定してテキストを表示しスクリプトから書き換える |
 | 23 | [Image — 画像の表示と色・透明度](./ui-image/) | キャラクターの Sprite を表示し、縦横比・着色・透明度を調整する |
 | 24 | [RectTransform — アンカーとピボット](./rect-transform/) | 親に対する配置と、自分の位置・サイズ変更の基準を理解する |
@@ -53,11 +54,17 @@ Unity エディターの使い方と、C# スクリプトを使ったゲーム�
 
 | # | トピック | 概要 |
 |---|---|---|
-| 27 | [コルーチンの基本](./coroutines/) | 時間をまたぐ処理を順番どおりに書く仕組みを学ぶ |
+| 27 | [コルーチンの基礎](./coroutines/) | フレームをまたぐ処理と、Time.deltaTime を使った秒数待ち |
 | 27.1 | [補足: IEnumerator と yield return](./ienumerator-yield/) | コルーチンの土台になる列挙処理と yield 文法を学ぶ |
-| 28 | [コルーチンの制御](./coroutine-control/) | 条件を待つ・別のコルーチンの終わりを待つ・コルーチンを止める・二重に開始しない |
-| 29 | [コルーチンでは書きにくいこと](./coroutine-limits/) | 結果を返せない・例外が呼び出し元に伝わらない・`yield return` を `try` / `catch` で囲めない・`Task` と `async` / `await` との対応 |
-| 30 | [Awaitable と async / await](./awaitable/) | `Awaitable.NextFrameAsync` / `WaitForSecondsAsync`・`Awaitable<T>` で結果を返す・`try` / `catch`・`CancellationToken` と `finally`・`destroyCancellationToken`・`async void` にするメソッド |
+| 28 | [コルーチンを組み合わせる](./coroutine-composition/) | 待機ループの抽出・子の終了待ち・3 段階の入れ子 |
+| 29 | [コルーチンの待機方法](./coroutine-waits/) | WaitForSeconds・WaitForSecondsRealtime・条件待ちのループから WaitUntil へ |
+| 30 | [コルーチンの開始と停止](./coroutine-control/) | Coroutine の保存・停止と再開始・二重の開始を防ぐ |
+| 31 | [コルーチンでは書きにくいこと](./coroutine-limits/) | 結果を返せない・例外が呼び出し元に伝わらない・`yield return` を `try` / `catch` で囲めない・`Task` と `async` / `await` との対応 |
+| 32 | [Awaitable と async / await](./awaitable/) | `Awaitable.NextFrameAsync` / `WaitForSecondsAsync`・`Awaitable<T>` で結果を返す・`try` / `catch`・`CancellationToken` と `finally`・`destroyCancellationToken`・`async void` にするメソッド |
+| 32.1 | [補足：Unity のメインスレッドと別スレッド](./main-thread/) | スレッド ID で待機と別スレッド実行を区別し、Task.Run・Awaitable・Thread の関係と GameObject に結果を反映する場所を学ぶ |
+| 33 | [複数の処理を開始して待つ](./concurrent-operations/) | 順番待ちと同時開始を比較し、コルーチン・Task.WhenAll で全体の完了を待つ |
+| 34 | [非同期処理中の状態を管理する](./async-state/) | 再入力の無視・前の処理のキャンセル・古い結果の破棄を使い分ける |
+| 35 | [Unity の非同期操作の完了を待つ](./async-operations/) | テキストの読み込みを題材に、AsyncOperation の開始・完了・結果・進捗を扱う |
 
 ## 前提知識
 

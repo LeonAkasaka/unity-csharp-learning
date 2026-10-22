@@ -6,7 +6,7 @@ permalink: /unity/coroutine-limits/
 
 # コルーチンでは書きにくいこと
 
-コルーチンを使うと、時間をまたぐ処理を上から順に書けます。しかし、普通のメソッドなら当たり前にできる「結果を呼び出し元に返す」「失敗を `try` / `catch` で受け取る」は、コルーチンではできません。このページでは、[コルーチンの制御](/unity-csharp-learning/unity/coroutine-control/) で作った押しボタン式の信号機に機能を加えながら、コルーチンのどこで行き詰まるのかを確かめます。最後に、C# の `Task` と `async` / `await` が、それぞれをどう解決しているのかを整理します。
+処理をいくつかのコルーチンに分けると、「終わったか」だけでなく「どんな結果になったか」も呼び出し元で判断したくなります。また、子が失敗したときには、呼び出し元で案内を出したり、次の処理を変えたりしたくなります。コルーチンの終了待ちで受け取れるものを確かめ、結果や失敗を扱う方法を考えます。
 
 ## 学習目標
 
@@ -20,58 +20,232 @@ permalink: /unity/coroutine-limits/
 
 ## 前提知識
 
-- [コルーチンの制御](/unity-csharp-learning/unity/coroutine-control/) を読んでいること
+- [コルーチンの開始と停止](/unity-csharp-learning/unity/coroutine-control/) を読んでいること
 - [ラムダ式](/unity-csharp-learning/csharp/lambda/) と [デリゲートの変数渡しとコールバック](/unity-csharp-learning/csharp/delegate-callback/) を読んでいること
 - [Task と Task\<T\>](/unity-csharp-learning/csharp/tasks/) と [async と await](/unity-csharp-learning/csharp/async-await/) を読んでいると、5 節の対応がわかりやすくなります
 
 ---
 
-## 1. シーンを準備する
+## 1. 結果は return で返せない
 
-[コルーチンの制御](/unity-csharp-learning/unity/coroutine-control/) の「動作確認」で作ったシーンを、そのまま使います。
+入力待ちを一定時間で終えると、「要求を受け取った」のか「時間切れになった」のかによって、その後の処理を変えたくなります。子の終了を待つだけでは、この違いはわかりません。待機の終了とは別に、判定結果を呼び出し元へ渡す必要があります。
 
-- 球体の `Signal` に、`PushButtonSignal` スクリプトがアタッチされている
-- `PushButton`（**PUSH**）の **On Click ()** に **PushButtonSignal → OnPushButton ()** が設定されている
-- `PowerButton`（**POWER**）の **On Click ()** に **PushButtonSignal → OnPowerButton ()** が設定されている
+空のゲームオブジェクトに、動作確認用の `SampleCoroutine` スクリプトを作成してアタッチします。まず、判定結果を `bool` で返そうとした場合を考えます。
 
-このページでは、`PushButtonSignal` スクリプトを書き換えながら進めます。`OnPushButton` と `OnPowerButton` のメソッドは残すので、ボタンの設定は変更しません。
-
----
-
-## 2. 結果を返したい
-
-押しボタン式の信号機に、ボタンがなかなか押されないときの案内を加えます。赤になってから 5 秒たっても押されなければ、Console に「ボタンを押してください」と表示し、また 5 秒待ちます。
-
-「ボタンが押されるか、指定した秒数がたつまで待つ」部分は、`WaitForPush` という別のコルーチンに分けることにします。待ち終わったときに、呼び出し元の `RunSignal` は「押されたのか、時間切れなのか」を知る必要があります。普通のメソッドなら、`bool` を返せば済みます。
+通常のメソッドなら `return true;` と書けますが、イテレーターではコンパイルエラーになります。次は意図的な NG 例です。
 
 ```csharp
-// ❌ NG: CS1622 のコンパイルエラーになる
-private IEnumerator WaitForPush(float timeout)
+using System.Collections;
+using UnityEngine;
+
+public class SampleCoroutine : MonoBehaviour
 {
-    float deadline = Time.time + timeout;
-    yield return new WaitUntil(() => _isRequested || Time.time >= deadline);
-    return _isRequested;
+    private IEnumerator Check()
+    {
+        yield return null;
+        return true; // NG: CS1622
+    }
 }
 ```
-
-このように書くと、次のコンパイルエラーになります。
 
 ```
 error CS1622: Cannot return a value from an iterator. Use the yield return statement to return a value, or yield break to end the iteration.
 ```
 
-`yield return` を含むメソッドはイテレーターなので、`return` で値を返せません。`yield return` で返した値は Unity が受け取り、「どう待つか」の合図として使います。呼び出し元の `RunSignal` には届きません。呼び出し元の `yield return WaitForPush(...)` も、`WaitForPush` が終わるまで待つだけで、値を受け取る書き方はありません。
+`yield return` で返すものは、Unity が待ち方を決めるために受け取ります。親が子の処理結果を受け取るための戻り値にはなりません。
 
 ### コールバックで結果を受け取る
 
-コルーチンから結果を受け取るには、結果を渡すためのメソッド（コールバック）を引数で渡します。`PushButtonSignal` スクリプトを次のように書き換えます。
+戻り値を結果に使えないため、結果が決まったときに呼び出してもらう処理を、引数で渡す方法があります。これがコールバックです。子の `Check` は、結果を渡すための処理 `onCompleted` を受け取り、結果が決まった時点で呼び出します。
 
 ```csharp
 using System;
 using System.Collections;
 using UnityEngine;
 
-public class PushButtonSignal : MonoBehaviour
+public class SampleCoroutine : MonoBehaviour
+{
+    private IEnumerator Start()
+    {
+        bool result = false;
+        yield return Check(value => result = value);
+        Debug.Log($"結果: {result}");
+    }
+
+    private IEnumerator Check(Action<bool> onCompleted)
+    {
+        yield return null;
+        onCompleted(true);
+    }
+}
+```
+
+```
+結果: True
+```
+
+子は 1 フレーム待ってから `onCompleted(true)` を呼びます。親はラムダ式の中でローカル変数 `result` に代入し、子の終了後にその値を読みます。`yield return Check(...)` 自体が `bool` を返すわけではありません。
+
+---
+
+## 2. 子の失敗は親の catch に届かない
+
+結果を受け取れれば、成功した場合の処理を分けられます。しかし、子が途中で例外を投げた場合にも、親が失敗を受け取って対応できるとは限りません。次の例では、子が 1 フレーム待ってから失敗するとき、親の続きと `Update` がどうなるかをログで追います。
+
+```csharp
+using System;
+using System.Collections;
+using UnityEngine;
+
+public class SampleCoroutine : MonoBehaviour
+{
+    private IEnumerator Start()
+    {
+        Debug.Log("A");
+        yield return Fail();
+        Debug.Log("C");
+    }
+
+    private IEnumerator Fail()
+    {
+        Debug.Log("B");
+        yield return null;
+        throw new InvalidOperationException("失敗");
+    }
+
+    private void Update()
+    {
+        if (Time.frameCount <= 3)
+        {
+            Debug.Log($"Update: {Time.frameCount}");
+        }
+    }
+}
+```
+
+Play ボタンを押すと、次の順に表示されます。
+
+```
+A
+B
+Update: 1
+Update: 2
+InvalidOperationException: 失敗
+Update: 3
+```
+
+子の `Fail` で例外が起きると、親の `Start` も続きを実行されずに終わり、`C` は表示されません。`Update` はその後も呼ばれます。子を進めているのは Unity であり、通常のメソッド呼び出しのように、例外が親へ投げ直される仕組みではありません。
+
+---
+
+## 3. yield return を try / catch で囲めない
+
+さらに、親の待機を `try` / `catch` で囲む書き方自体も、コンパイルエラーになります。次は意図的な NG 例です。
+
+```csharp
+using System;
+using System.Collections;
+using UnityEngine;
+
+public class SampleCoroutine : MonoBehaviour
+{
+    private IEnumerator Start()
+    {
+        try
+        {
+            yield return Fail(); // NG: CS1626
+        }
+        catch (InvalidOperationException e)
+        {
+            Debug.LogWarning(e.Message);
+        }
+    }
+
+    private IEnumerator Fail()
+    {
+        yield return null;
+        throw new InvalidOperationException("失敗");
+    }
+}
+```
+
+```
+error CS1626: Cannot yield a value in the body of a try block with a catch clause
+```
+
+C# のイテレーターでは、`catch` 句のある `try` の中に `yield return` を書けません。結果と同じように、失敗をコールバックで渡す方法は使えます（理解度チェックの 4 で試します）。
+
+---
+
+## 4. MonoBehaviour の外では開始できない
+
+待機する処理を、`MonoBehaviour` を継承しない普通のクラスに分けたいとします。
+
+```csharp
+using System.Collections;
+using UnityEngine;
+
+public class PushWaiter
+{
+    public void Begin()
+    {
+        StartCoroutine(Wait()); // ❌ NG: CS0103 のコンパイルエラーになる
+    }
+
+    private IEnumerator Wait()
+    {
+        yield return null;
+    }
+}
+```
+
+このように書くと、次のコンパイルエラーになります。
+
+```
+error CS0103: The name 'StartCoroutine' does not exist in the current context
+```
+
+`StartCoroutine` は `MonoBehaviour` のメソッドなので、`MonoBehaviour` を継承していないクラスでは呼べません。[コルーチンの開始と停止](/unity-csharp-learning/unity/coroutine-control/) で学んだように、コルーチンは `StartCoroutine` を呼んだスクリプトのゲームオブジェクトに結び付いて動きます。普通のクラスでコルーチンを使うには、どれかの `MonoBehaviour` を受け取って、その `StartCoroutine` を呼んでもらう必要があります。
+
+---
+
+## 5. Task と async / await との対応
+
+このページと [コルーチンの開始と停止](/unity-csharp-learning/unity/coroutine-control/) で見てきた、コルーチンで書きにくいことを整理します。C# の `Task` と `async` / `await` では、それぞれ次のように書けます。
+
+| やりたいこと | コルーチン | `Task` と `async` / `await` | C# のページ |
+|---|---|---|---|
+| 時間がたつまで待つ | `yield return new WaitForSeconds(秒数)` | `await Task.Delay(ミリ秒)` | [スレッドを使わずに待つ](/unity-csharp-learning/csharp/async-without-threads/) |
+| 結果を返す | `return` で返せない。コールバックで渡す | `Task<TResult>` を返す async メソッドで `return` する | [Task と Task\<T\>](/unity-csharp-learning/csharp/tasks/)、[async と await](/unity-csharp-learning/csharp/async-await/) |
+| 失敗を受け取る | 呼び出し元に伝わらない。`yield return` を `try` / `catch` で囲めない | 例外が `await` した側に伝わる。`await` を `try` / `catch` で囲める | [async と await](/unity-csharp-learning/csharp/async-await/) |
+| 途中で止める | 外から `StopCoroutine` で打ち切る。中では気付けず、`finally` も実行されない | `CancellationToken` で止めるよう頼み、中で気付いて後片付けできる | [キャンセル](/unity-csharp-learning/csharp/task-cancellation/) |
+| 複数の処理をすべて待つ | 先にすべて `StartCoroutine` で開始し、`yield return` で 1 つずつ待つ | `Task.WhenAll` | [複数の Task を待つ](/unity-csharp-learning/csharp/task-whenall/) |
+| 動かす場所 | `MonoBehaviour` の `StartCoroutine` が必要 | どのクラスのメソッドでも書ける | — |
+
+コルーチンも `async` / `await` も、「待っている間に処理を止めず、続きを後から実行する」という点は同じです。どちらも、待っている間にスレッドを 1 つ占有することはありません。違うのは、`async` / `await` では、結果の受け渡しと例外を、普通のメソッドと同じように `return` と `try` / `catch` で書けることです。
+
+Unity には、`async` / `await` で、フレームや秒数を待つための [Awaitable](https://docs.unity3d.com/ScriptReference/Awaitable.html) という型が用意されています。[Awaitable と async / await](/unity-csharp-learning/unity/awaitable/) で、Space キーで青への切り替えを要求する信号機を `Awaitable` で書き直します。
+
+---
+
+## 6. 実例：信号機で結果と失敗を扱う
+
+前のページの `Signal` と `CoroutineSignal` に適用します。Space キーで要求し、P キーで電源を切り替える入力処理はそのまま使います。
+
+### 時間切れか、要求されたかを受け取る
+
+5 秒たっても要求されなければ案内を表示し、もう一度待つようにします。`WaitForRequest` は「要求か時間切れまで待つ処理」で、結果の `bool` をコールバックで渡します。1 節の `Check` と同じ受け渡しです。
+
+<details markdown="1">
+<summary>案内を加えた信号機の全体コード</summary>
+
+```csharp
+using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class CoroutineSignal : MonoBehaviour
 {
     [SerializeField] private float _guideInterval = 5f; // 追加：案内するまでの秒数
 
@@ -85,13 +259,29 @@ public class PushButtonSignal : MonoBehaviour
         _signalRoutine = StartCoroutine(RunSignal());
     }
 
-    public void OnPushButton()
+    private void Update()
     {
-        Debug.Log($"{Time.time:F2} 秒: 押しボタン");
+        var keyboard = Keyboard.current;
+        if (keyboard == null) return;
+
+        if (keyboard.spaceKey.wasPressedThisFrame)
+        {
+            RequestGreen();
+        }
+
+        if (keyboard.pKey.wasPressedThisFrame)
+        {
+            TogglePower();
+        }
+    }
+
+    public void RequestGreen()
+    {
+        Debug.Log($"{Time.time:F2} 秒: 切り替え要求");
         _isRequested = true;
     }
 
-    public void OnPowerButton()
+    public void TogglePower()
     {
         if (_signalRoutine != null)
         {
@@ -112,14 +302,14 @@ public class PushButtonSignal : MonoBehaviour
         {
             SetColor(Color.red, "赤");
 
-            // 変更：押されるまで、_guideInterval 秒ごとに案内する
-            bool isPushed = false;
-            while (!isPushed)
+            // 変更：要求されるまで、_guideInterval 秒ごとに案内する
+            bool wasRequested = false;
+            while (!wasRequested)
             {
-                yield return WaitForPush(_guideInterval, result => isPushed = result);
-                if (!isPushed)
+                yield return WaitForRequest(_guideInterval, result => wasRequested = result);
+                if (!wasRequested)
                 {
-                    Debug.Log($"{Time.time:F2} 秒: 案内「ボタンを押してください」");
+                    Debug.Log($"{Time.time:F2} 秒: 案内「Space キーを押してください」");
                 }
             }
             _isRequested = false;
@@ -133,8 +323,8 @@ public class PushButtonSignal : MonoBehaviour
         }
     }
 
-    // 追加：ボタンが押されるか、timeout 秒たつまで待ち、押されたかどうかを onCompleted に渡す
-    private IEnumerator WaitForPush(float timeout, Action<bool> onCompleted)
+    // 追加：切り替えが要求されるか、timeout 秒たつまで待ち、要求されたかどうかを onCompleted に渡す
+    private IEnumerator WaitForRequest(float timeout, Action<bool> onCompleted)
     {
         float deadline = Time.time + timeout;
         yield return new WaitUntil(() => _isRequested || Time.time >= deadline);
@@ -161,39 +351,23 @@ public class PushButtonSignal : MonoBehaviour
 }
 ```
 
-`Action<bool>` を使うので、`using System;` を追加しています。
+</details>
 
-`WaitForPush` は、最後に `onCompleted(_isRequested)` を呼んで、押されたかどうかを渡します。`RunSignal` は、`result => isPushed = result` というラムダ式を渡しています。このラムダ式は、受け取った結果をローカル変数 `isPushed` に代入します。`yield return WaitForPush(...)` は `WaitForPush` が終わるまで待つので、次の行では `isPushed` に結果が入っています。
+Play 中に Game ビューをクリックし、約 10 秒待ってから Space キーを押します。5 秒ごとに案内が出て、要求すると青・点滅・赤へ進みます。`RunSignal` のローカル変数 `wasRequested` が、コールバックの受け取り先です。
 
-Play ボタンを押して、10 秒ほど待ってから **PUSH** ボタンをクリックすると、Console には次のように表示されます。これは実行結果の例です。秒数は、ボタンをクリックした時刻とフレームレートによって変わります。
+### 点滅の失敗を確かめる
 
-```
-0.00 秒: 赤
-5.02 秒: 案内「ボタンを押してください」
-10.04 秒: 案内「ボタンを押してください」
-12.42 秒: 押しボタン
-13.46 秒: 青
-15.48 秒: 灰
-15.74 秒: 青
-16.00 秒: 灰
-16.26 秒: 青
-16.52 秒: 赤
-```
+さらに `Blink Count` を Inspector から変更できるようにします。1 未満なら `Blink` が例外を投げます。次が、この段階での全体コードです。
 
-コールバックを使えば、結果を受け取れます。ただし、`bool isPushed = WaitForPush(...)` のように戻り値として受け取るのではなく、ラムダ式の中で変数に代入するという回り道をしています。受け取りたい結果が増えるたびに、コールバックの引数やローカル変数も増えていきます。
-
----
-
-## 3. 失敗を受け取りたい
-
-点滅の回数を Inspector から変更できるようにします。回数が 1 未満のときは点滅できないので、`Blink` は例外を投げることにします。`PushButtonSignal` スクリプトを次のように書き換えます。
+### 完成したコード
 
 ```csharp
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class PushButtonSignal : MonoBehaviour
+public class CoroutineSignal : MonoBehaviour
 {
     [SerializeField] private float _guideInterval = 5f;
     [SerializeField] private int _blinkCount = 2; // 追加：点滅の回数
@@ -208,13 +382,29 @@ public class PushButtonSignal : MonoBehaviour
         _signalRoutine = StartCoroutine(RunSignal());
     }
 
-    public void OnPushButton()
+    private void Update()
     {
-        Debug.Log($"{Time.time:F2} 秒: 押しボタン");
+        var keyboard = Keyboard.current;
+        if (keyboard == null) return;
+
+        if (keyboard.spaceKey.wasPressedThisFrame)
+        {
+            RequestGreen();
+        }
+
+        if (keyboard.pKey.wasPressedThisFrame)
+        {
+            TogglePower();
+        }
+    }
+
+    public void RequestGreen()
+    {
+        Debug.Log($"{Time.time:F2} 秒: 切り替え要求");
         _isRequested = true;
     }
 
-    public void OnPowerButton()
+    public void TogglePower()
     {
         if (_signalRoutine != null)
         {
@@ -235,13 +425,13 @@ public class PushButtonSignal : MonoBehaviour
         {
             SetColor(Color.red, "赤");
 
-            bool isPushed = false;
-            while (!isPushed)
+            bool wasRequested = false;
+            while (!wasRequested)
             {
-                yield return WaitForPush(_guideInterval, result => isPushed = result);
-                if (!isPushed)
+                yield return WaitForRequest(_guideInterval, result => wasRequested = result);
+                if (!wasRequested)
                 {
-                    Debug.Log($"{Time.time:F2} 秒: 案内「ボタンを押してください」");
+                    Debug.Log($"{Time.time:F2} 秒: 案内「Space キーを押してください」");
                 }
             }
             _isRequested = false;
@@ -255,7 +445,7 @@ public class PushButtonSignal : MonoBehaviour
         }
     }
 
-    private IEnumerator WaitForPush(float timeout, Action<bool> onCompleted)
+    private IEnumerator WaitForRequest(float timeout, Action<bool> onCompleted)
     {
         float deadline = Time.time + timeout;
         yield return new WaitUntil(() => _isRequested || Time.time >= deadline);
@@ -288,126 +478,27 @@ public class PushButtonSignal : MonoBehaviour
 }
 ```
 
-`Signal` を選択し、Inspector ビューで `PushButtonSignal` の `Blink Count` を `0` にしてから、Play ボタンを押して **PUSH** ボタンをクリックします。青になって 2 秒後に、Console に例外が表示されます。これは実行結果の例です。
+`Blink Count` を `0` にして Play ボタンを押し、Game ビューで Space キーを押すと、青になって約 2 秒後に `ArgumentOutOfRangeException` が出ます。親の `RunSignal` も止まるため、青のまま変わりません。これは 2 節と同じ制約です。
 
-```
-0.00 秒: 赤
-1.00 秒: 押しボタン
-2.04 秒: 青
-ArgumentOutOfRangeException: 点滅の回数は 1 以上にしてください
-Parameter name: count
-```
-
-例外が起きた後、球体は青のまま変わりません。**PUSH** ボタンをクリックしても、Console に「押しボタン」と表示されるだけで、信号は進みません。
-
-### 例外で、呼び出し元のコルーチンも終わる
-
-コルーチンの中で例外が投げられると、Unity はその例外を Console に表示し、そのコルーチンを終わらせます。`yield return Blink(...)` で `Blink` の終わりを待っていた `RunSignal` も、続きを実行されずに終わります。信号が進まなくなったのは、このためです。
-
-一方、ほかのスクリプトやボタンの処理は動き続けます。`_signalRoutine` には終わった `RunSignal` のコルーチンが残っているので、**POWER** ボタンを 1 回クリックすると「消灯」になり、もう 1 回クリックすると最初の赤から動き出します。
-
-Console で例外の行を選択すると、例外が起きた場所（スタックトレース）が表示されます。先頭の行は次のようになっていて、`Blink` の中で起きたことはわかります。これは表示の例です。`d__10` の数字や行番号は、スクリプトの書き方や環境によって変わります。行番号が、例外を投げた行ではなく、メソッドの終わりの `}` の行を指すこともあります。
-
-```
-PushButtonSignal+<Blink>d__10.MoveNext () (at Assets/PushButtonSignal.cs:90)
-```
-
-しかし、`Blink` を呼び出した `RunSignal` は表示されません。`Blink` を進めているのは Unity なので、普通のメソッドの呼び出しのように「どこから呼ばれたか」をたどれないのです。
-
-### yield return は try / catch で囲めない
-
-点滅に失敗したら、警告を表示して先へ進めたいとします。普通のメソッドなら、呼び出しを `try` / `catch` で囲めば済みます。
-
-```csharp
-// ❌ NG: CS1626 のコンパイルエラーになる
-try
-{
-    yield return Blink(_blinkCount);
-}
-catch (ArgumentOutOfRangeException e)
-{
-    Debug.LogWarning(e.Message);
-}
-```
-
-このように書くと、次のコンパイルエラーになります。
-
-```
-error CS1626: Cannot yield a value in the body of a try block with a catch clause
-```
-
-C# のイテレーターでは、`catch` 句のある `try` ブロックの中に `yield return` を書けません。そもそも、`Blink` の例外は `RunSignal` に伝わらず、`RunSignal` ごと終わってしまうので、`RunSignal` の側では受け取りようがありません。
-
-コルーチンで失敗を呼び出し元に知らせるには、結果と同じように、コールバックで渡すしかありません（理解度チェックの 4 で試します）。
-
----
-
-## 4. MonoBehaviour の外では開始できない
-
-ボタンを待つ処理を、`MonoBehaviour` を継承しない普通のクラスに分けたいとします。
-
-```csharp
-using System.Collections;
-using UnityEngine;
-
-public class PushWaiter
-{
-    public void Begin()
-    {
-        StartCoroutine(Wait()); // ❌ NG: CS0103 のコンパイルエラーになる
-    }
-
-    private IEnumerator Wait()
-    {
-        yield return null;
-    }
-}
-```
-
-このように書くと、次のコンパイルエラーになります。
-
-```
-error CS0103: The name 'StartCoroutine' does not exist in the current context
-```
-
-`StartCoroutine` は `MonoBehaviour` のメソッドなので、`MonoBehaviour` を継承していないクラスでは呼べません。[コルーチンの制御](/unity-csharp-learning/unity/coroutine-control/) で学んだように、コルーチンは `StartCoroutine` を呼んだスクリプトのゲームオブジェクトに結び付いて動きます。普通のクラスでコルーチンを使うには、どれかの `MonoBehaviour` を受け取って、その `StartCoroutine` を呼んでもらう必要があります。
-
----
-
-## 5. Task と async / await との対応
-
-このページと [コルーチンの制御](/unity-csharp-learning/unity/coroutine-control/) で見てきた、コルーチンで書きにくいことを整理します。C# の `Task` と `async` / `await` では、それぞれ次のように書けます。
-
-| やりたいこと | コルーチン | `Task` と `async` / `await` | C# のページ |
-|---|---|---|---|
-| 時間がたつまで待つ | `yield return new WaitForSeconds(秒数)` | `await Task.Delay(ミリ秒)` | [スレッドを使わずに待つ](/unity-csharp-learning/csharp/async-without-threads/) |
-| 結果を返す | `return` で返せない。コールバックで渡す | `Task<TResult>` を返す async メソッドで `return` する | [Task と Task\<T\>](/unity-csharp-learning/csharp/tasks/)、[async と await](/unity-csharp-learning/csharp/async-await/) |
-| 失敗を受け取る | 呼び出し元に伝わらない。`yield return` を `try` / `catch` で囲めない | 例外が `await` した側に伝わる。`await` を `try` / `catch` で囲める | [async と await](/unity-csharp-learning/csharp/async-await/) |
-| 途中で止める | 外から `StopCoroutine` で打ち切る。中では気付けず、`finally` も実行されない | `CancellationToken` で止めるよう頼み、中で気付いて後片付けできる | [キャンセル](/unity-csharp-learning/csharp/task-cancellation/) |
-| 複数の処理をすべて待つ | 先にすべて `StartCoroutine` で開始し、`yield return` で 1 つずつ待つ | `Task.WhenAll` | [複数の Task を待つ](/unity-csharp-learning/csharp/task-whenall/) |
-| 動かす場所 | `MonoBehaviour` の `StartCoroutine` が必要 | どのクラスのメソッドでも書ける | — |
-
-コルーチンも `async` / `await` も、「待っている間に処理を止めず、続きを後から実行する」という点は同じです。どちらも、待っている間にスレッドを 1 つ占有することはありません。違うのは、`async` / `await` では、結果の受け渡しと例外を、普通のメソッドと同じように `return` と `try` / `catch` で書けることです。
-
-Unity には、`async` / `await` で、フレームや秒数を待つための [Awaitable](https://docs.unity3d.com/ScriptReference/Awaitable.html) という型が用意されています。[Awaitable と async / await](/unity-csharp-learning/unity/awaitable/) で、押しボタン式の信号機を `Awaitable` で書き直します。
+入力処理は続いています。P キーを押して消灯し、もう一度押すと赤から開始し直します。スタックトレースには子の `Blink` が現れますが、通常のメソッド呼び出しのような `RunSignal` の呼び出し元まではたどれません。
 
 ---
 
 ## 動作確認
 
-1. 1 節のシーンを開き、`PushButtonSignal` スクリプトを 3 節のコードに書き換える
-2. Play ボタンを押し、10 秒ほど待ってから **PUSH** ボタンをクリックする
-3. Play を止め、`Signal` の `PushButtonSignal` の `Blink Count` を `0` にする
-4. Play ボタンを押し、**PUSH** ボタンをクリックする
-5. **POWER** ボタンを 2 回クリックする
+1. これまでのシーンを開き、`CoroutineSignal` スクリプトを 6 節の「完成したコード」に書き換える
+2. Play ボタンを押し、10 秒ほど待ってから Space キーを押す
+3. Play を止め、`Signal` の `CoroutineSignal` の `Blink Count` を `0` にする
+4. Play ボタンを押し、Space キーを押す
+5. P キーを 2 回押す
 
-2 では、5 秒ごとに案内が表示され、ボタンをクリックすると青になり、点滅してから赤に戻ることを確認してください。Console の表示は、2 節の実行結果の例と同じ形になります。
+2 では、5 秒ごとに案内が表示され、Space キーを押すと青になり、点滅してから赤に戻ることを確認してください。Console の表示は、5 秒間隔の案内と、要求後の色の切り替えを示す形になります。
 
-4 と 5 では、Console に次のように表示されます。これは実行結果の例です。秒数は、ボタンをクリックした時刻とフレームレートによって変わります。
+4 と 5 では、Console に次のように表示されます。これは実行結果の例です。秒数は、キーを押した時刻とフレームレートによって変わります。
 
 ```
 0.00 秒: 赤
-1.45 秒: 押しボタン
+1.45 秒: 切り替え要求
 2.49 秒: 青
 ArgumentOutOfRangeException: 点滅の回数は 1 以上にしてください
 Parameter name: count
@@ -415,7 +506,7 @@ Parameter name: count
 5.55 秒: 赤
 ```
 
-例外が表示された後、**POWER** ボタンを 2 回クリックするまで、球体は青のまま変わらないことを確認してください。確認が終わったら、`Blink Count` を `2` に戻します。
+例外が表示された後、P キーを 2 回押すまで、球体は青のまま変わらないことを確認してください。確認が終わったら、`Blink Count` を `2` に戻します。
 
 ---
 
@@ -465,8 +556,8 @@ Parameter name: count
    }
    ```
 
-3. 3 節で、`Blink` の例外を `RunSignal` の側で受け取れないのはなぜですか？理由を 2 つ答えてください。
-4. （応用）3 節のスクリプトの `Blink` を、回数が 1 未満のときは例外を投げずに、`Action<Exception>` 型のコールバックで失敗を知らせて終わるように変更してください。`RunSignal` では、失敗を受け取ったら警告を表示し、1 秒待ってから赤に戻るようにします。
+3. 6 節の `Blink` の例外を `RunSignal` の側で受け取れない理由を、2・3 節の説明から 2 つ答えてください。
+4. （応用）6 節の「完成したコード」の `Blink` を、回数が 1 未満のときは例外を投げずに、`Action<Exception>` 型のコールバックで失敗を知らせて終わるように変更してください。`RunSignal` では、失敗を受け取ったら警告を表示し、1 秒待ってから赤に戻るようにします。
 
 <details markdown="1">
 <summary>解答を見る</summary>
@@ -484,14 +575,15 @@ Parameter name: count
    ```
 
 3. 1 つは、`Blink` の例外が `RunSignal` に伝わらず、`RunSignal` も一緒に終わってしまうためです。もう 1 つは、`catch` 句のある `try` ブロックの中に `yield return` を書けない（CS1626）ので、`yield return Blink(...)` を `try` / `catch` で囲めないためです。
-4. `Blink` に `Action<Exception>` 型の引数を加え、回数が 1 未満のときは `onError` を呼んでから `yield break` で終わります。`RunSignal` では、2 節の `isPushed` と同じように、ラムダ式で失敗をローカル変数に受け取ります。
+4. `Blink` に `Action<Exception>` 型の引数を加え、回数が 1 未満のときは `onError` を呼んでから `yield break` で終わります。`RunSignal` では、6 節の `wasRequested` と同じように、ラムダ式で失敗をローカル変数に受け取ります。
 
    ```csharp
    using System;
    using System.Collections;
    using UnityEngine;
+   using UnityEngine.InputSystem;
 
-   public class PushButtonSignal : MonoBehaviour
+   public class CoroutineSignal : MonoBehaviour
    {
        [SerializeField] private float _guideInterval = 5f;
        [SerializeField] private int _blinkCount = 2;
@@ -506,13 +598,29 @@ Parameter name: count
            _signalRoutine = StartCoroutine(RunSignal());
        }
 
-       public void OnPushButton()
+       private void Update()
        {
-           Debug.Log($"{Time.time:F2} 秒: 押しボタン");
+           var keyboard = Keyboard.current;
+           if (keyboard == null) return;
+
+           if (keyboard.spaceKey.wasPressedThisFrame)
+           {
+               RequestGreen();
+           }
+
+           if (keyboard.pKey.wasPressedThisFrame)
+           {
+               TogglePower();
+           }
+       }
+
+       public void RequestGreen()
+       {
+           Debug.Log($"{Time.time:F2} 秒: 切り替え要求");
            _isRequested = true;
        }
 
-       public void OnPowerButton()
+       public void TogglePower()
        {
            if (_signalRoutine != null)
            {
@@ -533,13 +641,13 @@ Parameter name: count
            {
                SetColor(Color.red, "赤");
 
-               bool isPushed = false;
-               while (!isPushed)
+               bool wasRequested = false;
+               while (!wasRequested)
                {
-                   yield return WaitForPush(_guideInterval, result => isPushed = result);
-                   if (!isPushed)
+                   yield return WaitForRequest(_guideInterval, result => wasRequested = result);
+                   if (!wasRequested)
                    {
-                       Debug.Log($"{Time.time:F2} 秒: 案内「ボタンを押してください」");
+                       Debug.Log($"{Time.time:F2} 秒: 案内「Space キーを押してください」");
                    }
                }
                _isRequested = false;
@@ -560,7 +668,7 @@ Parameter name: count
            }
        }
 
-       private IEnumerator WaitForPush(float timeout, Action<bool> onCompleted)
+       private IEnumerator WaitForRequest(float timeout, Action<bool> onCompleted)
        {
            float deadline = Time.time + timeout;
            yield return new WaitUntil(() => _isRequested || Time.time >= deadline);
@@ -594,11 +702,11 @@ Parameter name: count
    }
    ```
 
-   `Blink Count` を `0` にして **PUSH** ボタンをクリックすると、Console には次のように表示されます（実行結果の例）。例外で止まらずに、赤に戻ります。
+   `Blink Count` を `0` にして Space キーを押すと、Console には次のように表示されます（実行結果の例）。例外で止まらずに、赤に戻ります。
 
    ```
    0.00 秒: 赤
-   1.02 秒: 押しボタン
+   1.02 秒: 切り替え要求
    2.06 秒: 青
    4.10 秒: 点滅できなかったので、1 秒待つ（ArgumentOutOfRangeException）
    5.12 秒: 赤
@@ -612,4 +720,4 @@ Parameter name: count
 
 ## 次のステップ
 
-[Awaitable と async / await](/unity-csharp-learning/unity/awaitable/) では、押しボタン式の信号機を Unity の `Awaitable` で書き直し、結果を `return` で返し、例外を `try` / `catch` で受け取り、`CancellationToken` で止める方法を学びます。
+[Awaitable と async / await](/unity-csharp-learning/unity/awaitable/) では、Space キーで青への切り替えを要求する信号機を Unity の `Awaitable` で書き直し、結果を `return` で返し、例外を `try` / `catch` で受け取り、`CancellationToken` で止める方法を学びます。

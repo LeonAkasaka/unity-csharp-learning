@@ -340,4 +340,4 @@ private IEnumerator CountFrames()
 
 ## 次のステップ
 
-[コルーチンの基本](/unity-csharp-learning/unity/coroutines/) では、`IEnumerator` と `yield return` の仕組みを Unity のフレーム待機や時間待ちに応用する方法を学びます。
+[コルーチンの基礎](/unity-csharp-learning/unity/coroutines/) では、`IEnumerator` と `yield return` の仕組みを Unity のフレーム待機や時間待ちに応用する方法を学びます。

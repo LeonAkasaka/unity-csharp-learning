@@ -39,13 +39,13 @@ permalink: /unity/messages/
 | メッセージ | 呼ばれるタイミング | 主な用途 | 詳しく扱うページ |
 |---|---|---|---|
 | [`Awake`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.Awake.html) | ゲームオブジェクトが最初に有効になったとき（シーンの開始時など）に 1 回。スクリプトが無効でも呼ばれる | 自分自身の初期化 | このページ |
-| [`OnEnable`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnEnable.html) | `Awake` の後と、スクリプトが有効になるたび | 有効になったときの準備 | このページ |
+| [`OnEnable`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnEnable.html) | `Awake` の後と、スクリプトが有効になるたび | 有効になったときの準備 | このページ・[ボタンのクリック処理を登録する](/unity-csharp-learning/unity/button-listeners/) |
 | [`Start`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.Start.html) | 最初のフレームの更新の前に 1 回。スクリプトが有効なときだけ | ほかのオブジェクトを使う初期化 | [Start メソッドとスクリプト](/unity-csharp-learning/unity/start-method/) |
 | [`FixedUpdate`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html) | 一定の間隔（既定は 0.02 秒）。1 フレームに 0 回のことも、複数回のこともある | 物理演算（Rigidbody に力を加えるなど） | [Rigidbody で力を加える](/unity-csharp-learning/unity/rigidbody-force/) |
 | [`OnCollisionEnter`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnCollisionEnter.html) / [`OnTriggerEnter`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnTriggerEnter.html) | 物理演算で、接触や交差が見つかったとき | 衝突の検知 | [Collider — 衝突とトリガー判定](/unity-csharp-learning/unity/collider-trigger/) |
 | [`Update`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.Update.html) | 毎フレーム 1 回 | 入力の処理、物理演算を使わない移動 | [Update メソッドと連続実行](/unity-csharp-learning/unity/update-basics/) |
 | [`LateUpdate`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.LateUpdate.html) | すべての `Update` が終わった後、毎フレーム 1 回 | カメラの追従など | このページ |
-| [`OnDisable`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDisable.html) | スクリプトが無効になったとき。破棄される前にも呼ばれる | `OnEnable` で準備したものの片付け | このページ |
+| [`OnDisable`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDisable.html) | スクリプトが無効になったとき。破棄される前にも呼ばれる | `OnEnable` で準備したものの片付け | このページ・[ボタンのクリック処理を登録する](/unity-csharp-learning/unity/button-listeners/) |
 | [`OnDestroy`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDestroy.html) | ゲームオブジェクトやスクリプトが破棄されるとき | 後片付け | このページ |
 
 1 つのゲームオブジェクトから見た流れを図にすると、次のようになります。
@@ -77,7 +77,7 @@ flowchart TD
 
 ゲームオブジェクトが破棄されたときは、そのフレームの描画の前に `OnDisable` と `OnDestroy` が呼ばれ、それ以降は描画されません。Play を止めたときや、シーンを切り替えたときにも、ゲームオブジェクトは破棄され、`OnDisable` と `OnDestroy` が呼ばれます。
 
-> 💡 **ポイント**: コルーチンの `yield return null` は、`Update` の後に再開します。コルーチンは [コルーチンの基本](/unity-csharp-learning/unity/coroutines/) で扱います。
+> 💡 **ポイント**: コルーチンの `yield return null` は、`Update` の後に再開します。コルーチンは [コルーチンの基礎](/unity-csharp-learning/unity/coroutines/) で扱います。
 
 ここに挙げたのは主なメッセージだけです。描画の前後に呼ばれるものなどを含めた完全な順序は、Unity マニュアルの [Event function execution order](https://docs.unity3d.com/Manual/execution-order.html) にまとめられています。
 

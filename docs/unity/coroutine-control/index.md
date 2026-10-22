@@ -1,256 +1,356 @@
 ---
 layout: page
-title: コルーチンの制御
+title: コルーチンの開始と停止
 permalink: /unity/coroutine-control/
 ---
 
-# コルーチンの制御
+# コルーチンの開始と停止
 
-[コルーチンの基本](/unity-csharp-learning/unity/coroutines/) では、決まった秒数で色が切り替わる信号機をコルーチンで書きました。このページでは、ボタンが押されるまで待つ押しボタン式の信号機を作りながら、条件を満たすまで待つ方法、コルーチンから別のコルーチンを呼び出す方法、動いているコルーチンを止める方法を学びます。
-
-![完成した押しボタン式の信号機。球体の下に PUSH ボタンと POWER ボタンが並んでいる](image-1.png)
+これまでの信号機は、一度動き始めると繰り返し続けました。ゲームでは、操作を取り消したり、動作中の仕掛けの電源を切ったりすることもあります。そのときは、どのコルーチンを止めるのかを指定し、停止後の状態も整える必要があります。開始した処理の管理方法を学び、信号機の停止と再開始に使います。
 
 ## 学習目標
 
-このページを読み終えると、以下のことができるようになります。
-
-- `WaitUntil` を使って、条件が満たされるまでコルーチンを待たせられる
-- `yield return` で別のコルーチンを呼び出し、その終わりを待てる
-- `StartCoroutine` の戻り値を保存しておき、`StopCoroutine` で止められる
-- 同じコルーチンを二重に開始しないように書ける
-- ゲームオブジェクトを非アクティブにしたり、コンポーネントを無効にしたりしたときに、コルーチンがどうなるかを説明できる
+- `StartCoroutine` の戻り値を保存して `StopCoroutine` で止められる
+- 二重の開始を防ぎ、止めた後の状態を整えられる
+- 正常終了したときも実行状態を整理し、親を止めたときに子が止まる範囲を説明できる
+- ゲームオブジェクトの非アクティブ化とコンポーネントの無効化の違いを説明できる
 
 ## 前提知識
 
-- [コルーチンの基本](/unity-csharp-learning/unity/coroutines/) を読んでいること
-- [Unity UI とボタン操作](/unity-csharp-learning/unity/unity-ui/) を読んでいること
+- [コルーチンの待機方法](/unity-csharp-learning/unity/coroutine-waits/) の信号機を作っていること
 
 ---
 
-## 1. シーンを準備する
+## 1. 開始したコルーチンを保存して止める
 
-押しボタン式の信号機は、次のように動きます。
+同じメソッドからでも、コルーチンは何度も開始できます。そのため、メソッド名だけでは、今動いているどの処理を止めたいのかを特定できません。開始したときに、その実行を表すオブジェクトを保存しておきます。
 
-1. ふだんは赤のまま、ボタンが押されるまで待つ
-2. ボタンが押されたら、1 秒後に青にする
-3. 青を 3 秒表示したら赤に戻り、またボタンを待つ
+`StartCoroutine` は、開始したコルーチンを表す [Coroutine](https://docs.unity3d.com/ScriptReference/Coroutine.html) 型のオブジェクトを返します。これを `_routine` フィールドに保存しておき、止めるときに `StopCoroutine` に渡します。
 
-信号機の球体と、押しボタンにする UI のボタンを用意します。
+空のゲームオブジェクトに、動作確認用の `SampleCoroutine` スクリプトを作成してアタッチします。次の例は、一定間隔で数を表示する処理を P キーで停止・再開始します。
 
-1. メニューバーの **File → New Scene** で新しいシーンを作成する
-2. **GameObject → 3D Object → Sphere** で球体を追加し、名前を `Signal` に変更する
-3. `Signal` を選択し、Inspector ビューの **Add Component → New script** から `PushButtonSignal` という名前のスクリプトを作成してアタッチする
-4. **GameObject → UI (Canvas) → Button - TextMeshPro** でボタンを追加し、名前を `PushButton` に変更する。Unity のバージョンによっては、メニューの名前が **GameObject → UI → Button - TextMeshPro** になっている
-5. `PushButton` の `RectTransform` の `Pos Y` を `-150` にして、ボタンを球体の下へ移す
-6. `PushButton` の子の `Text (TMP)` を選択し、Inspector ビューの `Text Input` の文字を `PUSH` に変更する
+**`MonoBehaviour.StopCoroutine()`** — 動いているコルーチンを止めます。
 
-ボタンの文字を英語にしているのは、TextMesh Pro の標準のフォントでは日本語を表示できないためです（[TextMesh Pro](/unity-csharp-learning/unity/textmesh-pro/) を参照）。
-
----
-
-## 2. ボタンが押されるまで待つ
-
-`PushButtonSignal` スクリプトを次のように書き換えます。
-
+**書式：[MonoBehaviour.StopCoroutine メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StopCoroutine.html)**
 ```csharp
-using System.Collections;
-using UnityEngine;
-
-public class PushButtonSignal : MonoBehaviour
-{
-    private Renderer _renderer;
-    private bool _isRequested;
-
-    private void Start()
-    {
-        _renderer = GetComponent<Renderer>();
-        StartCoroutine(RunSignal());
-    }
-
-    public void OnPushButton()
-    {
-        Debug.Log($"{Time.time:F2} 秒: 押しボタン");
-        _isRequested = true;
-    }
-
-    private IEnumerator RunSignal()
-    {
-        while (true)
-        {
-            SetColor(Color.red, "赤");
-            yield return new WaitUntil(() => _isRequested);
-            _isRequested = false;
-
-            yield return new WaitForSeconds(1f);
-
-            SetColor(Color.blue, "青");
-            yield return new WaitForSeconds(3f);
-        }
-    }
-
-    private void SetColor(Color color, string label)
-    {
-        _renderer.material.color = color;
-        Debug.Log($"{Time.time:F2} 秒: {label}");
-    }
-}
-```
-
-[Unity UI とボタン操作](/unity-csharp-learning/unity/unity-ui/) と同じ手順で、`PushButton` がクリックされたときに `OnPushButton` メソッドが呼ばれるようにします。
-
-1. `PushButton` を選択し、Inspector ビューの `Button` コンポーネントにある **On Click ()** の **+** ボタンを押す
-2. 追加された欄に、Hierarchy ビューから `Signal` をドラッグ＆ドロップする
-3. **No Function** のリストから **PushButtonSignal → OnPushButton ()** を選択する
-
-Play ボタンを押すと、球体は赤のまま変わりません。**PUSH** ボタンをクリックすると、約 1 秒後に青になり、3 秒後に赤に戻ります。Console には次のように表示されます。これは実行結果の例です。秒数は、ボタンをクリックした時刻とフレームレートによって変わります。
-
-```
-0.00 秒: 赤
-1.00 秒: 押しボタン
-2.04 秒: 青
-5.06 秒: 赤
-```
-
-### WaitUntil で条件を待つ
-
-**`WaitUntil`** — `yield return` に渡すと、指定した条件が `true` になるまでコルーチンを中断します。
-
-**書式：[WaitUntil コンストラクター](https://docs.unity3d.com/ScriptReference/WaitUntil-ctor.html)**
-```csharp
-public WaitUntil(Func<bool> predicate);
+public void StopCoroutine(Coroutine routine);
 ```
 
 | パラメータ | 説明 |
 |---|---|
-| `predicate` | 待つのを終える条件。`bool` を返すメソッドを渡す |
-
-Unity は、中断しているコルーチンの条件をフレームごとに調べ、`true` になっていたらコルーチンを再開します。
-
-`() => _isRequested` は**ラムダ式**です。引数を受け取らず、`_isRequested` の値を返すメソッドを、その場で書いています（詳しくは [ラムダ式](/unity-csharp-learning/csharp/lambda/) を参照）。`WaitUntil` は、このメソッドをフレームごとに呼んで条件を調べます。
-
-ボタンがクリックされると、`OnPushButton` が `_isRequested` を `true` にします。次のフレームで `WaitUntil` が条件を満たしたことに気付き、コルーチンが再開します。
-
-再開した直後に `_isRequested` を `false` に戻しているのは、次に赤になったとき、もう一度ボタンを待つためです。`true` のままだと、2 回目以降の赤では `WaitUntil` の条件が最初から満たされているので、ボタンを待たずに先へ進んでしまいます。
-
-> 💡 **ポイント**: 条件が `true` の間だけ待ちたいときは、[WaitWhile](https://docs.unity3d.com/ScriptReference/WaitWhile.html) を使います。`new WaitWhile(() => _isRequested)` は、`new WaitUntil(() => !_isRequested)` と同じ意味です。
-
----
-
-## 3. 点滅を別のコルーチンに分ける
-
-[コルーチンの基本](/unity-csharp-learning/unity/coroutines/) の信号機と同じように、青の残り 1 秒で点滅させます。今回は、点滅の処理を `Blink` という別のコルーチンに分けます。`PushButtonSignal` スクリプトを次のように書き換えます。
+| `routine` | 止めるコルーチン。`StartCoroutine` の戻り値を渡す |
 
 ```csharp
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class PushButtonSignal : MonoBehaviour
+public class SampleCoroutine : MonoBehaviour
 {
-    private Renderer _renderer;
-    private bool _isRequested;
+    private Coroutine _routine;
 
     private void Start()
     {
-        _renderer = GetComponent<Renderer>();
-        StartCoroutine(RunSignal());
+        _routine = StartCoroutine(Work());
     }
 
-    public void OnPushButton()
+    private void Update()
     {
-        Debug.Log($"{Time.time:F2} 秒: 押しボタン");
-        _isRequested = true;
+        var keyboard = Keyboard.current;
+        if (keyboard == null || !keyboard.pKey.wasPressedThisFrame) return;
+
+        if (_routine != null)
+        {
+            StopCoroutine(_routine);
+            _routine = null;
+            Debug.Log("停止");
+        }
+        else
+        {
+            _routine = StartCoroutine(Work());
+        }
     }
 
-    private IEnumerator RunSignal()
+    private IEnumerator Work()
     {
+        int count = 0;
         while (true)
         {
-            SetColor(Color.red, "赤");
-            yield return new WaitUntil(() => _isRequested);
-            _isRequested = false;
-
-            yield return new WaitForSeconds(1f);
-
-            SetColor(Color.blue, "青");
-            yield return new WaitForSeconds(2f);
-
-            yield return Blink(2); // 追加：点滅が終わるまで待つ
+            Debug.Log($"処理: {count}");
+            count++;
+            yield return new WaitForSeconds(0.5f);
         }
-    }
-
-    // 追加：灰色と青を 0.25 秒ずつ、count 回繰り返す
-    private IEnumerator Blink(int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            SetColor(Color.gray, "灰");
-            yield return new WaitForSeconds(0.25f);
-
-            SetColor(Color.blue, "青");
-            yield return new WaitForSeconds(0.25f);
-        }
-    }
-
-    private void SetColor(Color color, string label)
-    {
-        _renderer.material.color = color;
-        Debug.Log($"{Time.time:F2} 秒: {label}");
     }
 }
 ```
 
-`RunSignal` の中の `yield return Blink(2);` のように、`yield return` に別のコルーチンの `IEnumerator` を渡すと、Unity はそれをコルーチンとして実行し、**終わるまで呼び出し元を中断します**。`Blink` が終わると、`RunSignal` は次の行から再開します。
+0.5 秒ごとに「処理: 0」「処理: 1」…と表示されます。Game ビューをクリックして P キーを押すと「停止」と表示され、その後は数が増えません。もう一度 P キーを押すと、「処理: 0」から新しく始まります。
 
-Play ボタンを押して **PUSH** ボタンをクリックすると、Console には次のように表示されます。これは実行結果の例です。
+`StopCoroutine` には、`StartCoroutine` で開始したものと同じ `Coroutine` を渡します。`Work()` をもう一度呼んで作った別の `IEnumerator` を渡しても、動いているものは止まりません。
 
-```
-0.00 秒: 赤
-1.00 秒: 押しボタン
-2.04 秒: 青
-4.06 秒: 灰
-4.32 秒: 青
-4.58 秒: 灰
-4.84 秒: 青
-5.10 秒: 赤
-```
+止めた後の `_routine = null;` は、このコードで開始・停止を判断するための管理です。保存した参照が自動で `null` になるわけではありません。止めたコルーチンは再開せず、開始し直すと、ローカル変数の `count` も最初から作られます。
 
-呼び出しの流れを図にすると、次のようになります。`Blink` の始まりと終わりで、フレームを余分に待つことはありません。`Blink` は `yield return Blink(2)` を実行したフレームで始まり、`RunSignal` は `Blink` が終わったフレームで再開します。
+`StopCoroutine` は残りの行を実行せずに打ち切ります。途中の表示や状態を整える必要がある場合は、止めた側で行います。`try` / `finally` による後片付けにも任せられません。
 
-```mermaid
-sequenceDiagram
-    participant U as Unity
-    participant R as RunSignal
-    participant B as Blink
-    R->>R: 青にして 2 秒待つ
-    R->>U: yield return Blink(2)
-    U->>B: Blink を開始
-    B->>B: 灰 → 0.25 秒待つ → 青 → 0.25 秒待つ（2 回）
-    B-->>U: Blink が終わる
-    U->>R: 次の行から再開
-    R->>R: ループの先頭に戻り、赤にする
-```
+### 正常終了したときも、実行状態を片付ける
 
-点滅を別のコルーチンに分けると、`RunSignal` には「青にして 2 秒待つ → 点滅する」という流れだけが残り、読みやすくなります。点滅の回数を引数で変えられるので、別の場面で回数を変えて使うこともできます。
+ここまでの `Work` は無限ループでした。演出などの有限の処理では、外から止めなくても最後まで進んで終了します。この場合も、保存した `Coroutine` が自動で `null` になるわけではありません。参照が残ったままだと、次に開始しようとしたとき「まだ実行中」と判断してしまいます。
 
-> 💡 **ポイント**: `yield return StartCoroutine(Blink(2));` と書いても、同じように `Blink` が終わるまで待ちます。`yield return` には、`IEnumerator` のほかに、`StartCoroutine` が返す `Coroutine` も渡せます。
-
----
-
-## 4. コルーチンを止める
-
-信号機に電源のボタンを加えます。動いているときに押すと信号を消し、消えているときに押すと最初から動かし直します。
-
-1. Hierarchy ビューで `PushButton` を選択し、**Ctrl + D**（macOS では **Cmd + D**）で複製する。複製したボタンの名前を `PowerButton` に変更する
-2. `PowerButton` の `RectTransform` の `Pos Y` を `-200` にする
-3. `PowerButton` の子の `Text (TMP)` の `Text Input` を `POWER` に変更する
-
-`PushButtonSignal` スクリプトを次のように書き換えます。
+次の最小例では、処理の最後で `_routine` を `null` に戻します。二重の開始は断り、終了後は再び開始できます。
 
 ```csharp
 using System.Collections;
 using UnityEngine;
 
-public class PushButtonSignal : MonoBehaviour
+public class SampleCoroutine : MonoBehaviour
+{
+    private Coroutine _routine;
+
+    private IEnumerator Start()
+    {
+        Begin();
+        Begin();
+        yield return new WaitForSeconds(1f);
+        Begin();
+    }
+
+    private void Begin()
+    {
+        if (_routine != null)
+        {
+            Debug.Log("実行中なので開始しない");
+            return;
+        }
+        _routine = StartCoroutine(Work());
+    }
+
+    private IEnumerator Work()
+    {
+        Debug.Log("開始");
+        yield return new WaitForSeconds(0.2f);
+        _routine = null;
+        Debug.Log("正常終了");
+    }
+}
+```
+
+```
+開始
+実行中なので開始しない
+正常終了
+開始
+正常終了
+```
+
+2 回目の `Begin` は実行中なので開始しません。約 0.2 秒で `Work` が終了し、最初の開始から約 1 秒後には、新しく開始できます。この例の `Work` は必ず一度待機してから終了するので、開始時に参照を保存した後で、終了時に参照を消せます。
+
+`Work` の途中から `yield break` で正常終了する経路を増やす場合も、実行状態を戻す必要があります。一方、`StopCoroutine` による打ち切りでは最後の行へ進まないため、止めた側で状態を戻します。正常終了・停止・例外を、同じ終了経路と考えないことが大切です。
+
+---
+
+## 2. 開始と終了待ちを区別する
+
+ある処理を始めた後、呼び出し元も続けて動いてほしい場合と、その処理が終わるまで待ちたい場合があります。たとえば、演出を動かしながらほかの操作を受け付ける場合は前者、演出が終わってから次の手順へ進む場合は後者です。`StartCoroutine` で開始することと、呼び出し元が終了を待つことを分けて考えます。
+
+まず、子を開始するだけの例です。
+
+```csharp
+using System.Collections;
+using UnityEngine;
+
+public class SampleCoroutine : MonoBehaviour
+{
+    private IEnumerator Start()
+    {
+        Debug.Log("親: 開始");
+        StartCoroutine(Child());
+        Debug.Log("親: 続行");
+        yield break;
+    }
+
+    private IEnumerator Child()
+    {
+        Debug.Log("子: 開始");
+        yield return new WaitForSeconds(0.5f);
+        Debug.Log("子: 終了");
+    }
+}
+```
+
+表示は次の順です。子が待っている間に、親は先へ進みます。
+
+```
+親: 開始
+子: 開始
+親: 続行
+子: 終了
+```
+
+次に、開始した子の `Coroutine` を `yield return` で渡して終了を待ちます。
+
+```csharp
+using System.Collections;
+using UnityEngine;
+
+public class SampleCoroutine : MonoBehaviour
+{
+    private IEnumerator Start()
+    {
+        Debug.Log("親: 開始");
+        yield return StartCoroutine(Child());
+        Debug.Log("親: 続行");
+        yield break;
+    }
+
+    private IEnumerator Child()
+    {
+        Debug.Log("子: 開始");
+        yield return new WaitForSeconds(0.5f);
+        Debug.Log("子: 終了");
+    }
+}
+```
+
+```
+親: 開始
+子: 開始
+子: 終了
+親: 続行
+```
+
+`StartCoroutine` は子が最初に中断するところまで実行してから戻るため、どちらも「子: 開始」が先に出ます。違うのは、親が子の終了まで待つかどうかです。
+
+| 書き方 | 呼び出し元の進み方 |
+|---|---|
+| `StartCoroutine(Child());` | 子を開始し、終了を待たずに次の行へ進む |
+| `yield return Child();` | 子の `IEnumerator` を渡し、終了まで待つ。前のページまでと同じ仕組み |
+| `yield return StartCoroutine(Child());` | 開始時に返された `Coroutine` を使って、子の終了を待つ |
+
+### 親を止めたら、子も止まるのか
+
+終了を待っていることと、その処理を一緒に停止できることも別です。`yield return Child()` は親の実行の一部として子を進めます。一方、`StartCoroutine(Child())` は子を独立したコルーチンとして開始します。その戻り値を待っている親を止めても、独立して開始済みの子は止まりません。
+
+次の例では、親を約 0.1 秒後に止め、子が約 0.3 秒後の「子: 終了」へ到達するかを比べます。Inspector の **Start Child Separately** がオフなら直接子を待ち、オンなら独立して開始した子を待ちます。
+
+```csharp
+using System.Collections;
+using UnityEngine;
+
+public class SampleCoroutine : MonoBehaviour
+{
+    [SerializeField] private bool _startChildSeparately;
+
+    private IEnumerator Start()
+    {
+        Coroutine parent = StartCoroutine(Parent());
+        yield return new WaitForSeconds(0.1f);
+        StopCoroutine(parent);
+        Debug.Log("親を停止");
+        yield return new WaitForSeconds(0.4f);
+        Debug.Log("観察終了");
+    }
+
+    private IEnumerator Parent()
+    {
+        Debug.Log("親: 開始");
+        if (_startChildSeparately)
+        {
+            yield return StartCoroutine(Child());
+        }
+        else
+        {
+            yield return Child();
+        }
+        Debug.Log("親: 再開");
+    }
+
+    private IEnumerator Child()
+    {
+        Debug.Log("子: 開始");
+        yield return new WaitForSeconds(0.3f);
+        Debug.Log("子: 終了");
+    }
+}
+```
+
+オフの場合は、子も先へ進まなくなります。
+
+```
+親: 開始
+子: 開始
+親を停止
+観察終了
+```
+
+オンの場合は、親を止めた後に子が終了します。「親: 再開」はどちらにも出ません。
+
+```
+親: 開始
+子: 開始
+親を停止
+子: 終了
+観察終了
+```
+
+独立して開始した子も一緒に止めたい場合は、子の `Coroutine` も保存し、明示的に停止します。親を止めることだけで、開始済みの処理全体を取り消せるとは限りません。
+
+```mermaid
+sequenceDiagram
+    participant S as Start（観察する側）
+    participant P as Parent
+    participant C as Child
+    S->>P: StartCoroutine(Parent())
+    alt 子を直接待つ
+        P->>C: yield return Child()
+        S->>P: StopCoroutine(parent)
+        Note over P,C: 親の実行と、その中の子が進まなくなる
+    else 子を独立して開始する
+        P->>C: StartCoroutine(Child())
+        Note over P: 子の Coroutine の終了を待つ
+        S->>P: StopCoroutine(parent)
+        Note over C: 独立した子は続行する
+        Note over C: 「子: 終了」のログ
+    end
+    Note over S: 「観察終了」のログ
+```
+
+---
+
+## 3. ゲームオブジェクトとの関係を知る
+
+コルーチンは、`StopCoroutine` を呼んだときのほかにも止まることがあります。コルーチンは、`StartCoroutine` を呼んだスクリプトのゲームオブジェクトに結び付いていて、ゲームオブジェクトの状態によって止まるかどうかが決まります。
+
+| 操作 | コルーチン |
+|---|---|
+| `StopCoroutine` / `StopAllCoroutines` を呼ぶ | 止まる |
+| ゲームオブジェクトを非アクティブにする（`SetActive(false)`） | 止まる。アクティブに戻しても再開しない |
+| ゲームオブジェクトやスクリプトを破棄する（`Destroy`） | 止まる |
+| スクリプトのコンポーネントを無効にする（`enabled = false`） | **止まらない** |
+
+1 節の短い例でも確認できます。コンポーネントのチェックを外しても数は増え続けますが、`Update` が止まるため P キーには反応しません。ゲームオブジェクトを非アクティブにすると数の表示も止まり、アクティブに戻しても再開しません。
+
+同じコンポーネントで開始したコルーチンをまとめて止める場合は [MonoBehaviour.StopAllCoroutines](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StopAllCoroutines.html) を使います。
+
+`StopAllCoroutines` の範囲は、その `MonoBehaviour` で開始したコルーチンです。同じゲームオブジェクト上でも別のコンポーネントで開始したものや、シーン内のコルーチン全体を止める操作ではありません。
+
+非アクティブ化による停止でも、保存した参照や自分で持つ「実行中」の状態は自動で初期化されません。オブジェクトを再利用するときは、非アクティブ化する側や `OnDisable` で状態を整理し、必要に応じて `OnEnable` から新しく開始する設計にします。
+
+---
+
+## 4. 実例：信号機に停止と再開始を加える
+
+前のページの信号機に適用します。開始時の `Coroutine` を `_signalRoutine` に保存し、P キーから呼ぶ `TogglePower` で停止・再開始を切り替えます。
+
+停止後は球体を黒にして、途中の点滅の色が残らないようにします。再開始するときは、停止中の Space キーによる要求を取り消し、赤から始めます。`RunSignal` 内の点滅は、これまでどおり `yield return Blink(2);` で終了まで待ちます。
+
+### 完成したコード
+
+```csharp
+using System.Collections;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class CoroutineSignal : MonoBehaviour
 {
     private Renderer _renderer;
     private bool _isRequested;
@@ -262,14 +362,30 @@ public class PushButtonSignal : MonoBehaviour
         _signalRoutine = StartCoroutine(RunSignal()); // 変更：戻り値を保存する
     }
 
-    public void OnPushButton()
+    private void Update()
     {
-        Debug.Log($"{Time.time:F2} 秒: 押しボタン");
+        var keyboard = Keyboard.current;
+        if (keyboard == null) return;
+
+        if (keyboard.spaceKey.wasPressedThisFrame)
+        {
+            RequestGreen();
+        }
+
+        if (keyboard.pKey.wasPressedThisFrame)
+        {
+            TogglePower();
+        }
+    }
+
+    public void RequestGreen()
+    {
+        Debug.Log($"{Time.time:F2} 秒: 切り替え要求");
         _isRequested = true;
     }
 
-    // 追加：電源のボタンが押されたときに呼ばれる
-    public void OnPowerButton()
+    // 追加：P キーの入力から呼ばれる
+    public void TogglePower()
     {
         if (_signalRoutine != null)
         {
@@ -321,96 +437,36 @@ public class PushButtonSignal : MonoBehaviour
 }
 ```
 
-`PowerButton` の **On Click ()** には、複製元の `PushButton` の設定がそのまま残っています。**PushButtonSignal → OnPushButton ()** になっている欄を、**PushButtonSignal → OnPowerButton ()** に変更してください。
-
-### StartCoroutine の戻り値でコルーチンを止める
-
-`StartCoroutine` は、開始したコルーチンを表す [Coroutine](https://docs.unity3d.com/ScriptReference/Coroutine.html) 型のオブジェクトを返します。これを `_signalRoutine` フィールドに保存しておき、止めるときに `StopCoroutine` に渡します。
-
-**`MonoBehaviour.StopCoroutine()`** — 動いているコルーチンを止めます。
-
-**書式：[MonoBehaviour.StopCoroutine メソッド](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StopCoroutine.html)**
-```csharp
-public void StopCoroutine(Coroutine routine);
-```
-
-| パラメータ | 説明 |
-|---|---|
-| `routine` | 止めるコルーチン。`StartCoroutine` の戻り値を渡す |
-
-止められたコルーチンは、中断している `yield return` の位置で終わり、二度と再開しません。もう一度動かすには、`StartCoroutine` で新しく開始します。新しく開始したコルーチンは、止めた位置からではなく、メソッドの最初から実行されます。
-
-`OnPowerButton` では、`_signalRoutine` が `null` かどうかで、信号が動いているかを判断しています。止めたときに `_signalRoutine` を `null` に戻しておかないと、次に押されたときにも「動いている」と判断してしまいます。
-
-動かし直す前に `_isRequested` を `false` に戻しているのは、信号が消えている間に押された **PUSH** ボタンを取り消すためです。
-
-> 💡 **ポイント**: このスクリプトのすべてのコルーチンをまとめて止めるときは、[MonoBehaviour.StopAllCoroutines](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StopAllCoroutines.html) を使います。
-
-### 止めたときの後片付けは、止めた側で行う
-
-`StopCoroutine` は、コルーチンをその場で打ち切ります。コルーチンの残りの行は実行されません。たとえば点滅の途中、球体が灰色のときに止めると、球体は灰色のまま残ります。
-
-そのため、`OnPowerButton` では、止めた後に `SetColor(Color.black, "消灯")` で球体の色を決め直しています。コルーチンを止めるときは、そのコルーチンがやりかけていたことの後始末を、止めた側で行う必要があります。
-
-> 💡 **ポイント**: コルーチンの中に `try` / `finally` を書いても、`StopCoroutine` で止めたときには `finally` ブロックは実行されません。後片付けを `finally` に任せることはできません。
-
----
-
-## 5. コルーチンが止まるとき
-
-コルーチンは、`StopCoroutine` を呼んだときのほかにも止まることがあります。コルーチンは、`StartCoroutine` を呼んだスクリプトのゲームオブジェクトに結び付いていて、ゲームオブジェクトの状態によって止まるかどうかが決まります。
-
-| 操作 | コルーチン |
-|---|---|
-| `StopCoroutine` / `StopAllCoroutines` を呼ぶ | 止まる |
-| ゲームオブジェクトを非アクティブにする（`SetActive(false)`） | 止まる。アクティブに戻しても再開しない |
-| ゲームオブジェクトやスクリプトを破棄する（`Destroy`） | 止まる |
-| スクリプトのコンポーネントを無効にする（`enabled = false`） | **止まらない** |
-
-Play 中に Inspector ビューで確かめてみましょう。
-
-1. Play ボタンを押し、**PUSH** ボタンをクリックする
-2. `Signal` を選択し、Inspector ビューで `PushButtonSignal` コンポーネントの名前の左にあるチェックボックスを外す。コンポーネントは無効になるが、コルーチンは動き続け、球体の色は変わり続ける。**PUSH** ボタンをクリックすると、これまでどおり青になる
-3. 球体が青の間に、Inspector ビューの一番上（ゲームオブジェクトの名前の左）にあるチェックボックスを外し、`Signal` を非アクティブにする。球体が見えなくなる
-4. もう一度チェックを入れて、`Signal` をアクティブに戻す。球体は青のまま、色が変わらない。**PUSH** ボタンをクリックしても、Console に「押しボタン」と表示されるだけで、色は変わらない
-
-4 で色が変わらないのは、3 で非アクティブにしたときに `RunSignal` のコルーチンが止まり、アクティブに戻しても再開しないためです。`_signalRoutine` には止まったコルーチンが残っているので、**POWER** ボタンを 1 回押すと「消灯」になり、もう 1 回押すと最初の赤から動き出します。
-
-非アクティブなゲームオブジェクトでは、コルーチンを開始することもできません。3 の状態（`Signal` が非アクティブのまま）で **POWER** ボタンを 2 回クリックすると、2 回目の `StartCoroutine` で Console に次のエラーが表示され、コルーチンは開始されません。
-
-```
-Coroutine couldn't be started because the the game object 'Signal' is inactive!
-```
+点滅の途中で親の `RunSignal` を止めると、その中で待っていた点滅も続かなくなります。止めた側で黒にするため、灰色や青のまま残りません。
 
 ---
 
 ## 動作確認
 
-1. 1 節の手順でシーンを準備し、4 節の手順で `PowerButton` を追加する
-2. `PushButtonSignal` スクリプトを 4 節のコードに書き換える
-3. `PushButton` の **On Click ()** に **PushButtonSignal → OnPushButton ()** を、`PowerButton` の **On Click ()** に **PushButtonSignal → OnPowerButton ()** を設定する
-4. Play ボタンを押す
+1. 前のページと同じシーンを開く
+2. `CoroutineSignal` スクリプトを 4 節の「完成したコード」に書き換える
+3. Play ボタンを押し、Game ビューをクリックする
 
 次の操作をして、球体の色と Console の表示を確認してください。
 
 1. 何もしない間、球体は赤のまま変わらない
-2. **PUSH** ボタンをクリックすると、約 1 秒後に青になる
-3. 青になってから約 2 秒後に点滅が始まる。点滅している間に **POWER** ボタンをクリックすると、球体が黒になる
-4. 黒の間に **PUSH** ボタンをクリックしてから、**POWER** ボタンをクリックすると、球体は赤になり、ボタンを待つ（黒の間の **PUSH** は取り消される）
-5. **PUSH** ボタンをクリックすると、約 1 秒後に青になる
+2. Space キーを押すと、約 1 秒後に青になる
+3. 青になってから約 2 秒後に点滅が始まる。点滅している間に P キーを押すと、球体が黒になる
+4. 黒の間に Space キーを押してから、P キーを押すと、球体は赤になり、切り替え要求を待つ（黒の間の切り替え要求は取り消される）
+5. Space キーを押すと、約 1 秒後に青になる
 
-Console には次のように表示されます。これは実行結果の例です。秒数は、ボタンをクリックした時刻とフレームレートによって変わります。
+Console には次のように表示されます。これは実行結果の例です。秒数は、キーを押した時刻とフレームレートによって変わります。
 
 ```
 0.00 秒: 赤
-1.00 秒: 押しボタン
+1.00 秒: 切り替え要求
 2.04 秒: 青
 4.06 秒: 灰
 4.32 秒: 青
 4.40 秒: 消灯
-4.90 秒: 押しボタン
+4.90 秒: 切り替え要求
 5.40 秒: 赤
-6.40 秒: 押しボタン
+6.40 秒: 切り替え要求
 7.44 秒: 青
 ```
 
@@ -423,20 +479,20 @@ Console には次のように表示されます。これは実行結果の例で
 `StartCoroutine` は、呼ぶたびに新しいコルーチンを開始します。動いているコルーチンを止めずに、もう一度 `StartCoroutine` を呼ぶと、同じコルーチンが 2 つ同時に動きます。
 
 ```csharp
-public void OnPowerButton()
+public void TogglePower()
 {
     // ❌ NG: 動いているかどうかを確かめずに開始する
     _signalRoutine = StartCoroutine(RunSignal());
 }
 ```
 
-4 節の `OnPowerButton` をこのように書き換えて、**POWER** ボタンを 1 回クリックしてから、**PUSH** ボタンを 2 回続けてクリックすると、2 つの `RunSignal` がずれて動き、色の変わり方が乱れます。
+4 節の `TogglePower` をこのように書き換えて、P キーを 1 回押してから、Space キーを 2 回続けて押すと、2 つの `RunSignal` がずれて動き、色の変わり方が乱れます。
 
 ```
 0.00 秒: 赤
 1.00 秒: 赤
-2.00 秒: 押しボタン
-2.50 秒: 押しボタン
+2.00 秒: 切り替え要求
+2.50 秒: 切り替え要求
 3.04 秒: 青
 3.54 秒: 青
 5.06 秒: 灰
@@ -473,126 +529,27 @@ StopCoroutine(_signalRoutine);
 
 ## まとめ
 
-- `yield return new WaitUntil(() => 条件)` は、条件が `true` になるまでコルーチンを中断する。条件はフレームごとに調べられる
-- `yield return` に別のコルーチンの `IEnumerator` を渡すと、そのコルーチンが終わるまで呼び出し元が中断する
-- `StartCoroutine` の戻り値の `Coroutine` を保存しておくと、`StopCoroutine` で止められる。止めたコルーチンは再開せず、動かし直すと最初から実行される
-- `StopCoroutine` で止めると残りの行は実行されないので、後片付けは止めた側で行う
-- 同じコルーチンを二重に開始しないように、`Coroutine` のフィールドで動いているかを確かめる
-- ゲームオブジェクトを非アクティブにするとコルーチンは止まるが、コンポーネントを無効にしても止まらない
+- `StartCoroutine` の戻り値を保存し、同じ `Coroutine` を `StopCoroutine` に渡して止める
+- 止めたコルーチンは再開しない。開始し直すと最初から動く
+- 二重の開始を防ぎ、停止時の後片付けは止めた側で行う
+- 有限の処理は正常終了時も実行状態を整理する。独立して開始した子は、親を止めるだけでは止まらない
+- ゲームオブジェクトを非アクティブにすると止まるが、コンポーネントを無効にしてもコルーチンは止まらない（`Update` による入力受付は止まる）
+- コルーチンの開始と、呼び出し元が終了を待つことは別の操作である
 
 ---
 
 ## 理解度チェック
 
-1. 2 節の `RunSignal` で、`WaitUntil` の後の `_isRequested = false;` を消すと、どうなりますか？
-2. 次のスクリプトをゲームオブジェクトにアタッチして Play ボタンを押すと、Console にどの順で表示されますか？
-
-   ```csharp
-   using System.Collections;
-   using UnityEngine;
-
-   public class NestedSample : MonoBehaviour
-   {
-       private IEnumerator Start()
-       {
-           Debug.Log("A");
-           yield return Inner();
-           Debug.Log("D");
-       }
-
-       private IEnumerator Inner()
-       {
-           Debug.Log("B");
-           yield return null;
-           Debug.Log("C");
-       }
-   }
-   ```
-
-3. コルーチンを動かしているスクリプトのコンポーネントを Inspector ビューで無効にしたときと、そのゲームオブジェクトを非アクティブにしたときの違いを説明してください。
-4. （応用）4 節のスクリプトでは、青の間に **PUSH** ボタンを押すと、その操作が記憶され、次に赤になったときにすぐ青へ進みます。赤になってから押されたボタンだけを受け付けるように、`RunSignal` を変更してください。
+1. 停止後に `_signalRoutine = null;` とするのはなぜですか？
+2. ゲームオブジェクトを非アクティブにしてから、アクティブに戻すと、コルーチンは再開しますか？
+3. `StartCoroutine(Blink(2));` と `yield return Blink(2);` では、次の行へ進むタイミングがどう違いますか？
 
 <details markdown="1">
 <summary>解答を見る</summary>
 
-1. 1 回目にボタンが押された後、`_isRequested` が `true` のまま残ります。2 回目以降に赤になったとき、`WaitUntil` の条件が最初から満たされているので、ボタンを待たずに先へ進みます。そのため、ボタンを 1 回押しただけで、赤（約 1 秒）→ 青（3 秒）→ 赤 … と、ボタンを押さなくても繰り返すようになります。
-2. `A`、`B`、`C`、`D` の順に表示されます。`yield return Inner();` で `Inner` が始まり、`Inner` が終わるまで `Start` は中断するので、`D` は `C` の後に表示されます。
-3. コンポーネントを無効にしても、コルーチンは止まらずに動き続けます。ゲームオブジェクトを非アクティブにすると、そのゲームオブジェクトのスクリプトが動かしているコルーチンは止まり、アクティブに戻しても再開しません。
-4. `_isRequested = false;` を、`WaitUntil` の前に移します。赤にした時点で、それまでに押されたボタンを取り消してから待つようになります。
-
-   ```csharp
-   using System.Collections;
-   using UnityEngine;
-
-   public class PushButtonSignal : MonoBehaviour
-   {
-       private Renderer _renderer;
-       private bool _isRequested;
-       private Coroutine _signalRoutine;
-
-       private void Start()
-       {
-           _renderer = GetComponent<Renderer>();
-           _signalRoutine = StartCoroutine(RunSignal());
-       }
-
-       public void OnPushButton()
-       {
-           Debug.Log($"{Time.time:F2} 秒: 押しボタン");
-           _isRequested = true;
-       }
-
-       public void OnPowerButton()
-       {
-           if (_signalRoutine != null)
-           {
-               StopCoroutine(_signalRoutine);
-               _signalRoutine = null;
-               SetColor(Color.black, "消灯");
-           }
-           else
-           {
-               _isRequested = false;
-               _signalRoutine = StartCoroutine(RunSignal());
-           }
-       }
-
-       private IEnumerator RunSignal()
-       {
-           while (true)
-           {
-               SetColor(Color.red, "赤");
-               _isRequested = false; // 変更：赤になる前に押されたボタンを取り消す
-               yield return new WaitUntil(() => _isRequested);
-
-               yield return new WaitForSeconds(1f);
-
-               SetColor(Color.blue, "青");
-               yield return new WaitForSeconds(2f);
-
-               yield return Blink(2);
-           }
-       }
-
-       private IEnumerator Blink(int count)
-       {
-           for (int i = 0; i < count; i++)
-           {
-               SetColor(Color.gray, "灰");
-               yield return new WaitForSeconds(0.25f);
-
-               SetColor(Color.blue, "青");
-               yield return new WaitForSeconds(0.25f);
-           }
-       }
-
-       private void SetColor(Color color, string label)
-       {
-           _renderer.material.color = color;
-           Debug.Log($"{Time.time:F2} 秒: {label}");
-       }
-   }
-   ```
+1. この例では、フィールドが `null` かどうかを開始・停止の判断に使っているためです。保存した `Coroutine` が、停止時に自動で `null` になるわけではありません。
+2. 再開しません。必要なら改めて開始します。
+3. 前者は子の終了を待ちません。後者は子が終了するまで親が待ち、終了後に次の行へ進みます。
 
 </details>
 
@@ -600,4 +557,4 @@ StopCoroutine(_signalRoutine);
 
 ## 次のステップ
 
-[コルーチンでは書きにくいこと](/unity-csharp-learning/unity/coroutine-limits/) では、押しボタン式の信号機に機能を加えながら、コルーチンでは結果を返したり失敗を `try` / `catch` で受け取ったりできないことを確かめ、C# の `Task` と `async` / `await` との対応を整理します。
+[コルーチンでは書きにくいこと](/unity-csharp-learning/unity/coroutine-limits/) では、Space キーで青への切り替えを要求する信号機に機能を加えながら、コルーチンでは結果を返したり失敗を `try` / `catch` で受け取ったりできないことを確かめ、C# の `Task` と `async` / `await` との対応を整理します。

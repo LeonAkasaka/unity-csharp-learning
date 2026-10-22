@@ -1,12 +1,14 @@
 ---
 layout: page
-title: コルーチンの基本
+title: コルーチンの基礎
 permalink: /unity/coroutines/
 ---
 
-# コルーチンの基本
+# コルーチンの基礎
 
 **コルーチン**（coroutine）は、途中で中断して、次のフレームや指定した秒数の後に続きから再開できる処理です。`Update` で書くと状態やタイマーのフィールドが必要になる「赤を 3 秒 → 青を 2 秒 → 点滅を 1 秒」のような順番のある処理を、上から下へ順に書けます。このページでは、[チュートリアル: 信号機](/unity-csharp-learning/unity/traffic-light/) の点滅する信号機を、コルーチンで書き直します。
+
+コルーチンのコードは、`Update` などと同じメインスレッドで実行されます。待機中は Unity に制御を戻すことでほかの処理を進められるのであり、計算を別スレッドへ移す機能ではありません。実行するスレッドの違いは、後の[補足：Unity のメインスレッドと別スレッド](/unity-csharp-learning/unity/main-thread/)で確かめます。
 
 ## 学習目標
 
@@ -14,7 +16,8 @@ permalink: /unity/coroutines/
 
 - `Update` だけで順番のある処理を書くと、状態やタイマーのフィールドが増える理由を説明できる
 - `IEnumerator` を返すメソッドを書き、`StartCoroutine` でコルーチンとして開始できる
-- `yield return null` で次のフレームまで、`WaitForSeconds` で指定した秒数だけ待てる
+- `yield return null` で次のフレームまで待てる
+- `Time.deltaTime` をローカル変数に足しながら、指定した秒数だけ待てる
 - コルーチンが `Start` や `Update` に対してどの順序で実行されるかを説明できる
 
 ## 前提知識
@@ -29,6 +32,9 @@ permalink: /unity/coroutines/
 ## 1. Update で書いた点滅を振り返る
 
 [チュートリアル: 信号機](/unity-csharp-learning/unity/traffic-light/) の課題 3 では、赤と青を 3 秒ずつ切り替え、青の残り 1 秒で点滅させました。解答のスクリプトは次のとおりです。
+
+<details markdown="1">
+<summary>Update 版の全体コードを振り返る</summary>
 
 ```csharp
 using UnityEngine;
@@ -94,6 +100,8 @@ public class Signal : MonoBehaviour
     }
 }
 ```
+
+</details>
 
 このスクリプトは正しく動きます。しかし、やりたいことは「赤を 3 秒 → 青を 2 秒 → 点滅を 1 秒 → 最初に戻る」という順番だけなのに、コードからはその順番が読み取りにくくなっています。
 
@@ -166,7 +174,7 @@ Play ボタンを押すと、Console に次のように表示されます。`Tim
 
 `yield return` は、そこでメソッドの実行を中断する文です。`yield return null;` と書くと、コルーチンは**次のフレームまで**中断し、次のフレームで `yield return` の次の行から再開します。
 
-`yield return` を含むメソッドは、C# では**イテレーター**と呼ばれます。イテレーターは、呼び出すたびに少しずつ先へ進められるメソッドです（詳しくは [イテレーターと yield return](/unity-csharp-learning/csharp/iterators/) を参照）。Unity は、このしくみを使って、コルーチンをフレームごとに少しずつ進めます。
+`yield return` を含むメソッドは、C# では**イテレーター**と呼ばれます。呼び出すと、実行位置やローカル変数を保持しながら処理を進められるオブジェクトを返します（詳しくは [イテレーターと yield return](/unity-csharp-learning/csharp/iterators/) を参照）。Unity は、このしくみを使って、コルーチンをフレームごとに少しずつ進めます。
 
 ### StartCoroutine でコルーチンを開始する
 
@@ -268,22 +276,9 @@ sequenceDiagram
 
 ---
 
-## 5. WaitForSeconds で秒数を待つ
+## 5. コルーチンの中で秒数を数える
 
-`yield return null` は 1 フレームだけ待ちます。信号機のように秒数で待ちたいときは、`yield return` に `WaitForSeconds` のオブジェクトを渡します。
-
-**`WaitForSeconds`** — `yield return` に渡すと、指定した秒数（ゲーム時間）だけコルーチンを中断します。
-
-**書式：[WaitForSeconds コンストラクター](https://docs.unity3d.com/ScriptReference/WaitForSeconds-ctor.html)**
-```csharp
-public WaitForSeconds(float seconds);
-```
-
-| パラメータ | 説明 |
-|---|---|
-| `seconds` | 中断する秒数 |
-
-`CoroutineSignal` スクリプトを次のように書き換えます。球体を赤にして、3 秒後に青にします。
+次に、球体を赤にして、約 3 秒後に青へ変えます。使うのは、ここまでに学んだ `while`、`Time.deltaTime`、`yield return null` です。`CoroutineSignal` スクリプトを次のように書き換えます。
 
 ```csharp
 using System.Collections;
@@ -302,8 +297,12 @@ public class CoroutineSignal : MonoBehaviour
     private IEnumerator ChangeColor()
     {
         SetColor(Color.red, "赤");
-        yield return new WaitForSeconds(3f);
-
+        float elapsed = 0f;
+        while (elapsed < 3f)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+        }
         SetColor(Color.blue, "青");
     }
 
@@ -315,22 +314,36 @@ public class CoroutineSignal : MonoBehaviour
 }
 ```
 
-`SetColor` メソッドは、球体の色を変えて、そのときの `Time.time`（ゲーム開始からの秒数）と色の名前を Console に出力します。Play ボタンを押すと、球体が赤になり、約 3 秒後に青に変わります。Console には次のように表示されます。秒数の小数部分は、フレームレートによって変わります。
+`SetColor` は、球体の色を変え、そのときの `Time.time` と色の名前を Console に表示するメソッドです。
+
+`elapsed` は、この待機を始めてからの経過時間です。`yield return null` で次のフレームまで中断し、再開したら `Time.deltaTime` を足します。これを、合計が 3 秒以上になるまで繰り返します。先に次のフレームを待ってから時間を足すため、待機を始める前のフレームの時間を数えずに済みます。
+
+`Update` と違い、ループの途中で中断しても、ローカル変数 `elapsed` の値は保たれます。`while` の条件を満たさなくなったら、ループを抜けて青にします。待機中も、ほかのスクリプトや画面の描画は進みます。
+
+```mermaid
+flowchart TD
+    A[赤にして elapsed を 0 にする] --> B{elapsed は 3 未満か}
+    B -- はい --> C[yield return null で中断]
+    C --> D[次のフレームで再開]
+    D --> E[elapsed に Time.deltaTime を足す]
+    E --> B
+    B -- いいえ --> F[青にする]
+```
+
+Play ボタンを押すと、赤から約 3 秒後に青へ変わります。Console の実行結果の例です。秒数はフレームレートによって変わります。
 
 ```
 0.00 秒: 赤
 3.02 秒: 青
 ```
 
-青になる時刻が 3.00 秒ちょうどではないのは、コルーチンの再開がフレーム単位だからです。`WaitForSeconds` で中断したコルーチンは、3 秒たった後の最初のフレームで再開します。
-
-`WaitForSeconds` が待つのはゲーム時間なので、[Time クラスと時間制御](/unity-csharp-learning/unity/time-basics/) で学んだ `Time.timeScale` の影響を受けます。`Time.timeScale` を `0` にしてゲームを一時停止している間は、待ち時間も進みません。一時停止中も現実の時間で待ちたいときは、[WaitForSecondsRealtime](https://docs.unity3d.com/ScriptReference/WaitForSecondsRealtime.html) を使います。
+再開はフレーム単位なので、3.00 秒ちょうどに色が変わるとは限りません。`Time.deltaTime` はゲーム時間なので、`Time.timeScale` の影響も受けます。
 
 ---
 
 ## 6. 信号機をコルーチンで書き直す
 
-`yield return null` と `WaitForSeconds` を使って、1 節の点滅する信号機を書き直します。`CoroutineSignal` スクリプトを次のように書き換えます。
+`yield return null` と `Time.deltaTime` を使って、1 節の点滅する信号機を書き直します。`CoroutineSignal` スクリプトを次のように書き換えます。
 
 ```csharp
 using System.Collections;
@@ -351,22 +364,44 @@ public class CoroutineSignal : MonoBehaviour
 
     private IEnumerator RunSignal()
     {
+        float elapsed;
+
         while (true)
         {
             SetColor(Color.red, "赤");
-            yield return new WaitForSeconds(_redDuration);
+            elapsed = 0f;
+            while (elapsed < _redDuration)
+            {
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
 
             SetColor(Color.blue, "青");
-            yield return new WaitForSeconds(_blueDuration - 1f);
+            elapsed = 0f;
+            while (elapsed < _blueDuration - 1f)
+            {
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
 
             // 青の残り 1 秒で、0.25 秒ごとに灰色と青を切り替える
             for (int i = 0; i < 2; i++)
             {
                 SetColor(Color.gray, "灰");
-                yield return new WaitForSeconds(0.25f);
+                elapsed = 0f;
+                while (elapsed < 0.25f)
+                {
+                    yield return null;
+                    elapsed += Time.deltaTime;
+                }
 
                 SetColor(Color.blue, "青");
-                yield return new WaitForSeconds(0.25f);
+                elapsed = 0f;
+                while (elapsed < 0.25f)
+                {
+                    yield return null;
+                    elapsed += Time.deltaTime;
+                }
             }
         }
     }
@@ -388,20 +423,20 @@ public class CoroutineSignal : MonoBehaviour
 | `Update` 版 | コルーチン版 |
 |---|---|
 | `_state`（どの段階か） | `RunSignal` の中で、今実行している位置 |
-| `_timer`（段階に入ってからの秒数） | `WaitForSeconds` |
+| `_timer`（段階に入ってからの秒数） | ローカル変数 `elapsed` |
 | `_blinkTimer`、`_isBlinkOn`（点滅の状態） | `for` 文の `i` と、順に並べた 2 つの `SetColor` |
 | `TransitionTo` でのリセット | 不要。次の段階は次の行に書く |
 
-`for` 文の変数 `i` は、フィールドではなくローカル変数です。コルーチンが中断している間も、ローカル変数の値は保たれます。
+`elapsed` と `for` 文の変数 `i` は、フィールドではなくローカル変数です。コルーチンが中断している間も、ローカル変数の値は保たれます。
 
 ---
 
+赤、青、灰色を表示するたびに、同じ形の待機ループが出てきました。このページではそのまま動かし、次のページで共通のメソッドへまとめます。
+
 ## 動作確認
 
-1. **File → New Scene** で新しいシーンを作成する
-2. **GameObject → 3D Object → Sphere** で球体を追加し、名前を `Signal` に変更する
-3. `Signal` に `CoroutineSignal` スクリプトを作成してアタッチし、6 節のコードに書き換える
-4. Play ボタンを押す
+1. 2 節で準備したシーンの `Signal` を使い、`CoroutineSignal` を 6 節のコードに書き換える
+2. Play ボタンを押す
 
 Game ビューで、球体が次の順に色を変え、これを繰り返すことを確認してください。
 
@@ -425,7 +460,7 @@ Console には次のように表示されます。これは実行結果の例で
 
 ## よくあるミス
 
-### StartCoroutine を付けずに呼び出す
+### コルーチンのメソッドを呼び出すだけで終える
 
 コルーチンにするメソッドを、普通のメソッドのように呼び出しても、何も実行されません。
 
@@ -513,7 +548,13 @@ public class CoroutineSignal : MonoBehaviour
     private IEnumerator Start()
     {
         Debug.Log($"{Time.time:F2} 秒: Start の始め");
-        yield return new WaitForSeconds(1f);
+        float elapsed;
+        elapsed = 0f;
+        while (elapsed < 1f)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+        }
 
         Debug.Log($"{Time.time:F2} 秒: 1 秒後");
     }
@@ -535,7 +576,7 @@ Console には次のように表示されます。これは実行結果の例で
 
 - `Update` で順番のある処理を書くと、どの段階か、何秒たったかをフィールドに保存し、段階が変わるたびにリセットする必要がある
 - コルーチンは、`IEnumerator` を返し、`yield return` を含むメソッドとして書き、`StartCoroutine` で開始する
-- `yield return null` は次のフレームまで、`yield return new WaitForSeconds(秒数)` は指定した秒数だけ、そのコルーチンを中断する
+- `yield return null` で次のフレームまで中断し、再開するたびに `Time.deltaTime` を足すと、秒数を待つ処理を書ける
 - `StartCoroutine` を呼ぶと最初の `yield return` まで実行され、中断したコルーチンはフレームの `Update` の後で再開する
 - 中断している間も、ローカル変数の値と実行している位置は保たれる
 
@@ -599,26 +640,53 @@ Console には次のように表示されます。これは実行結果の例で
 
        private IEnumerator RunSignal()
        {
+           float elapsed;
+
            while (true)
            {
                SetColor(Color.red, "赤");
-               yield return new WaitForSeconds(_redDuration);
+               elapsed = 0f;
+               while (elapsed < _redDuration)
+               {
+                   yield return null;
+                   elapsed += Time.deltaTime;
+               }
 
                SetColor(Color.blue, "青");
-               yield return new WaitForSeconds(_blueDuration - 1f);
+               elapsed = 0f;
+               while (elapsed < _blueDuration - 1f)
+               {
+                   yield return null;
+                   elapsed += Time.deltaTime;
+               }
 
                // 青の残り 1 秒で、0.25 秒ごとに灰色と青を切り替える
                for (int i = 0; i < 2; i++)
                {
                    SetColor(Color.gray, "灰");
-                   yield return new WaitForSeconds(0.25f);
+                   elapsed = 0f;
+                   while (elapsed < 0.25f)
+                   {
+                       yield return null;
+                       elapsed += Time.deltaTime;
+                   }
 
                    SetColor(Color.blue, "青");
-                   yield return new WaitForSeconds(0.25f);
+                   elapsed = 0f;
+                   while (elapsed < 0.25f)
+                   {
+                       yield return null;
+                       elapsed += Time.deltaTime;
+                   }
                }
 
                SetColor(Color.yellow, "黄");
-               yield return new WaitForSeconds(_yellowDuration);
+               elapsed = 0f;
+               while (elapsed < _yellowDuration)
+               {
+                   yield return null;
+                   elapsed += Time.deltaTime;
+               }
            }
        }
 
@@ -630,7 +698,7 @@ Console には次のように表示されます。これは実行結果の例で
    }
    ```
 
-   `Update` 版では、段階を表す番号と、段階ごとの秒数の選び方と色の選び方を、それぞれ変更する必要がありました。コルーチン版では、段階を加える位置に 2 行を書き足すだけです。
+   `Update` 版では、段階を表す番号と、段階ごとの秒数の選び方と色の選び方を、それぞれ変更する必要がありました。コルーチン版では、段階を加える位置に、色を変える処理と待機ループを書き足します。
 
 </details>
 
@@ -638,6 +706,6 @@ Console には次のように表示されます。これは実行結果の例で
 
 ## 次のステップ
 
-[コルーチンの制御](/unity-csharp-learning/unity/coroutine-control/) では、ボタンが押されるまで待つ押しボタン式の信号機を作りながら、条件を満たすまで待つ方法と、動いているコルーチンを止める方法を学びます。
+信号機は動きましたが、秒数を数える同じ `while` ループを何度も書いています。[コルーチンを組み合わせる](/unity-csharp-learning/unity/coroutine-composition/) では、この待機処理をメソッドにまとめ、別のコルーチンの終了を待つ方法を学びます。
 
-`yield return` を含むメソッドが `IEnumerator` になる仕組みと、Unity がそれをフレームごとに進める仕組みは、[補足: IEnumerator と yield return](/unity-csharp-learning/unity/ienumerator-yield/) で学べます。
+`IEnumerator` と `yield return` 自体の仕組みを詳しく知りたいときは、[補足: IEnumerator と yield return](/unity-csharp-learning/unity/ienumerator-yield/) を参照してください。

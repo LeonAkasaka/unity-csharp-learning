@@ -21,7 +21,7 @@ permalink: /networking/unity-webrequest/
 
 - [本文でデータを送る](/unity-csharp-learning/networking/request-body/) を読んでいること。このページでは、そのページまでに作った `SampleHttpServer` のプロジェクトを書き換えます
 - [Debug.Log でスクリプトの実行を確認する](/unity-csharp-learning/unity/debug-log/) を読んでいること
-- [コルーチンの基本](/unity-csharp-learning/unity/coroutines/) を読んでいること
+- [コルーチンの待機方法](/unity-csharp-learning/unity/coroutine-waits/) まで読んでいること
 - [async と await](/unity-csharp-learning/csharp/async-await/) を読んでいること
 - [Awaitable と async / await](/unity-csharp-learning/unity/awaitable/) を読んでいること
 
