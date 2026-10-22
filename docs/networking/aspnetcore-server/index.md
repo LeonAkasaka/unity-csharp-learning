@@ -13,7 +13,7 @@ permalink: /networking/aspnetcore-server/
 このページを読み終えると、以下のことができるようになります。
 
 - TCP で作ったサーバーに足りなかった機能と、ASP.NET Core が引き受けてくれることを説明できる
-- `dotnet new web` でプロジェクトを作り、決まった URL でサーバーを起動できる
+- dotnet コマンドまたは Visual Studio でプロジェクトを作り、決まった URL でサーバーを起動できる
 - `MapGet` で、パスとハンドラーを結び付けられる
 - ミドルウェアを書いて、届いたリクエストと返した応答をログに出せる
 
@@ -43,6 +43,10 @@ ASP.NET Core で作ったサーバーも、コンソールアプリとして起�
 
 ## 2. プロジェクトを作る
 
+dotnet コマンドと Visual Studio のどちらでも、同じ種類のプロジェクトを作れます。どちらか一方の方法で作成してください。
+
+### dotnet コマンドで作る場合
+
 作業用のフォルダーで、`web` テンプレートからプロジェクトを作ります。`web` は、最小限の ASP.NET Core アプリを作るテンプレートです。
 
 ```powershell
@@ -50,7 +54,37 @@ dotnet new web -n SampleHttpServer
 cd SampleHttpServer
 ```
 
-次のファイルが作られます。
+### Visual Studio で作る場合
+
+まず、Visual Studio Installer で、必要なワークロードがインストールされていることを確認します。以下のスクリーンショットは Visual Studio 2026 の画面です。
+
+1. Windows のスタートメニューから **Visual Studio Installer** を開きます。
+2. 使用する Visual Studio の **「変更」** を選び、**「ワークロード」** タブを開きます。
+3. **「ASP.NET と Web 開発」** にチェックが入っていることを確認します。入っていなければチェックを入れ、右下の **「変更」** でインストールし、完了するまで待ちます。すでにインストールされていれば、そのまま閉じます。
+
+![Visual Studio Installer で「ASP.NET と Web 開発」にチェックが入っている画面](image-1.png)
+
+続いて、Visual Studio からプロジェクトを作ります。
+
+1. Visual Studio を起動し、開始画面の **「新しいプロジェクトの作成」** を選びます。
+
+   ![Visual Studio の開始画面で「新しいプロジェクトの作成」を選ぶ](image-2.png)
+
+2. テンプレートの検索欄に `ASP.NET` と入力します。**C# の「ASP.NET Core（空）」** を選び、**「次へ」** を押します。同じ名前の F# のテンプレートもあるので、C# と表示されているものを選んでください。
+
+   ![新しいプロジェクトの作成画面で C# の「ASP.NET Core（空）」を選ぶ](image-3.png)
+
+3. プロジェクト名を **`SampleHttpServer`** にし、保存する場所を指定して **「次へ」** を押します。
+4. 「追加情報」で、使用する .NET のフレームワークを選びます。**「最上位レベルのステートメントを使用しない」** はチェックを外した状態にして、**「作成」** を押します。
+5. ソリューション エクスプローラーから `Program.cs` を開きます。
+
+このテンプレートは、`dotnet new web` と同じ種類の ASP.NET Core アプリを作ります。作成手順は [Microsoft の公式チュートリアル](https://learn.microsoft.com/aspnet/core/tutorials/min-web-api?tabs=visual-studio) でも確認できます。
+
+この先の `dotnet run` などのコマンドは、ターミナルで **`SampleHttpServer.csproj` があるフォルダー** を開いて実行します。Visual Studio では、ソリューションのフォルダーの下に、さらにプロジェクトのフォルダーが作られることがあるので、`.csproj` の場所を確認してください。
+
+### 作成されたファイルを確認する
+
+どちらの方法でも、次のファイルが作られます。
 
 | ファイル | 説明 |
 |---|---|
